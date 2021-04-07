@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#define buffersize 1000
 typedef struct {
     unsigned int tag :5;
     unsigned int monat :4;
@@ -13,11 +13,10 @@ typedef struct {
 } Nachricht;
 
 int countlines(FILE *f);
-
+int getMessage(char *buffer,FILE *f);
 void print_nachricht(Nachricht *nachricht);
 
 int main(int argc, char *argv[]) {
-    //TODO Stack overflow Problems with large Files
     /*argc - wie viele Paramter (.exe inclusiv)
       argv - Array mit den Paramter (.exe inclusiv)*/
     FILE *f = fopen(argv[1], "r");
@@ -25,12 +24,12 @@ int main(int argc, char *argv[]) {
         perror("fopen");
     else {
         Nachricht *arr = (Nachricht *) malloc(countlines(f) * sizeof(Nachricht));
-        char buffer[10000];
+        char buffer[buffersize];
         char two_char_buffer[3];
         //strtol convert String to Integer
         char *strtol_buffer[1];
         int i = 0;
-        while (fgets(buffer, 10000, f) != NULL) {
+        while (getMessage(buffer,f) != NULL) {
             strncpy(two_char_buffer, buffer, 2);
             arr[i].tag = (short) strtol(two_char_buffer, strtol_buffer, 10);
             strncpy(two_char_buffer, buffer + 3, 2);
@@ -46,16 +45,17 @@ int main(int argc, char *argv[]) {
                 arr[i].user = malloc((int) (buffer + 18 - strchr(buffer, ':')) * 3 * sizeof(char));
                 strncpy(arr[i].user, buffer + 18, buffer + 18 - strchr(buffer, ':'));
                 arr[i].user[buffer + 18 - strchr(buffer, ':')] = '\0';
-            } else
+            } else {
                 arr[i].user = NULL;
+            }
             arr[i].nachricht = (char *) malloc((strlen(buffer + 18) + 1) * sizeof(char));
             strcpy(arr[i].nachricht, buffer + 18);
-            i++;
         }
         print_nachricht(&arr[3]);
 
         for(int j=0;j<i;j++){
             free(arr[j].nachricht);
+            free(arr[j].user);
         }
         free(arr);
     }
@@ -72,6 +72,23 @@ int countlines(FILE *f) {
     rewind(f);
     return lines;
 }
+int getMessage(char *buffer,FILE *f){
+    buffer[0]=0;
+    int * ret=0;
+    char temp[buffersize];
+    int position=0;
+    do{
+        position=ftell(f);
+        ret=fgets(temp, buffersize, f);
+        printf("%s",temp);
+    }while(ret!=NULL && temp[2]!='.');
+    if(ret!=NULL){
+        fseek(f, position+1, SEEK_SET);
+    }
+    strcpy(buffer,temp);
+    return ret;
+}
+
 
 void print_nachricht(Nachricht *nachricht) {
     printf("%02u.", nachricht->tag);
