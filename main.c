@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+int name_lenght(char buffer[1000]);
 typedef struct {
     unsigned int tag :5;
     unsigned int monat :4;
@@ -40,14 +40,17 @@ int main(int argc, char *argv[]) {
             arr[i].stunde = (short)strtol(two_char_buffer, strtol_buffer, 10);
             strncpy(two_char_buffer, buffer+13, 2);
             arr[i].minute = (short)strtol(two_char_buffer, strtol_buffer, 10);
-            //TODO: User und Nachricht kloppn no et gonz
+
             if (strchr(buffer+13, ':') != NULL) {
-                arr[i].user = malloc((int)(buffer + 18 - strchr(buffer, ':'))* 3 * sizeof(char));
-                strncpy(arr[i].user, buffer + 18, buffer + 18 - strchr(buffer, ':'));
-                arr[i].user[buffer + 18 - strchr(buffer, ':')] = '\0';
-            } else
+                int size = name_lenght(buffer);
+                arr[i].user = malloc((size * sizeof(char)));
+                strncpy(arr[i].user, buffer + 18, 20);
+                arr[i].user[size] = '\0';
+                strcpy(arr[i].nachricht, buffer+18+size+2);
+            } else {
                 arr[i].user = NULL;
-            strcpy(arr[i].nachricht, buffer+18);
+                strcpy(arr[i].nachricht, buffer + 18);
+            }
             i++;
         }
         print_nachricht(&arr[3]);
@@ -74,4 +77,13 @@ void print_nachricht(Nachricht *nachricht) {
     printf("%02u\n", nachricht->minute);
     printf("%s schrieb:\n", nachricht->user);
     printf("%s\n", nachricht->nachricht);
+}
+
+int name_lenght(char buffer[1000]){
+    int x = 18;
+    while(x < 1000){
+        if(buffer[x] == ':') break;
+        x++;
+    }
+    return x-18;
 }
