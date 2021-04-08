@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-int name_lenght(char buffer[1000]);
+int lenght(char buffer[1000], char suche,int anfang);
 typedef struct {
     unsigned int tag :5;
     unsigned int monat :4;
@@ -9,7 +9,7 @@ typedef struct {
     unsigned int stunde :5;
     unsigned int minute :6;
     char *user;
-    char nachricht[1000];
+    char *nachricht;
 } Nachricht;
 
 int countlines(FILE *f);
@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
         char two_char_buffer[3];
         //strtol convert String to Integer
         char *strtol_buffer[1];
-        int i = 0;
+        int i = 0,size;
         while (fgets(buffer, 1000, f) != NULL) {
             strncpy(two_char_buffer, buffer, 2);
             arr[i].tag = (short)strtol(two_char_buffer, strtol_buffer, 10);
@@ -42,14 +42,18 @@ int main(int argc, char *argv[]) {
             arr[i].minute = (short)strtol(two_char_buffer, strtol_buffer, 10);
 
             if (strchr(buffer+13, ':') != NULL) {
-                int size = name_lenght(buffer);
-                arr[i].user = malloc((size * sizeof(char)));
-                strncpy(arr[i].user, buffer + 18, 20);
+                size = lenght(buffer,':',18);
+                arr[i].user = (char *) malloc((size * sizeof(char)));
+                strncpy(arr[i].user, buffer + 18, size);
                 arr[i].user[size] = '\0';
-                strcpy(arr[i].nachricht, buffer+18+size+2);
+                size = lenght(buffer,'\n',size+18);
+                arr[i].nachricht = (char *) malloc(size * sizeof(char));
+                strncpy(arr[i].nachricht, buffer+18+strlen(arr[i].user)+2,size);
             } else {
                 arr[i].user = NULL;
-                strcpy(arr[i].nachricht, buffer + 18);
+                size = lenght(buffer,'\n',size+18);
+                arr[i].nachricht = (char *) malloc(size * sizeof(char));
+                strncpy(arr[i].nachricht, buffer + 18 + 2, size);
             }
             i++;
         }
@@ -79,11 +83,11 @@ void print_nachricht(Nachricht *nachricht) {
     printf("%s\n", nachricht->nachricht);
 }
 
-int name_lenght(char buffer[1000]){
-    int x = 18;
+int lenght(char buffer[1000], char suche,int anfang){
+    int x = 0;
     while(x < 1000){
-        if(buffer[x] == ':') break;
+        if(buffer[x+anfang] == suche) break;
         x++;
     }
-    return x-18;
+    return x;
 }
