@@ -1,6 +1,5 @@
 #include "main.h"
 
-
 int main(int argc, char *argv[]) {
     /*argc - wie viele Paramter (.exe inclusiv)
       argv - Array mit den Paramter (.exe inclusiv)*/
