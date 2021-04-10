@@ -3,7 +3,7 @@
 int main(int argc, char *argv[]) {
     /*argc - wie viele Paramter (.exe inclusiv)
       argv - Array mit den Paramter (.exe inclusiv)*/
-    FILE *f = fopen(argv[1], "r");
+    FILE *f = fopen(argv[1], "rb");
     readFile(f);
     return 0;
 }
