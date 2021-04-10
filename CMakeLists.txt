@@ -4,4 +4,4 @@ project(Informatik_Projekt C)
 set(CMAKE_C_STANDARD 11)
 
 add_executable(Informatik_Projekt
-        main.c)
+        main.c read.c read.h main.h structs.h structs.c)
