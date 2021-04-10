@@ -10,7 +10,7 @@ typedef struct Nachricht{
     unsigned int stunde :5;
     unsigned int minute :6;
     char *user;
-    char nachricht[1000];
+    char *nachricht;
     struct Nachricht *previous;
     struct Nachricht *next;
 } Nachricht;
