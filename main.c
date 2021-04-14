@@ -1,7 +1,7 @@
 #include "main.h"
 
 int main(int argc, char *argv[]) {
-    FILE *f = fopen(get_file_name(), "r");
+    FILE *f = fopen(get_file_name(), "rb");
     readFile(f);
 }
 

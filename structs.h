@@ -22,7 +22,13 @@ typedef struct User{
     unsigned int average_words;
 } User;
 
-Nachricht *first;
+typedef struct Woerterbook{
+    char *wort;
+    struct Woerterbook *next;
+} Woerterbook;
+
+Nachricht *first_nachricht;
+User *first_user;
 Nachricht *get_nachricht(int index);
 void append_nachricht(Nachricht *ptr);
 void insert_nachricht(Nachricht *ptr, int index);
