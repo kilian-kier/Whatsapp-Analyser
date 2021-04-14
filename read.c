@@ -1,17 +1,22 @@
 #include "read.h"
+#include <stdbool.h>
+
+#define buffersize 10000
+char * getMessage(char *buffer,FILE *f);
+bool checkNewString(char *string);
 
 void readFile(FILE *f) {
     if (f == NULL)
         perror("fopen");
     else {
-        char buffer[1000];
+        char buffer[buffersize];
         char two_char_buffer[3];
         //strtol convert String to Integer
         char *strtol_buffer[1];
         Nachricht *ptr = (Nachricht *)malloc(sizeof(Nachricht));
         first = ptr;
         int size = 0;
-        while (fgets(buffer, 1000, f) != NULL) {
+        while (getMessage(buffer,f) != NULL) {
             strncpy(two_char_buffer, buffer, 2);
             ptr->tag = (short) strtol(two_char_buffer, strtol_buffer, 10);
             strncpy(two_char_buffer, buffer + 3, 2);
@@ -45,10 +50,29 @@ void readFile(FILE *f) {
         print_nachricht(get_nachricht(4));
     }
 }
-
-int lenght(const char buffer[1000], char suche,int anfang){
+char * getMessage(char *buffer,FILE *f){
+    buffer[0]=0;
+    char * ret=NULL;
+    char temp[buffersize];
+    int position=0;
+    do{
+        ret=fgets(buffer+strlen(buffer), buffersize, f);
+        position=ftello(f);
+        fgets(temp,buffersize,f);
+        fseeko(f, position, SEEK_SET);
+    }while(ret!=NULL && !checkNewString(temp));
+    return ret;
+}
+bool checkNewString(char *string){
+    bool valid=true;
+    if(string[2]!='.' || string[5]!='.' || string[8]!=','){
+        valid=false;
+    }
+    return valid;
+}
+int lenght(const char buffer[buffersize], char suche,int anfang){
     int x = 0;
-    while(x < 1000){
+    while(x < buffersize){
         if(buffer[x+anfang] == suche) break;
         x++;
     }
