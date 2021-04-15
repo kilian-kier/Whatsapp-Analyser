@@ -3,6 +3,7 @@
 int main(int argc, char *argv[]) {
     FILE *f = fopen(get_file_name(), "rb");
     readFile(f);
+    read_user();
 }
 
 void print_nachricht(Nachricht *nachricht) {
