@@ -1,4 +1,5 @@
 #include "read.h"
+#include "analyser.h"
 #include <stdbool.h>
 
 void readFile(FILE *f) {
@@ -78,12 +79,13 @@ int lenght(const char buffer[buffersize], char suche,int anfang){
 }
 
 char * string_to_lower(char *string) {
-    int i;
     int len = strlen(string);
-    for(i=0; i<len; i++) {
+    for(int i=0; i<len; i++) {
         if(string[i] >= 'A' && string[i] <= 'Z') {
             string[i] += 32;
         }
     }
     return string;
 }
+
+
