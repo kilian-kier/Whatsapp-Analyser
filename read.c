@@ -27,6 +27,7 @@ void readFile(FILE *f) {
                 size = lenght(buffer,':',18);
                 ptr->user = (char *) malloc((size * sizeof(char)));
                 strncpy(ptr->user, buffer + 18, size);
+                string_to_lower(ptr->user);
                 ptr->user[size] = '\0';
                 string_to_lower(ptr->user);
                 size = lenght(buffer,'\n',size+18);
