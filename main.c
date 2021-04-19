@@ -6,6 +6,7 @@ int main() {
     //main_menu();
     FILE *f = fopen(get_file_name(), "rb");
     readFile(f);
+    read_user();
     return 0;
 }
 
