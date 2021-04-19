@@ -11,6 +11,7 @@ typedef struct Nachricht{
     unsigned int minute :6;
     char *user;
     char *nachricht;
+    struct Nachricht *nextUser;
     struct Nachricht *previous;
     struct Nachricht *next;
 } Nachricht;
@@ -20,6 +21,7 @@ typedef struct User{
     Nachricht *nachrichten;
     unsigned int nachrichten_len;
     unsigned int average_words;
+    struct User *next;
 } User;
 
 typedef struct Woerterbook{
