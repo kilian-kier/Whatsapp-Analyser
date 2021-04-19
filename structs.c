@@ -1,7 +1,7 @@
 #include "structs.h"
 
 Nachricht *get_nachricht(int index) {
-    Nachricht *ptr = first;
+    Nachricht *ptr = first_nachricht;
     for (int i = 0; i < index; i++) {
         ptr = ptr->next;
     }
@@ -9,7 +9,7 @@ Nachricht *get_nachricht(int index) {
 }
 
 void append_nachricht(Nachricht *ptr) {
-    Nachricht *temp = first;
+    Nachricht *temp = first_nachricht;
     while (temp->next != NULL) {
         temp = temp->next;
     }

@@ -1,10 +1,6 @@
 #include "read.h"
 #include <stdbool.h>
 
-#define buffersize 10000
-char * getMessage(char *buffer,FILE *f);
-bool checkNewString(char *string);
-
 void readFile(FILE *f) {
     if (f == NULL)
         perror("fopen");
@@ -14,7 +10,7 @@ void readFile(FILE *f) {
         //strtol convert String to Integer
         char *strtol_buffer[1];
         Nachricht *ptr = (Nachricht *)malloc(sizeof(Nachricht));
-        first = ptr;
+        first_nachricht = ptr;
         int size = 0;
         while (getMessage(buffer,f) != NULL) {
             strncpy(two_char_buffer, buffer, 2);
@@ -33,6 +29,7 @@ void readFile(FILE *f) {
                 strncpy(ptr->user, buffer + 18, size);
                 string_to_lower(ptr->user);
                 ptr->user[size] = '\0';
+                string_to_lower(ptr->user);
                 size = lenght(buffer,'\n',size+18);
                 ptr->nachricht = (char *) malloc(size * sizeof(char));
                 strncpy(ptr->nachricht, buffer+18+strlen(ptr->user)+2,size);
@@ -49,7 +46,7 @@ void readFile(FILE *f) {
             ptr = ptr->next;
         }
         ptr->next = NULL;
-        print_nachricht(get_nachricht(69));
+        print_nachricht(get_nachricht(15));
     }
 }
 char * getMessage(char *buffer,FILE *f){
