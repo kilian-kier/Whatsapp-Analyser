@@ -2,8 +2,9 @@
 #include "menu.h"
 
 int main() {
+
     system("cls");
-    //main_menu();
+    main_menu();
     FILE *f = fopen(get_file_name(), "rb");
     readFile(f);
     return 0;
