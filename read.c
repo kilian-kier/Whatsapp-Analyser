@@ -45,7 +45,6 @@ void readFile(FILE *f) {
             ptr = ptr->next;
         }
         ptr->next = NULL;
-        print_nachricht(get_nachricht(15));
     }
 }
 char * getMessage(char *buffer,FILE *f){
