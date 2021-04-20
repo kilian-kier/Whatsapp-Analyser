@@ -54,7 +54,6 @@ void print_user() {
         printf("%s\n", temp->name);
         temp = temp->next;
     }
-}
     Nachricht *ptr = first_nachricht;
     while (ptr != NULL) {
 
