@@ -7,7 +7,7 @@
 #include "main.h"
 
 #define x_size 150
-#define y_size 40
+#define y_size 45
 #define x_pos 40
 #define y_pos 3
 
@@ -18,5 +18,6 @@ void anzeigeVordergrund(int r, int g, int b);
 void clearscreen();
 void draw_picture_buffer(CHAR_INFO picture_buffer[x_size*y_size]);
 void init_picture_buffer(CHAR_INFO picture_buffer[x_size*y_size]);
+void draw_picture(CHAR_INFO *picture_buffer, char *file, int xpos, int ypos);
 
 #endif //INFORMATIK_PROJEKT_MENU_H
