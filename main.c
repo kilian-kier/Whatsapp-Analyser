@@ -1,13 +1,10 @@
 #include "main.h"
 #include "menu.h"
 
-<<<<<<<<< Temporary merge branch 1
-int main(int argc, char *argv[]) {
-=========
+
 int main() {
     system("cls");
-    //main_menu();
->>>>>>>>> Temporary merge branch 2
+    main_menu();
     FILE *f = fopen(get_file_name(), "rb");
     readFile(f);
 }
@@ -39,12 +36,7 @@ char *get_file_name() {
     ofn.lpstrDefExt = "";
     char *fileNameStr = malloc(MAX_PATH * sizeof(char));
 
-    if ( GetOpenFileName(&ofn) )
+    if (GetOpenFileName(&ofn))
         strcpy(fileNameStr, fileName);
     return fileNameStr;
-<<<<<<<<< Temporary merge branch 1
-
 }
-=========
-}
->>>>>>>>> Temporary merge branch 2
