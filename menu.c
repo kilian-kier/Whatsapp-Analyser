@@ -5,19 +5,20 @@
 
 
 void main_menu(){
-    ShowWindow(GetConsoleWindow(),SW_MAXIMIZE);
 
-    CHAR_INFO picture_buffer[x_size*y_size];
+    ShowWindow(GetConsoleWindow(),SW_MAXIMIZE);
+    Pixel picture_buffer[y_size][x_size];
     init_picture_buffer(picture_buffer);
     // La zi testn vielleicht brauchwos a net. Do isch do Pfad auszibessern.
-    //draw_picture(picture_buffer, "C:\\Users\\Martin Gamper\\Downloads\\whatsapptest.ppm", 0, 0);
+    //draw_picture(picture_buffer, "C:\\Users\\Martin Gamper\\Downloads\\whatsapptest.ppm", 0, 0,20,10);
     char info[]="WhatsApp Analyzer\n";
     char opt1[]="Datei oeffnen";
     char opt2[]="Analizer ausfuehren";
     char opt3[]="Exit";
     do{
         clearscreen();
-        draw_picture_buffer(picture_buffer);
+        draw_picture_buffer(picture_buffer,SLOW_MODE);
+        //draw_picture_buffer(picture_buffer,FAST_MODE);
         printf("\x1b[%dB",y_pos);
         switch(menu(3,0,info,opt1,opt2,opt3)){
             case 0:
@@ -97,17 +98,22 @@ int menu(int quantity,int select,...){ // Koan Fehler des mitn Endless loop. CLI
         printf("\x1b[1K\x1b[3D[ ]");
         SetConsoleCursorPosition(hStdout,line[select-1]);
         printf("\x1b[1K\x1b[3D[*]");
+        fflush(stdout);
     }while(input != 13);
 
     return select;
 }
-void init_picture_buffer(CHAR_INFO picture_buffer[x_size*y_size]){
-    for(int i=0;i<x_size*y_size;i++){
-        picture_buffer[i].Char.AsciiChar=' ';
-        picture_buffer[i].Attributes =0;
+void init_picture_buffer(Pixel picture_buffer[y_size][x_size]){
+    for(int y=0;y<y_size;y++){
+        for(int x=0;x<x_size;x++){
+            picture_buffer[y][x].character=219;
+            picture_buffer[y][x].r=0;
+            picture_buffer[y][x].g=0;
+            picture_buffer[y][x].b=0;
+        }
     }
 }
-void draw_picture(CHAR_INFO *picture_buffer, char *file, int xpos, int ypos){
+void draw_picture(Pixel picture_buffer[y_size][x_size], char *file, int xpos, int ypos,int xsize, int ysize){
     char rubbish[100];
     char color[4];
     int ret=1;
@@ -126,49 +132,88 @@ void draw_picture(CHAR_INFO *picture_buffer, char *file, int xpos, int ypos){
         printf("%s",rubbish);
     }
     fscanf(picture,"%d %d\n",&columns,&rows);
-    if(columns+xpos>x_size || rows+ypos>y_size){
+    if(xsize+xpos>x_size || ysize+ypos>y_size){
         printf("Bild ist zu gross");
         return;
     }
     printf("%d,%d\n",rows,columns);
-    char buffer[rows][columns][3];
+    unsigned char buffer[rows][columns][3];
     fgets(rubbish,100,picture);
     for(int y=0;y<rows && ret==1;y++){
         for(int x=0;x<columns && ret==1;x++){
             ret=fscanf(picture,"%s",color);
-            buffer[y][x][0]=atoi(color)>100?1:0;
+            buffer[y][x][0]=atoi(color);
             ret=fscanf(picture,"%s",color);
-            buffer[y][x][1]=atoi(color)>100?1:0;
+            buffer[y][x][1]=atoi(color);
             ret=fscanf(picture,"%s",color);
-            buffer[y][x][2]=atoi(color)>100?1:0;
+            buffer[y][x][2]=atoi(color);
         }
     }
-    for(int y=0;y<rows;y++){
-        for(int x=0;x<columns;x++){
-            picture_buffer[(y+ypos)*x_size+  xpos +x].Char.AsciiChar=' ';
-            picture_buffer[(y+ypos)*x_size +x+xpos].Attributes= buffer[y][x][0]*BACKGROUND_RED | buffer[y][x][1]*BACKGROUND_GREEN | buffer[y][x][2]*BACKGROUND_BLUE | BACKGROUND_INTENSITY;
+    int newx;
+    int newy;
+    for(int y=0;y<ysize;y++){
+        for(int x=0;x<xsize;x++){
+            newx=x*columns/xsize;
+            newy=y*rows/ysize;
+            picture_buffer[y+ypos][x+xpos].character=219;
+            picture_buffer[y+ypos][x+xpos].r=buffer[newy][newx][0];
+            picture_buffer[y+ypos][x+xpos].g=buffer[newy][newx][1];
+            picture_buffer[y+ypos][x+xpos].b=buffer[newy][newx][2];
         }
     }
     return;
 }
-void draw_picture_buffer(CHAR_INFO picture_buffer[x_size*y_size]){
-    HANDLE hStdout;
-    hStdout= GetStdHandle(STD_OUTPUT_HANDLE);
-    COORD coordBufSize;
-    COORD coordBufCoord;
-    SMALL_RECT srctWriteRect;
+void draw_picture_buffer(Pixel picture_buffer[y_size][x_size] ,int mode){
+    int r;
+    int g;
+    int b;
+    if(mode==SLOW_MODE){
+        setvbuf(stdout,NULL,_IOLBF,(x_pos+x_size)*(y_pos+y_size));
+        printf("\x1b[%d;%dH",y_pos+1,x_pos);
+        for(int y=0;y<y_size;y++){
+            for(int x=0;x<x_size;x++){
+                r = picture_buffer[y][x].r;
+                g = picture_buffer[y][x].g;
+                b = picture_buffer[y][x].b;
+                anzeigeVordergrund(r,g, b);
+                printf("%c",picture_buffer[y][x].character);
+            }
+            printf("\x1b[%dD\x1b[1B",x_size);
+        }
+        fflush(stdout);
+        anzeigeVordergrund(255,255,255);
+        printf("\x1b[H");
+        setvbuf(stdout,NULL,_IONBF,0);
+    }else if(mode==FAST_MODE){
+        CHAR_INFO *secondary_buffer= (CHAR_INFO*) malloc(sizeof(CHAR_INFO)*x_size*y_size);
+        for(int y=0;y<y_size;y++){
+            for(int x=0;x<x_size;x++){
+                r=picture_buffer[y][x].r>100?1:0;
+                g=picture_buffer[y][x].g>100?1:0;
+                b=picture_buffer[y][x].b>100?1:0;
+                secondary_buffer[(y)*x_size +x].Char.AsciiChar = picture_buffer[y][x].character;
+                secondary_buffer[(y)*x_size +x].Attributes= r*FOREGROUND_RED | g*FOREGROUND_GREEN | b*FOREGROUND_BLUE | FOREGROUND_INTENSITY;
+            }
+        }
+        HANDLE hStdout;
+        hStdout= GetStdHandle(STD_OUTPUT_HANDLE);
+        COORD coordBufSize;
+        COORD coordBufCoord;
+        SMALL_RECT srctWriteRect;
 
-    srctWriteRect.Top = y_pos;
-    srctWriteRect.Left = x_pos;
-    srctWriteRect.Bottom = y_pos+y_size;
-    srctWriteRect.Right = x_pos+x_size;
+        srctWriteRect.Top = y_pos;
+        srctWriteRect.Left = x_pos;
+        srctWriteRect.Bottom = y_pos+y_size;
+        srctWriteRect.Right = x_pos+x_size;
 
-    coordBufSize.Y = y_size;
-    coordBufSize.X = x_size;
-    coordBufCoord.X = 0;
-    coordBufCoord.Y = 0;
+        coordBufSize.Y = y_size;
+        coordBufSize.X = x_size;
+        coordBufCoord.X = 0;
+        coordBufCoord.Y = 0;
 
-    WriteConsoleOutput(hStdout,picture_buffer,coordBufSize,coordBufCoord,&srctWriteRect);
+        WriteConsoleOutput(hStdout,secondary_buffer,coordBufSize,coordBufCoord,&srctWriteRect);
+        free(secondary_buffer);
+    }
     return;
 }
 

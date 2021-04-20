@@ -11,13 +11,22 @@
 #define x_pos 40
 #define y_pos 3
 
+#define FAST_MODE 0
+#define SLOW_MODE 1
+
+typedef struct Pixel{
+    char character;
+    int r;
+    int g;
+    int b;
+}Pixel;
 void main_menu();
 int menu(int quantity,int select,...);
 void anzeigeHintergrund(int r, int g, int b);
 void anzeigeVordergrund(int r, int g, int b);
 void clearscreen();
-void draw_picture_buffer(CHAR_INFO picture_buffer[x_size*y_size]);
-void init_picture_buffer(CHAR_INFO picture_buffer[x_size*y_size]);
-void draw_picture(CHAR_INFO *picture_buffer, char *file, int xpos, int ypos);
+void draw_picture_buffer(Pixel picture_buffer[y_size][x_size],int mode);
+void init_picture_buffer(Pixel picture_buffer[y_size][x_size]);
+void draw_picture(Pixel picture_buffer[y_size][x_size], char *file, int xpos, int ypos,int xsize,int ysize);
 
 #endif //INFORMATIK_PROJEKT_MENU_H
