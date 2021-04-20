@@ -10,6 +10,7 @@
 #include <string.h>
 #include "read.h"
 #include "structs.h"
+#include "analyser.h"
 
 void print_nachricht(Nachricht *nachricht);
 char *get_file_name();
