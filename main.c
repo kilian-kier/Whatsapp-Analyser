@@ -1,13 +1,15 @@
 #include "main.h"
 #include "menu.h"
 
+<<<<<<<<< Temporary merge branch 1
+int main(int argc, char *argv[]) {
+=========
 int main() {
     system("cls");
     //main_menu();
+>>>>>>>>> Temporary merge branch 2
     FILE *f = fopen(get_file_name(), "rb");
     readFile(f);
-    read_user();
-    return 0;
 }
 
 void print_nachricht(Nachricht *nachricht) {
@@ -40,4 +42,9 @@ char *get_file_name() {
     if ( GetOpenFileName(&ofn) )
         strcpy(fileNameStr, fileName);
     return fileNameStr;
+<<<<<<<<< Temporary merge branch 1
+
 }
+=========
+}
+>>>>>>>>> Temporary merge branch 2
