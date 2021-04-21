@@ -36,7 +36,7 @@ char *get_file_name() {
     ofn.lpstrDefExt = "";
     char *fileNameStr = malloc(MAX_PATH * sizeof(char));
 
-    if ( GetOpenFileName(&ofn) )
+    if (GetOpenFileName(&ofn))
         strcpy(fileNameStr, fileName);
     return fileNameStr;
 }
