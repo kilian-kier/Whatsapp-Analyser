@@ -1,12 +1,12 @@
 #include "main.h"
 #include "menu.h"
 
-
 int main() {
     system("cls");
-    main_menu();
     FILE *f = fopen(get_file_name(), "rb");
+    //main_menu();
     readFile(f);
+    read_user();
 }
 
 void print_nachricht(Nachricht *nachricht) {

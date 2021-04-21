@@ -20,7 +20,7 @@ typedef struct User{
     char *name;
     Nachricht *nachrichten;
     unsigned int nachrichten_len;
-    unsigned int average_words;
+    unsigned int total_words;
     struct User *next;
 } User;
 
