@@ -13,6 +13,7 @@
 
 #define FAST_MODE 0
 #define SLOW_MODE 1
+#define COMBINED_MODE 3
 
 typedef struct Pixel{
     char character;
