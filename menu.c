@@ -9,16 +9,16 @@ void main_menu(){
     ShowWindow(GetConsoleWindow(),SW_MAXIMIZE);
     Pixel picture_buffer[y_size][x_size];
     init_picture_buffer(picture_buffer);
+    printf("\x1b[?25l");
     // La zi testn vielleicht brauchwos a net. Do isch do Pfad auszibessern.
-    //draw_picture(picture_buffer, "C:\\Users\\Martin Gamper\\Downloads\\whatsapptest.ppm", 0, 0,20,10);
+    draw_picture(picture_buffer, "C:\\Users\\Martin Gamper\\Downloads\\putin.ppm", 0, 0,150,40);
     char info[]="WhatsApp Analyzer\n";
     char opt1[]="Datei oeffnen";
     char opt2[]="Analizer ausfuehren";
     char opt3[]="Exit";
     do{
         clearscreen();
-        draw_picture_buffer(picture_buffer,SLOW_MODE);
-        //draw_picture_buffer(picture_buffer,FAST_MODE);
+        draw_picture_buffer(picture_buffer,COMBINED_MODE);
         printf("\x1b[%dB",y_pos);
         switch(menu(3,0,info,opt1,opt2,opt3)){
             case 0:
@@ -115,12 +115,12 @@ void init_picture_buffer(Pixel picture_buffer[y_size][x_size]){
 }
 void draw_picture(Pixel picture_buffer[y_size][x_size], char *file, int xpos, int ypos,int xsize, int ysize){
     char rubbish[100];
-    char color[4];
+    unsigned char color;
     int ret=1;
     int columns=0;
     int rows=0;
 
-    FILE * picture=fopen(file,"r");
+    FILE * picture=fopen(file,"rb");
     if(picture==NULL){
         perror("fopen");
         return;
@@ -129,24 +129,26 @@ void draw_picture(Pixel picture_buffer[y_size][x_size], char *file, int xpos, in
 
     for(int i=0;i<2;i++){
         fgets(rubbish,100,picture);
-        printf("%s",rubbish);
     }
     fscanf(picture,"%d %d\n",&columns,&rows);
     if(xsize+xpos>x_size || ysize+ypos>y_size){
         printf("Bild ist zu gross");
         return;
     }
-    printf("%d,%d\n",rows,columns);
-    unsigned char buffer[rows][columns][3];
+
+    unsigned char (*buffer)[rows][columns][3]=(unsigned char(*)[rows][columns][3]) malloc(sizeof (unsigned char)*rows*columns*3);
+    //perror("fehler");
+    //Sleep(10000);
+
     fgets(rubbish,100,picture);
     for(int y=0;y<rows && ret==1;y++){
-        for(int x=0;x<columns && ret==1;x++){
-            ret=fscanf(picture,"%s",color);
-            buffer[y][x][0]=atoi(color);
-            ret=fscanf(picture,"%s",color);
-            buffer[y][x][1]=atoi(color);
-            ret=fscanf(picture,"%s",color);
-            buffer[y][x][2]=atoi(color);
+        for(int x=0;x<columns && ret==1;x++) {
+            fread(&color, 1, 1, picture);
+            (*buffer)[y][x][0] = color;
+            fread(&color, 1, 1, picture);
+            (*buffer)[y][x][1] = color;
+            ret=fread(&color, 1, 1, picture);
+            (*buffer)[y][x][2] = color;
         }
     }
     int newx;
@@ -156,35 +158,19 @@ void draw_picture(Pixel picture_buffer[y_size][x_size], char *file, int xpos, in
             newx=x*columns/xsize;
             newy=y*rows/ysize;
             picture_buffer[y+ypos][x+xpos].character=219;
-            picture_buffer[y+ypos][x+xpos].r=buffer[newy][newx][0];
-            picture_buffer[y+ypos][x+xpos].g=buffer[newy][newx][1];
-            picture_buffer[y+ypos][x+xpos].b=buffer[newy][newx][2];
+            picture_buffer[y+ypos][x+xpos].r=(*buffer)[newy][newx][0];
+            picture_buffer[y+ypos][x+xpos].g=(*buffer)[newy][newx][1];
+            picture_buffer[y+ypos][x+xpos].b=(*buffer)[newy][newx][2];
         }
     }
+    free(*buffer);
     return;
 }
 void draw_picture_buffer(Pixel picture_buffer[y_size][x_size] ,int mode){
     int r;
     int g;
     int b;
-    if(mode==SLOW_MODE){
-        setvbuf(stdout,NULL,_IOLBF,(x_pos+x_size)*(y_pos+y_size));
-        printf("\x1b[%d;%dH",y_pos+1,x_pos);
-        for(int y=0;y<y_size;y++){
-            for(int x=0;x<x_size;x++){
-                r = picture_buffer[y][x].r;
-                g = picture_buffer[y][x].g;
-                b = picture_buffer[y][x].b;
-                anzeigeVordergrund(r,g, b);
-                printf("%c",picture_buffer[y][x].character);
-            }
-            printf("\x1b[%dD\x1b[1B",x_size);
-        }
-        fflush(stdout);
-        anzeigeVordergrund(255,255,255);
-        printf("\x1b[H");
-        setvbuf(stdout,NULL,_IONBF,0);
-    }else if(mode==FAST_MODE){
+    if(mode==FAST_MODE || mode ==3){
         CHAR_INFO *secondary_buffer= (CHAR_INFO*) malloc(sizeof(CHAR_INFO)*x_size*y_size);
         for(int y=0;y<y_size;y++){
             for(int x=0;x<x_size;x++){
@@ -192,7 +178,7 @@ void draw_picture_buffer(Pixel picture_buffer[y_size][x_size] ,int mode){
                 g=picture_buffer[y][x].g>100?1:0;
                 b=picture_buffer[y][x].b>100?1:0;
                 secondary_buffer[(y)*x_size +x].Char.AsciiChar = picture_buffer[y][x].character;
-                secondary_buffer[(y)*x_size +x].Attributes= r*FOREGROUND_RED | g*FOREGROUND_GREEN | b*FOREGROUND_BLUE | FOREGROUND_INTENSITY;
+                secondary_buffer[(y)*x_size +x].Attributes= r*FOREGROUND_RED | g*FOREGROUND_GREEN | b*FOREGROUND_BLUE | BACKGROUND_INTENSITY;
             }
         }
         HANDLE hStdout;
@@ -213,6 +199,24 @@ void draw_picture_buffer(Pixel picture_buffer[y_size][x_size] ,int mode){
 
         WriteConsoleOutput(hStdout,secondary_buffer,coordBufSize,coordBufCoord,&srctWriteRect);
         free(secondary_buffer);
+    }
+    if(mode==SLOW_MODE || mode==3){
+        setvbuf(stdout,NULL,_IOLBF,(x_pos+x_size)*10);
+        printf("\x1b[%d;%dH",y_pos+1,x_pos+1);
+        for(int y=0;y<y_size;y+=1){
+            for(int x=0;x<x_size;x++){
+                r = picture_buffer[y][x].r;
+                g = picture_buffer[y][x].g;
+                b = picture_buffer[y][x].b;
+                anzeigeVordergrund(r,g, b);
+                printf("%c",picture_buffer[y][x].character);
+            }
+            fflush(stdout);
+            printf("\x1b[%dD\x1b[1B",x_size);
+        }
+        anzeigeVordergrund(255,255,255);
+        printf("\x1b[H");
+        setvbuf(stdout,NULL,_IONBF,0);
     }
     return;
 }
