@@ -2,12 +2,12 @@
 #define INFORMATIK_PROJEKT_ANALYSER_H
 
 #include "structs.h"
-#include "main.h"
 #include <stdio.h>
-#include <string.h>
+#include "main.h"
+
 
 void read_user();
-void print_user();
-int *count_date(Nachricht *ptr);
-unsigned int count_words(const char *string);
+int *count_weekday();
+void count_nachrichten();
+int *count_hours();
 #endif //INFORMATIK_PROJEKT_ANALYSER_H
