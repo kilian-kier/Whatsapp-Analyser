@@ -22,6 +22,8 @@ void read_user() {
                         while (temp_nachricht->nextUser != NULL) {
                             temp_nachricht = temp_nachricht->nextUser;
                         }
+                        temp_user->nachrichten_len++;
+                        temp_user->total_words += count_words(nachricht->nachricht);
                         temp_nachricht->nextUser = nachricht;
                         temp_nachricht->nextUser->nextUser = NULL;
                         found = 1;
@@ -37,6 +39,8 @@ void read_user() {
             user->name = (char *) malloc(strlen(nachricht->user) * sizeof(char));
             strcpy(user->name, nachricht->user);
             user->nachrichten = nachricht;
+            user->total_words = count_words(nachricht->nachricht);
+            user->nachrichten_len = 1;
             user->nachrichten->nextUser = NULL;
             nachricht = nachricht->next;
             User *next = (User *) malloc(sizeof(User));
@@ -50,14 +54,9 @@ void read_user() {
 
 void print_user() {
     User *temp = first_user;
-    while (temp != NULL) {
-        printf("%s\n", temp->name);
+    while (temp->next != NULL) {
+        printf("%d, %d, %d\n", temp->nachrichten_len, temp->total_words, temp->total_words/temp->nachrichten_len);
         temp = temp->next;
-    }
-}
-    Nachricht *ptr = first_nachricht;
-    while (ptr != NULL) {
-
     }
 }
 
@@ -96,3 +95,16 @@ int *count_date(Nachricht *ptr){
     }
     return arr1;
 }
+
+unsigned int count_words(const char *string) {
+    unsigned int words = 0;
+    int i = 0;
+    while (string[i] != '\0') {
+        if (string[i] == ' ' || string[i] == '\n')
+            words++;
+        i++;
+    }
+    return words;
+}
+
+

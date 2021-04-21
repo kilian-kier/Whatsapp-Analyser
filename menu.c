@@ -16,6 +16,7 @@ void main_menu(){
             case 1:;
                 FILE *f=fopen(get_file_name(), "rb");
                 readFile(f);
+                read_user();
                 break;
             case 2:
                 break;
