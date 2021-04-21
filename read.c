@@ -13,7 +13,7 @@ void readFile(FILE *f) {
         Nachricht *ptr = (Nachricht *)malloc(sizeof(Nachricht));
         first_nachricht = ptr;
         int size = 0;
-        while (getMessage(buffer,f) != NULL) {
+        while (get_message(buffer,f) != NULL) {
             strncpy(two_char_buffer, buffer, 2);
             ptr->tag = (short) strtol(two_char_buffer, strtol_buffer, 10);
             strncpy(two_char_buffer, buffer + 3, 2);
@@ -51,7 +51,7 @@ void readFile(FILE *f) {
     }
 
 }
-char * getMessage(char *buffer,FILE *f){
+char * get_message(char *buffer,FILE *f){
     buffer[0]=0;
     char * ret=NULL;
     char temp[buffersize];
@@ -66,6 +66,9 @@ char * getMessage(char *buffer,FILE *f){
 }
 bool checkNewString(char *string){
     bool valid=true;
+    if(strlen(string)<9){
+        return false;
+    }
     if(string[2]!='.' || string[5]!='.' || string[8]!=','){
         valid=false;
     }

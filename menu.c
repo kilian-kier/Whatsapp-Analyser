@@ -1,24 +1,24 @@
 #include "menu.h"
 
 
-#define menuefarbe 255,255,0
+#define menuefarbe 0,255,0
 
 
 void main_menu(){
-
     ShowWindow(GetConsoleWindow(),SW_MAXIMIZE);
     Pixel picture_buffer[y_size][x_size];
     init_picture_buffer(picture_buffer);
     printf("\x1b[?25l");
+
     // La zi testn vielleicht brauchwos a net. Do isch do Pfad auszibessern.
-    draw_picture(picture_buffer, "C:\\Users\\Martin Gamper\\Downloads\\putin.ppm", 0, 0,150,40);
+    draw_picture(picture_buffer, "C:\\Users\\Martin Gamper\\Downloads\\whatsapptest4.ppm", 0, 0,100,40);
     char info[]="WhatsApp Analyzer\n";
     char opt1[]="Datei oeffnen";
     char opt2[]="Analizer ausfuehren";
     char opt3[]="Exit";
     do{
         clearscreen();
-        draw_picture_buffer(picture_buffer,COMBINED_MODE);
+        draw_picture_buffer(picture_buffer, SLOW_MODE);
         printf("\x1b[%dB",y_pos);
         switch(menu(3,0,info,opt1,opt2,opt3)){
             case 0:
@@ -31,6 +31,7 @@ void main_menu(){
             case 2:
                 break;
             case 3:
+                clearscreen();
                 exit(0);
             default:
                 break;
@@ -221,7 +222,10 @@ void draw_picture_buffer(Pixel picture_buffer[y_size][x_size] ,int mode){
     }
     return;
 }
+void clearrect(int posx, int posy,int x, int y){
 
+    return;
+}
 void clearscreen(){
     printf("\x1b[H\x1b[0J");
     return;

@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 #define buffersize 10000
-char * getMessage(char *buffer,FILE *f);
+char * get_message(char *buffer, FILE *f);
 bool checkNewString(char *string);
 
 int countlines(FILE *f);

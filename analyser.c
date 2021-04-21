@@ -54,10 +54,10 @@ void read_user() {
     print_user();
 }
 
-void print_user() {
+void print_user(){
     User *temp = first_user;
     while (temp->next != NULL) {
-        printf("%d, %d, %d\n", temp->nachrichten_len, temp->total_words, temp->total_words/temp->nachrichten_len);
+        printf("%s, %d, %d, %d\n", temp->name, temp->nachrichten_len, temp->total_words, temp->total_words/temp->nachrichten_len);
         temp = temp->next;
     }
 }
