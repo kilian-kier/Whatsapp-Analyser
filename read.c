@@ -1,7 +1,7 @@
 #include "read.h"
 #include "analyser.h"
 #include <stdbool.h>
-
+extern int anz_nachrichten;
 void readFile(FILE *f) {
     if (f == NULL)
         perror("fopen");
@@ -46,8 +46,10 @@ void readFile(FILE *f) {
             ptr = ptr->next;
         }
         ptr->next = NULL;
+        count_nachrichten();
         print_nachricht(get_nachricht(15));
     }
+
 }
 char * getMessage(char *buffer,FILE *f){
     buffer[0]=0;
