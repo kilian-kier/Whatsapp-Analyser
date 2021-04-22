@@ -3,8 +3,12 @@
 
 int main() {
     system("cls");
+    main_menu();
     FILE *f = fopen(get_file_name(), "rb");
-    //main_menu();
+    if(f==NULL){
+        perror("fopen");
+        return 0;
+    }
     readFile(f);
     read_user();
 }
