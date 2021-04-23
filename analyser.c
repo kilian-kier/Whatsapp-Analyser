@@ -62,36 +62,23 @@ void print_user() {
     User **arr = sort_user(n);
     int max_j = 0;
     for (int i = 0; i < n; i++) {
-        for (int j = 0; j < strlen(arr[i]->name); j++) {
-            picture_buffer[i*2][j].character = arr[i]->name[j];
-            picture_buffer[i*2][j].r = 255;
-            picture_buffer[i*2][j].g = 255;
-            picture_buffer[i*2][j].b = 255;
-            if (j > max_j)
-                max_j = j;
+        print_to_buffer(arr[i]->name,0,i*2,white,black);
+        if(strlen(arr[i]->name)>max_j){
+            max_j = strlen(arr[i]->name);
         }
     }
+    max_j++;
+    int j;
     for (int i = 0; i < n; i++) {
-        for (int j = max_j + 3; j < (x_size - (int)log10(arr[0]->nachrichten_len) - 2) * arr[i]->nachrichten_len/arr[0]->nachrichten_len; j++) {
-            picture_buffer[i*2][j].character = -37;
-            picture_buffer[i*2][j].r = 255;
-            picture_buffer[i*2][j].g = 255;
-            picture_buffer[i*2][j].b = 255;
-        }
-        picture_buffer[i*2][max_j + 2].character = -37;
-        picture_buffer[i*2][max_j + 2].r = 255;
-        picture_buffer[i*2][max_j + 2].g = 255;
-        picture_buffer[i*2][max_j + 2].b = 255;
+        //Balken von Balkendiagramm
+        draw_rect(max_j,i*2,(x_size - (int)log10(arr[0]->nachrichten_len) - 2) * arr[i]->nachrichten_len/arr[0]->nachrichten_len-max_j,1,white,1,0);
+        draw_rect(max_j,i*2,1,1,white,1,0);
+
         char *buf = malloc((int)log10(arr[i]->nachrichten_len) + 1 * sizeof(char));
         itoa(arr[i]->nachrichten_len, buf, 10);
         int k = (int) log10(arr[i]->nachrichten_len);
-        for (int j = x_size- 1; j >= x_size - (int)log10(arr[0]->nachrichten_len) - 1 && k >= 0; j--) {
-            picture_buffer[i*2][j].character = buf[k];
-            picture_buffer[i*2][j].r = 255;
-            picture_buffer[i*2][j].g = 255;
-            picture_buffer[i*2][j].b = 255;
-            k--;
-        }
+        //Länge der Wörter
+        print_to_buffer(buf,x_size - k - 1,i*2,white,black);
         free(buf);
     }
     free(arr);
