@@ -61,8 +61,10 @@ char * getMessage(char *buffer,FILE *f){
     }while(ret!=NULL && !checkNewString(temp));
     return ret;
 }
-bool checkNewString(char *string){
+bool checkNewString(const char *string){
     bool valid=true;
+    if (strlen(string) < 9)
+        return false;
     if(string[2]!='.' || string[5]!='.' || string[8]!=','){
         valid=false;
     }

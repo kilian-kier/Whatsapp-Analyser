@@ -53,11 +53,70 @@ void read_user() {
 }
 
 void print_user() {
+    int n = 0;
     User *temp = first_user;
     while (temp->next != NULL) {
-        printf("%d, %d, %d\n", temp->nachrichten_len, temp->total_words, temp->total_words/temp->nachrichten_len);
+        n++;
         temp = temp->next;
     }
+    User **arr = sort_user(n);
+    int max_j = 0;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < strlen(arr[i]->name); j++) {
+            picture_buffer[i*2][j].character = arr[i]->name[j];
+            picture_buffer[i*2][j].r = 255;
+            picture_buffer[i*2][j].g = 255;
+            picture_buffer[i*2][j].b = 255;
+            if (j > max_j)
+                max_j = j;
+        }
+    }
+    for (int i = 0; i < n; i++) {
+        for (int j = max_j + 3; j < (x_size - (int)log10(arr[0]->nachrichten_len) - 2) * arr[i]->nachrichten_len/arr[0]->nachrichten_len; j++) {
+            picture_buffer[i*2][j].character = -37;
+            picture_buffer[i*2][j].r = 255;
+            picture_buffer[i*2][j].g = 255;
+            picture_buffer[i*2][j].b = 255;
+        }
+        picture_buffer[i*2][max_j + 2].character = -37;
+        picture_buffer[i*2][max_j + 2].r = 255;
+        picture_buffer[i*2][max_j + 2].g = 255;
+        picture_buffer[i*2][max_j + 2].b = 255;
+        char *buf = malloc((int)log10(arr[i]->nachrichten_len) + 1 * sizeof(char));
+        itoa(arr[i]->nachrichten_len, buf, 10);
+        int k = (int) log10(arr[i]->nachrichten_len);
+        for (int j = x_size- 1; j >= x_size - (int)log10(arr[0]->nachrichten_len) - 1 && k >= 0; j--) {
+            picture_buffer[i*2][j].character = buf[k];
+            picture_buffer[i*2][j].r = 255;
+            picture_buffer[i*2][j].g = 255;
+            picture_buffer[i*2][j].b = 255;
+            k--;
+        }
+        free(buf);
+    }
+    free(arr);
+}
+
+User **sort_user(int n) {
+    User **arr = malloc(n * sizeof(char *));
+    User *temp = first_user;
+    int i = 0;
+    while (temp->next != NULL) {
+        arr[i] = temp;
+        temp = temp->next;
+        i++;
+    }
+    // TODO: Merge Sort
+    for (i = 0; i < n-1; i++) {
+        for (int j = 0; j < n; j++) {
+            if (arr[i]->nachrichten_len < arr[i+1]->nachrichten_len) {
+                temp = arr[i];
+                arr[i] = arr[i+1];
+                arr[i+1] = temp;
+            }
+        }
+    }
+    return arr;
 }
 
 

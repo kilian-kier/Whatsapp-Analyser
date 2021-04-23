@@ -21,6 +21,9 @@ typedef struct Pixel{
     int g;
     int b;
 }Pixel;
+
+Pixel picture_buffer[y_size][x_size];
+
 void main_menu();
 int menu(int quantity,int select,...);
 void anzeigeHintergrund(int r, int g, int b);
