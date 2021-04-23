@@ -5,35 +5,53 @@
 
 
 void main_menu(){
-
+    FILE *f = NULL;
     ShowWindow(GetConsoleWindow(),SW_MAXIMIZE);
-    Pixel picture_buffer[y_size][x_size];
     init_picture_buffer(picture_buffer);
     printf("\x1b[?25l");
     // La zi testn vielleicht brauchwos a net. Do isch do Pfad auszibessern.
-    draw_picture(picture_buffer, "C:\\Users\\Martin Gamper\\Downloads\\putin.ppm", 0, 0,150,40);
+    //draw_picture(picture_buffer, "C:\\Users\\Martin Gamper\\Downloads\\putin.ppm", 0, 0,150,40);
     char info[]="WhatsApp Analyzer\n";
     char opt1[]="Datei oeffnen";
-    char opt2[]="Analizer ausfuehren";
-    char opt3[]="Exit";
+    char opt2[]="Exit";
+
+    char opt1_1[]="Users";
+    char opt1_2[]="Nachrichten";
+    char opt1_3[]="Monat";
+    char opt1_4[]="Uhrzeit";
+    char opt1_5[]="Back";
     do{
         clearscreen();
         draw_picture_buffer(picture_buffer,COMBINED_MODE);
         printf("\x1b[%dB",y_pos);
-        switch(menu(3,0,info,opt1,opt2,opt3)){
-            case 0:
-                exit(0);
-            case 1:;
-                FILE *f=fopen(get_file_name(), "rb");
-                readFile(f);
-                read_user();
-                break;
-            case 2:
-                break;
-            case 3:
-                exit(0);
-            default:
-                break;
+        if (f != NULL) {
+            switch (menu(5, 0, info, opt1_1, opt1_2, opt1_3, opt1_4, opt1_5)) {
+                case 0:
+                    exit(0);
+                case 1:
+                    read_user();
+                    break;
+                case 5:
+                    f = NULL;
+                    clearscreen();
+                    break;
+                default:
+                    break;
+            }
+        }
+        else {
+            switch (menu(2, 0, info, opt1, opt2)) {
+                case 0:
+                    exit(0);
+                case 1:;
+                    f = fopen(get_file_name(), "rb");
+                    readFile(f);
+                    break;
+                case 2:
+                    exit(0);
+                default:
+                    break;
+            }
         }
     }while(1);
 }
