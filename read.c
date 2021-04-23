@@ -1,7 +1,7 @@
 #include "read.h"
 #include "analyser.h"
 #include <stdbool.h>
-extern int anz_nachrichten;
+
 void readFile(FILE *f) {
     if (f == NULL)
         perror("fopen");
@@ -13,7 +13,7 @@ void readFile(FILE *f) {
         Nachricht *ptr = (Nachricht *)malloc(sizeof(Nachricht));
         first_nachricht = ptr;
         int size = 0;
-        while (get_message(buffer,f) != NULL) {
+        while (getMessage(buffer,f) != NULL) {
             strncpy(two_char_buffer, buffer, 2);
             ptr->tag = (short) strtol(two_char_buffer, strtol_buffer, 10);
             strncpy(two_char_buffer, buffer + 3, 2);
@@ -46,12 +46,9 @@ void readFile(FILE *f) {
             ptr = ptr->next;
         }
         ptr->next = NULL;
-        count_nachrichten();
-        print_nachricht(get_nachricht(15));
     }
-
 }
-char * get_message(char *buffer,FILE *f){
+char * getMessage(char *buffer,FILE *f){
     buffer[0]=0;
     char * ret=NULL;
     char temp[buffersize];
@@ -64,11 +61,10 @@ char * get_message(char *buffer,FILE *f){
     }while(ret!=NULL && !checkNewString(temp));
     return ret;
 }
-bool checkNewString(char *string){
+bool checkNewString(const char *string){
     bool valid=true;
-    if(strlen(string)<9){
+    if (strlen(string) < 9)
         return false;
-    }
     if(string[2]!='.' || string[5]!='.' || string[8]!=','){
         valid=false;
     }

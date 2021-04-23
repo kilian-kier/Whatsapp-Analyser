@@ -7,7 +7,7 @@
 #include "main.h"
 
 #define x_size 150
-#define y_size 100
+#define y_size 150
 #define x_pos 40
 #define y_pos 3
 
@@ -29,6 +29,9 @@ typedef struct Pixel{
     Color foreground;
     Color background;
 }Pixel;
+
+Pixel picture_buffer[y_size][x_size];
+
 void main_menu();
 int menu(int quantity,int select,...);
 void anzeigeHintergrund(int r, int g, int b);
@@ -39,5 +42,7 @@ void init_picture_buffer(Pixel picture_buffer[y_size][x_size]);
 void draw_picture(Pixel picture_buffer[y_size][x_size], char *file, int xpos, int ypos,int xsize,int ysize);
 void print_to_buffer(char string[], int xpos,int ypos,Color foreground,Color background);
 void draw_rect(int xpos,int ypos,int xsize, int ysize, Color color, bool fill, bool layer);
+void draw_rect(int xpos,int ypos,int xsize, int ysize, Color color, bool fill, bool layer);
+void print_to_buffer(char string[], int xpos,int ypos,Color foreground,Color background);
 Pixel picture_buffer[y_size][x_size];
 #endif //INFORMATIK_PROJEKT_MENU_H

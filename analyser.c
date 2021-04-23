@@ -1,7 +1,5 @@
 #include "analyser.h"
 
-int anz_nachrichten = 0;
-
 void read_user() {
     Nachricht *nachricht = first_nachricht;
     User *user = (User *) malloc(sizeof(User));
@@ -54,21 +52,68 @@ void read_user() {
     print_user();
 }
 
-void print_user(){
+void print_user() {
+    int n = 0;
     User *temp = first_user;
     while (temp->next != NULL) {
-        printf("%s, %d, %d, %d\n", temp->name, temp->nachrichten_len, temp->total_words, temp->total_words/temp->nachrichten_len);
+        n++;
         temp = temp->next;
     }
+    User **arr = sort_user(n);
+    int max_j = 0;
+    for (int i = 0; i < n; i++) {
+        print_to_buffer(arr[i]->name,0,i*2,white,black);
+        if(strlen(arr[i]->name)>max_j){
+            max_j = strlen(arr[i]->name);
+        }
+    }
+    max_j++;
+    int j;
+    for (int i = 0; i < n; i++) {
+        //Balken von Balkendiagramm
+        draw_rect(max_j,i*2,(x_size - (int)log10(arr[0]->nachrichten_len) - 2) * arr[i]->nachrichten_len/arr[0]->nachrichten_len-max_j,1,white,1,0);
+        draw_rect(max_j,i*2,1,1,white,1,0);
+
+        char *buf = malloc((int)log10(arr[i]->nachrichten_len) + 1 * sizeof(char));
+        itoa(arr[i]->nachrichten_len, buf, 10);
+        int k = (int) log10(arr[i]->nachrichten_len);
+        //Länge der Wörter
+        print_to_buffer(buf,x_size - k - 1,i*2,white,black);
+        free(buf);
+    }
+    free(arr);
+}
+
+User **sort_user(int n) {
+    User **arr = malloc(n * sizeof(char *));
+    User *temp = first_user;
+    int i = 0;
+    while (temp->next != NULL) {
+        arr[i] = temp;
+        temp = temp->next;
+        i++;
+    }
+    // TODO: Merge Sort
+    for (i = 0; i < n-1; i++) {
+        for (int j = 0; j < n; j++) {
+            if (arr[i]->nachrichten_len < arr[i+1]->nachrichten_len) {
+                temp = arr[i];
+                arr[i] = arr[i+1];
+                arr[i+1] = temp;
+            }
+        }
+    }
+    return arr;
 }
 
 
-//Nachrichten anhand der Wochentage zählen
-int *count_weekday(){
-    Nachricht *ptr = first_nachricht;
+//Wochentag und Uhrzeit
+//0= Montag
+int *count_date(Nachricht *ptr){
     int *arr1 = (int *)malloc(7*sizeof(int));
     for(int x = 0; x < 7; x++){
-        *(arr1+x) = 0;
+        *arr1 = 0;
+        arr1 ++;
     }
     short weekday;
     int h, k;
@@ -109,50 +154,3 @@ unsigned int count_words(const char *string) {
 }
 
 
-void count_nachrichten(){
-    Nachricht *ptr = first_nachricht;
-    while(ptr != NULL){
-        anz_nachrichten ++;
-        ptr = ptr->next;
-    }
-}
-
-//Nachrichten anhand von Stunden zählen
-int *count_hours(){
-    Nachricht *ptr = first_nachricht;
-    int *arr1 = (int *)malloc(24*sizeof(int));
-    for(int x = 0; x < 24; x++){
-        *(arr1+x) = 0;
-    }
-    while(ptr->next != NULL){
-        switch(ptr->stunde){
-            case 0: *(arr1) += 1; break;
-            case 1: *(arr1+1) += 1; break;
-            case 2: *(arr1+2) += 1; break;
-            case 3: *(arr1+3) += 1; break;
-            case 4: *(arr1+4) += 1; break;
-            case 5: *(arr1+5) += 1; break;
-            case 6: *(arr1+6) += 1; break;
-            case 7: *(arr1+7) += 1; break;
-            case 8: *(arr1+8) += 1; break;
-            case 9: *(arr1+9) += 1; break;
-            case 10: *(arr1+10) += 1; break;
-            case 11: *(arr1+11) += 1; break;
-            case 12: *(arr1+12) += 1; break;
-            case 13: *(arr1+13) += 1; break;
-            case 14: *(arr1+14) += 1; break;
-            case 15: *(arr1+15) += 1; break;
-            case 16: *(arr1+16) += 1; break;
-            case 17: *(arr1+17) += 1; break;
-            case 18: *(arr1+18) += 1; break;
-            case 19: *(arr1+19) += 1; break;
-            case 20: *(arr1+20) += 1; break;
-            case 21: *(arr1+21) += 1; break;
-            case 22: *(arr1+22) += 1; break;
-            case 23: *(arr1+23) += 1; break;
-            default: perror("Fehler Uhrzeit!"); break;
-        }
-        ptr = ptr->next;
-    }
-    return arr1;
-}

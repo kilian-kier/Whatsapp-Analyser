@@ -1,16 +1,10 @@
 #include "main.h"
 #include "menu.h"
 
-int main() {
+int main(int args, char *argv[]) {
     system("cls");
     main_menu();
-    FILE *f = fopen(get_file_name(), "rb");
-    if(f==NULL){
-        perror("fopen");
-        return 0;
-    }
-    readFile(f);
-    read_user();
+    //FILE *f = fopen(argv[1], "rb"); readFile(f); read_user();
 }
 
 void print_nachricht(Nachricht *nachricht) {
