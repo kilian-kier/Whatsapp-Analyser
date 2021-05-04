@@ -1,8 +1,8 @@
+#include <time.h>
+
+
 #include "menu.h"
-
-
 #define menuefarbe 255,255,0
-
 
 void main_menu(){
     FILE *f = NULL;
@@ -10,7 +10,7 @@ void main_menu(){
     init_picture_buffer(picture_buffer);
     printf("\x1b[?25l");
     //Tests
-    //draw_picture(picture_buffer, "C:\\Users\\Martin Gamper\\Downloads\\whatsapptest3.ppm", 0, 0,100,40);
+    draw_picture(picture_buffer, "C:\\Users\\Martin Gamper\\Downloads\\whatsapptest3.ppm", 0, 0, 100, 40);
     //print_to_buffer("Hallo Welt\nHallo Welt",-1,-1,(Color){255,0,0},black);
     //print_to_buffer("Hallo Welt\nHallo Welt",50,20,white,black);
     //draw_rect(0,0,1,5,white,1,1);
@@ -25,7 +25,7 @@ void main_menu(){
     char opt1_5[]="Back";
     do{
         clearscreen();
-        draw_picture_buffer(picture_buffer,COMBINED_MODE);
+        draw_picture_buffer(picture_buffer);
         printf("\x1b[%dB",y_pos);
         if (f != NULL) {
             switch (menu(5, 0, info, opt1_1, opt1_2, opt1_3, opt1_4, opt1_5)) {
@@ -232,68 +232,38 @@ void draw_picture(Pixel picture_buffer[y_size][x_size], char *file, int xpos, in
     free(*buffer);
     return;
 }
-void draw_picture_buffer(Pixel picture_buffer[y_size][x_size] ,int mode){
+void draw_picture_buffer(Pixel picture_buffer[y_size][x_size]){
     int r=0;
     int br;
     int g=0;
     int bg;
     int b=0;
     int bb;
-    if(mode==FAST_MODE || mode ==3){
-        HANDLE hStdout;
-        hStdout= GetStdHandle(STD_OUTPUT_HANDLE);
-        CHAR_INFO *secondary_buffer= (CHAR_INFO*) malloc(sizeof(CHAR_INFO)*x_size*y_size);
-        for(int y=0;y<y_size;y++){
-            for(int x=0;x<x_size;x++){
-                r=picture_buffer[y][x].foreground.r>100?1:0;
-                g=picture_buffer[y][x].foreground.g>100?1:0;
-                b=picture_buffer[y][x].foreground.b>100?1:0;
-                br=picture_buffer[y][x].background.r>100?1:0;
-                bg=picture_buffer[y][x].background.g>100?1:0;
-                bb=picture_buffer[y][x].background.b>100?1:0;
-                secondary_buffer[(y)*x_size +x].Char.AsciiChar = picture_buffer[y][x].character;
-                secondary_buffer[(y)*x_size +x].Attributes= r*FOREGROUND_RED | br* BACKGROUND_RED | g*FOREGROUND_GREEN | bg* BACKGROUND_GREEN|b*FOREGROUND_BLUE | bb* BACKGROUND_BLUE  |FOREGROUND_INTENSITY;
-            }
-        }
-        COORD coordBufSize;
-        COORD coordBufCoord;
-        SMALL_RECT srctWriteRect;
-
-        srctWriteRect.Top = y_pos;
-        srctWriteRect.Left = x_pos;
-        srctWriteRect.Bottom = y_pos+y_size;
-        srctWriteRect.Right = x_pos+x_size;
-
-        coordBufSize.Y = y_size;
-        coordBufSize.X = x_size;
-        coordBufCoord.X = 0;
-        coordBufCoord.Y = 0;
-
-        WriteConsoleOutput(hStdout,secondary_buffer,coordBufSize,coordBufCoord,&srctWriteRect);
-        free(secondary_buffer);
-    }
-    if(mode==SLOW_MODE || mode==3){
-        setvbuf(stdout,NULL,_IOLBF,(x_pos+x_size)*10);
+        setvbuf(stdout,NULL,_IOFBF,(x_pos+x_size)*(y_pos+y_size)*25);
         printf("\x1b[%d;%dH",y_pos+1,x_pos+1);
         for(int y=0;y<y_size;y+=1){
             for(int x=0;x<x_size;x++){
-                r = picture_buffer[y][x].background.r;
-                g = picture_buffer[y][x].background.g;
-                b = picture_buffer[y][x].background.b;
-                anzeigeHintergrund(r,g, b);
-                r = picture_buffer[y][x].foreground.r;
-                g = picture_buffer[y][x].foreground.g;
-                b = picture_buffer[y][x].foreground.b;
-                anzeigeVordergrund(r,g, b);
+                if(picture_buffer[y][x].background.r!=br ||picture_buffer[y][x].background.g!=bg ||picture_buffer[y][x].background.b!=bb){
+                    br = picture_buffer[y][x].background.r;
+                    bg = picture_buffer[y][x].background.g;
+                    bb = picture_buffer[y][x].background.b;
+                    anzeigeHintergrund(br,bg, bb);
+                }
+                if(picture_buffer[y][x].foreground.r!=br ||picture_buffer[y][x].foreground.g!=bg ||picture_buffer[y][x].foreground.b!=bb){
+                    r = picture_buffer[y][x].foreground.r;
+                    g = picture_buffer[y][x].foreground.g;
+                    b = picture_buffer[y][x].foreground.b;
+                    anzeigeVordergrund(r,g, b);
+                }
+
                 printf("%c",picture_buffer[y][x].character);
             }
-            fflush(stdout);
             printf("\x1b[%dD\x1b[1B",x_size);
         }
+        fflush(stdout);
         anzeigeVordergrund(255,255,255);
         printf("\x1b[H");
         setvbuf(stdout,NULL,_IONBF,0);
-    }
     return;
 }
 
@@ -302,7 +272,7 @@ void clearscreen(){
     return;
 }
 void anzeigeVordergrund(int r, int g, int b){
-    printf("\x1b[38;2;%d;%d;%dm",r,g,b);
+    printf("\x1b[38;2;%d;%d;%dm", r, g, b);
     return;
 }
 void anzeigeHintergrund(int r, int g, int b){
