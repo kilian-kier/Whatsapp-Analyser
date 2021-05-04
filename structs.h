@@ -2,6 +2,7 @@
 #define INFORMATIK_PROJEKT_STRUCTS_H
 
 #include "stdlib.h"
+#include "global.h"
 
 typedef struct Nachricht{
     unsigned int tag :5;
@@ -21,6 +22,7 @@ typedef struct User{
     Nachricht *nachrichten;
     unsigned int nachrichten_len;
     unsigned int total_words;
+    struct User *previous;
     struct User *next;
 } User;
 
@@ -29,9 +31,9 @@ typedef struct Woerterbook{
     struct Woerterbook *next;
 } Woerterbook;
 
-Nachricht *first_nachricht;
-User *first_user;
 Nachricht *get_nachricht(int index);
+User *get_user(int index);
+void insert_user(User *ptr, int index);
 void append_nachricht(Nachricht *ptr);
 void insert_nachricht(Nachricht *ptr, int index);
 void delete_nachricht(Nachricht *ptr);

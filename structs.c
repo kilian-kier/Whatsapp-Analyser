@@ -8,6 +8,22 @@ Nachricht *get_nachricht(int index) {
     return ptr;
 }
 
+User *get_user(int index) {
+    User *ptr = first_user;
+    for (int i = 0; i < index; i++) {
+        ptr = ptr->next;
+    }
+    return ptr;
+}
+
+void insert_user(User *ptr, int index) {
+    User *temp = get_user(index);
+    User *next = temp->next;
+    temp->next = ptr;
+    ptr->previous = temp;
+    ptr->next = next;
+}
+
 void append_nachricht(Nachricht *ptr) {
     Nachricht *temp = first_nachricht;
     while (temp->next != NULL) {

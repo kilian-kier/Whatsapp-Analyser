@@ -10,7 +10,7 @@ void main_menu(){
     init_picture_buffer(picture_buffer);
     printf("\x1b[?25l");
     //Tests
-    //draw_picture(picture_buffer, "C:\\Users\\Martin Gamper\\Downloads\\whatsapptest3.ppm", 0, 0,100,40);
+    //draw_picture(picture_buffer, "whatsapptest.ppm", 0, 0,100,40);
     //print_to_buffer("Hallo Welt\nHallo Welt",-1,-1,(Color){255,0,0},black);
     //print_to_buffer("Hallo Welt\nHallo Welt",50,20,white,black);
     //draw_rect(0,0,1,5,white,1,1);
@@ -19,20 +19,28 @@ void main_menu(){
     char opt2[]="Exit";
 
     char opt1_1[]="Users";
-    char opt1_2[]="Nachrichten";
-    char opt1_3[]="Monat";
-    char opt1_4[]="Uhrzeit";
-    char opt1_5[]="Back";
+
+    char opt1_1_1[]="geschriebene Nachrichten";
+    char opt1_1_2[]="durchschnittliche Woerteranzahl pro Nachricht";
     do{
         clearscreen();
         draw_picture_buffer(picture_buffer,COMBINED_MODE);
         printf("\x1b[%dB",y_pos);
         if (f != NULL) {
-            switch (menu(5, 0, info, opt1_1, opt1_2, opt1_3, opt1_4, opt1_5)) {
+            switch (menu(1, 0, info, opt1_1)) {
                 case 0:
                     exit(0);
                 case 1:
+                    clearscreen();
+                    printf("\x1b[%dB",y_pos);
                     read_user();
+                    switch (menu(2, 0, info, opt1_1_1, opt1_1_2)) {
+                        case 0:
+                            exit(0);
+                        case 1:
+                            print_nachricht_len();
+                            break;
+                    }
                     break;
                 case 5:
                     f = NULL;

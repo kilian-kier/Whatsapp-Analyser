@@ -5,6 +5,7 @@
 #ifndef INFORMATIK_PROJEKT_MENU_H
 #define INFORMATIK_PROJEKT_MENU_H
 #include "main.h"
+#include "analyser.h"
 
 #define x_size 150
 #define y_size 150
