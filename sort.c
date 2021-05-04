@@ -7,7 +7,7 @@ void merge(char **arr, int size,int offset,char type){
     int k=middle;
     int i=0;
 
-    switch (type) {
+    switch(type){
         case 'u':
             for (i = 0; k < size && j < middle; i++) {
                 if ((*((unsigned int *) (((char *) arr[j]) + offset))) <

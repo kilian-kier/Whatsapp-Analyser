@@ -64,9 +64,9 @@ void print_nachricht_len() {
     User **arr = sort_user(n);
     int max_j = 0;
     for (int i = 0; i < n; i++) {
-        print_to_buffer(get_user(i)->name, 0, i * 2, white, black);
-        if (strlen(get_user(i)->name) > max_j) {
-            max_j = strlen(get_user(i)->name);
+        print_to_buffer(arr[i]->name, 0, i * 2, white, black);
+        if (strlen(arr[i]->name) > max_j) {
+            max_j = strlen(arr[i]->name);
         }
     }
     max_j++;
