@@ -94,57 +94,16 @@ User **sort_user(int n) {
         temp = temp->next;
         i++;
     }
-    merge_sort(arr,n,8,'s');
-    // TODO: Merge Sort
 
-    Sleep(10000);
+    merge_sort(arr,n,24,'u');
+    /*
+    Offset 24 Byte weil Nachrichten_len isch an Stelle 4. Dovor gibs drei Pointer. Jeder Pointer hot
+    64 Bit also 8 Byte.
+     */
+
+    //Beispiel mit String, in dem Foll werdn die Numen sortiert
+    //merge_sort(arr,n,8,'s');
     return arr;
-}
-/*void merge(char **arr, int size){
-    char ** array2[size];
-    int j=0;
-    int middle=size/2+size%2;
-    int k=middle;
-    int i=0;
-
-    for(i=0;k<size && j<middle;i++){
-        if(arr[j]>arr[k]){
-            array2[i]=array[k];
-            k++;
-        }
-        else{
-            array2[i]=array[j];
-            j++;
-        }
-    }
-    if(j<middle){
-        for(i;j<middle;i++){
-            array2[i]=array[j];
-            written++;
-            j++;
-        }
-    }
-    else if(k<size){
-        for(i;k<size;i++){
-            array2[i]=array[k];
-            k++;
-        }
-    }
-    intcpy(size,array2,array);
-    return;
-}*/
-char ** merge_sort(char **arr,int size, int offset,char type){
-    for(int i=0;i<size;i++) {
-
-        printf("%s\n",*((char**)(((char*)arr[i])+offset)));
-    }
-    /*int middle=size/2+size%2;
-    if(size>=2){
-        merge_sort(middle,arr);
-        merge_sort(size-middle,&arr[middle]);
-        merge(size,arr);
-    }
-    return arr;*/
 }
 
 
