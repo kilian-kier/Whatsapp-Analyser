@@ -54,6 +54,7 @@ void read_user() {
 }
 
 void print_nachricht_len() {
+    init_picture_buffer(picture_buffer);
     int n = 0;
     User *temp = first_user;
     while (temp->next != NULL) {
@@ -85,7 +86,7 @@ void print_nachricht_len() {
 }
 
 User **sort_user(int n) {
-    User **arr = malloc(n * sizeof(char *));
+    User **arr = malloc((n+1) * sizeof(char *));
     User *temp = first_user;
     int i = 0;
     while (temp->next != NULL) {
@@ -93,17 +94,57 @@ User **sort_user(int n) {
         temp = temp->next;
         i++;
     }
+    merge_sort(arr,n,8,'s');
+    // TODO: Merge Sort
 
-    for (i = 0; i < n-1; i++) {
-        for (int j = i + 1; j < n; j++) {
-            if (arr[i]->nachrichten_len < arr[j]->nachrichten_len) {
-                temp = arr[i];
-                arr[i] = arr[j];
-                arr[j] = temp;
-            }
+    Sleep(10000);
+    return arr;
+}
+/*void merge(char **arr, int size){
+    char ** array2[size];
+    int j=0;
+    int middle=size/2+size%2;
+    int k=middle;
+    int i=0;
+
+    for(i=0;k<size && j<middle;i++){
+        if(arr[j]>arr[k]){
+            array2[i]=array[k];
+            k++;
+        }
+        else{
+            array2[i]=array[j];
+            j++;
         }
     }
-    return arr;
+    if(j<middle){
+        for(i;j<middle;i++){
+            array2[i]=array[j];
+            written++;
+            j++;
+        }
+    }
+    else if(k<size){
+        for(i;k<size;i++){
+            array2[i]=array[k];
+            k++;
+        }
+    }
+    intcpy(size,array2,array);
+    return;
+}*/
+char ** merge_sort(char **arr,int size, int offset,char type){
+    for(int i=0;i<size;i++) {
+
+        printf("%s\n",*((char**)(((char*)arr[i])+offset)));
+    }
+    /*int middle=size/2+size%2;
+    if(size>=2){
+        merge_sort(middle,arr);
+        merge_sort(size-middle,&arr[middle]);
+        merge(size,arr);
+    }
+    return arr;*/
 }
 
 

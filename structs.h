@@ -5,6 +5,7 @@
 #include "global.h"
 
 typedef struct Nachricht{
+    struct Nachricht *next;
     unsigned int tag :5;
     unsigned int monat :4;
     unsigned int jahr :7;
@@ -14,21 +15,20 @@ typedef struct Nachricht{
     char *nachricht;
     struct Nachricht *nextUser;
     struct Nachricht *previous;
-    struct Nachricht *next;
 } Nachricht;
 
 typedef struct User{
+    struct User *next;
     char *name;
     Nachricht *nachrichten;
     unsigned int nachrichten_len;
     unsigned int total_words;
     struct User *previous;
-    struct User *next;
 } User;
 
 typedef struct Woerterbook{
-    char *wort;
     struct Woerterbook *next;
+    char *wort;
 } Woerterbook;
 
 Nachricht *get_nachricht(int index);
