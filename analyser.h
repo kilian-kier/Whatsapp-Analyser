@@ -10,8 +10,8 @@
 #include <string.h>
 #include <math.h>
 
-void read_user();
-void print_nachricht_len();
+void *read_user();
+void print_nachricht_len(unsigned short mode);
 int *count_weekday();
 void count_nachrichten();
 int *count_hours();

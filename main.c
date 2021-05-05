@@ -4,7 +4,8 @@
 int main(int args, char *argv[]) {
     system("cls");
     main_menu();
-    //FILE *f = fopen(argv[1], "rb"); readFile(f); read_user(); print_nachricht_len();
+    //FILE *f = fopen(argv[1], "rb"); readFile(f); read_user(); print_nachricht_len(0), print_nachricht_len(1);
+    //FILE *f = fopen(argv[1], "rb"); readFile(f); read_user(); print_nachricht_len(1);
 }
 
 void print_nachricht(Nachricht *nachricht) {
