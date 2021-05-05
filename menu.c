@@ -17,32 +17,46 @@ void main_menu(){
     char info[]="WhatsApp Analyzer\n";
     char opt1[]="Datei oeffnen";
     char opt2[]="Exit";
+    char opt_back[]="Zurueck";
 
     char opt1_1[]="Users";
 
-    char opt1_1_1[]="geschriebene Nachrichten";
-    char opt1_1_2[]="durchschnittliche Woerteranzahl pro Nachricht";
+    char opt1_1_1[]="Anzahl geschriebene Nachrichten";
+    char opt1_1_2[]="prozentual geschriebene Nachrichten";
+    char opt1_1_3[]="durchschnittliche Woerteranzahl pro Nachricht";
+
+    int is_read = 0;
+
     do{
         clearscreen();
         draw_picture_buffer(picture_buffer);
         printf("\x1b[%dB",y_pos);
         if (f != NULL) {
-            switch (menu(1, 0, info, opt1_1)) {
+            switch (menu(2, 0, info, opt1_1, opt_back)) {
                 case 0:
                     exit(0);
                 case 1:
                     clearscreen();
                     printf("\x1b[%dB",y_pos);
-                    read_user();
-                    switch (menu(2, 0, info, opt1_1_1, opt1_1_2)) {
+                    if (is_read != 1) {
+                        if (pthread_join(read_file_tread, NULL) != 0)
+                            readFile(f);
+                        if (pthread_join(read_user_tread, NULL) != 0)
+                            read_user();
+                        is_read = 1;
+                    }
+                    switch (menu(3, 0, info, opt1_1_1, opt1_1_2, opt1_1_3)) {
                         case 0:
                             exit(0);
                         case 1:
-                            print_nachricht_len();
+                            print_nachricht_len(0);
+                            break;
+                        case 2:
+                            print_nachricht_len(1);
                             break;
                     }
                     break;
-                case 5:
+                case 2:
                     f = NULL;
                     clearscreen();
                     break;
@@ -54,9 +68,9 @@ void main_menu(){
             switch (menu(2, 0, info, opt1, opt2)) {
                 case 0:
                     exit(0);
-                case 1:;
+                case 1:
                     f = fopen(get_file_name(), "rb");
-                    readFile(f);
+                    pthread_create(&read_file_tread, NULL, readFile, (void *)f);
                     break;
                 case 2:
                     exit(0);

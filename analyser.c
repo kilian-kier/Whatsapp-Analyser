@@ -1,6 +1,6 @@
 #include "analyser.h"
 
-void read_user() {
+void *read_user() {
     Nachricht *nachricht = first_nachricht;
     User *user = (User *) malloc(sizeof(User));
     first_user = user;
@@ -53,7 +53,7 @@ void read_user() {
     }
 }
 
-void print_nachricht_len() {
+void print_nachricht_len(unsigned short mode) {
     init_picture_buffer(picture_buffer);
     int n = 0;
     User *temp = first_user;
@@ -70,23 +70,42 @@ void print_nachricht_len() {
         }
     }
     max_j++;
-    char *buf = malloc((int) log10(arr[0]->nachrichten_len) + 1 * sizeof(char));
-    for (int i = 0; i < n; i++) {
-        //Balken von Balkendiagramm
-        draw_rect(max_j, i * 2,
-                  (x_size - (int) log10(arr[0]->nachrichten_len) - 2 - max_j) * (arr[i]->nachrichten_len) /
-                  (arr[0]->nachrichten_len), 1, white, 1, 0);
-        draw_rect(max_j, i * 2, 1, 1, white, 1, 0);
-        itoa(arr[i]->nachrichten_len, buf, 10);
-        int k = (int) log10(arr[i]->nachrichten_len);
-        //Länge der Wörter
-        print_to_buffer(buf, x_size - k - 1, i * 2, white, black);
+    char *buf;
+    if (mode == 0) {
+        buf = malloc((int) log10(arr[0]->nachrichten_len) + 1 * sizeof(char));
+        for (int i = 0; i < n; i++) {
+            int x = (x_size - (int) log10(arr[0]->nachrichten_len) - 2 - max_j) * (arr[i]->nachrichten_len) /
+                    (arr[0]->nachrichten_len);
+            draw_rect(max_j, i * 2, x, 1, white, 1, 0);
+            //draw_rect(max_j, i * 2, 1, 1, white, 1, 0);
+            itoa(arr[i]->nachrichten_len, buf, 10);
+            if (x > 0)
+                print_to_buffer(buf, max_j + x + 1, i * 2, white, black);
+            else
+                //print_to_buffer(buf, max_j + 2, i * 2, white, black);
+                print_to_buffer(buf, max_j, i * 2, white, black);
+        }
+    } else if (mode == 1) {
+        buf = malloc(3 * sizeof(char));
+        for (int i = 0; i < n; i++) {
+            int x = (x_size - 6 - max_j) * (arr[i]->nachrichten_len) / (arr[0]->nachrichten_len);
+            draw_rect(max_j, i * 2, x, 1, white, 1, 0);
+            //draw_rect(max_j, i * 2, 1, 1, white, 1, 0);
+            float val = (float) arr[i]->nachrichten_len * 100 / (float) anz_nachrichten;
+            sprintf(buf, "%.1f", val);
+            if (x > 0)
+                print_to_buffer(strcat(buf, "%"), max_j + x + 1, i * 2, white, black);
+            else
+                //print_to_buffer(strcat(buf, "%"), max_j + 2, i * 2, white, black);
+                print_to_buffer(strcat(buf, "%"), max_j, i * 2, white, black);
+
+        }
     }
     free(arr);
 }
 
 User **sort_user(int n) {
-    User **arr = malloc((n+1) * sizeof(char *));
+    User **arr = malloc((n + 1) * sizeof(char *));
     User *temp = first_user;
     int i = 0;
     while (temp->next != NULL) {
@@ -95,14 +114,11 @@ User **sort_user(int n) {
         i++;
     }
 
-    merge_sort(arr,n,24,'u');
+    merge_sort(arr, n, 24, 'u');
     /*
     Offset 24 Byte weil Nachrichten_len isch an Stelle 4. Dovor gibs drei Pointer. Jeder Pointer hot
     64 Bit also 8 Byte.
      */
-
-    //Beispiel mit String, in dem Foll werdn die Numen sortiert
-    //merge_sort(arr,n,8,'s');
     return arr;
 }
 

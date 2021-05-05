@@ -2,8 +2,8 @@
 #include "analyser.h"
 #include <stdbool.h>
 
-void readFile(FILE *f) {
-    if (f == NULL)
+void *readFile(void *f) {
+    if ((FILE *)f == NULL)
         perror("fopen");
     else {
         char buffer[buffersize];
@@ -47,6 +47,7 @@ void readFile(FILE *f) {
         }
         ptr->next = NULL;
         count_nachrichten();
+        pthread_create(&read_user_tread, NULL, read_user, NULL);
     }
 }
 char * getMessage(char *buffer,FILE *f){
