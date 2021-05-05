@@ -114,11 +114,8 @@ User **sort_user(int n) {
         i++;
     }
 
-    merge_sort(arr, n, 24, 'u');
-    /*
-    Offset 24 Byte weil Nachrichten_len isch an Stelle 4. Dovor gibs drei Pointer. Jeder Pointer hot
-    64 Bit also 8 Byte.
-     */
+    merge_sort(arr,n,24,'u');
+
     return arr;
 }
 
@@ -283,6 +280,10 @@ int *count_hours() {
     return arr1;
 }
 
+
+void create_dict(){
+
+}
 void woerterbook() {
     int x, y;
     Nachricht *ptr = first_nachricht;
