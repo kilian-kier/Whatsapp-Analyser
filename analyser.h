@@ -19,4 +19,5 @@ User **sort_user(int n);
 void swap_user(User *user1, User *user2);
 unsigned int count_words(const char *string);
 void create_dict();
+void woerterbook();
 #endif //INFORMATIK_PROJEKT_ANALYSER_H
