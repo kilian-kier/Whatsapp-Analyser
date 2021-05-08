@@ -24,7 +24,7 @@ void *read_user() {
                             temp_nachricht = temp_nachricht->nextUser;
                         }
                         temp_user->nachrichten_len++;
-                        temp_user->total_words += count_words(nachricht->nachricht);
+                        temp_user->average_words += count_words(nachricht->nachricht);
                         temp_nachricht->nextUser = nachricht;
                         temp_nachricht->nextUser->nextUser = NULL;
                         found = 1;
@@ -40,7 +40,7 @@ void *read_user() {
             user->name = (char *) malloc(strlen(nachricht->user) * sizeof(char));
             strcpy(user->name, nachricht->user);
             user->nachrichten = nachricht;
-            user->total_words = count_words(nachricht->nachricht);
+            user->average_words = count_words(nachricht->nachricht);
             user->nachrichten_len = 1;
             user->nachrichten->nextUser = NULL;
             nachricht = nachricht->next;
@@ -51,6 +51,47 @@ void *read_user() {
             user->next = NULL;
         }
     }
+    temp_user = first_user;
+    int n = 0;
+    while (temp_user->next != NULL) {
+        n++;
+        temp_user->average_words = temp_user->average_words / temp_user->nachrichten_len;
+        temp_user = temp_user->next;
+    }
+}
+
+void print_average_words() {
+    init_picture_buffer(picture_buffer);
+    int n = 0;
+    User *temp = first_user;
+    while (temp->next != NULL) {
+        n++;
+        temp = temp->next;
+    }
+    User **arr = sort_user(n, 32, 'd');
+    int max_j = 0;
+    for (int i = 0; i < n; i++) {
+        print_to_buffer(arr[i]->name, 0, i * 2, white, black);
+        if (strlen(arr[i]->name) > max_j) {
+            max_j = strlen(arr[i]->name);
+        }
+    }
+    max_j++;
+    char *buf;
+    buf = malloc((int) log10(arr[0]->average_words) + 1 * sizeof(char));
+    for (int i = 0; i < n; i++) {
+        int x = (x_size - (int) log10(arr[0]->average_words) - 5 - max_j) * (arr[i]->average_words) /
+                (arr[0]->average_words);
+        draw_rect(max_j, i * 2, x, 1, white, 1, 0);
+        //draw_rect(max_j, i * 2, 1, 1, white, 1, 0);
+        sprintf(buf, "%.2lf", arr[i]->average_words);
+        if (x > 0)
+            print_to_buffer(buf, max_j + x + 1, i * 2, white, black);
+        else
+            //print_to_buffer(strcat(buf, "%"), max_j + 2, i * 2, white, black);
+            print_to_buffer(buf, max_j, i * 2, white, black);
+    }
+    free(arr);
 }
 
 void print_nachricht_len(unsigned short mode) {
@@ -61,7 +102,7 @@ void print_nachricht_len(unsigned short mode) {
         n++;
         temp = temp->next;
     }
-    User **arr = sort_user(n);
+    User **arr = sort_user(n, 24, 'u');
     int max_j = 0;
     for (int i = 0; i < n; i++) {
         print_to_buffer(arr[i]->name, 0, i * 2, white, black);
@@ -104,7 +145,7 @@ void print_nachricht_len(unsigned short mode) {
     free(arr);
 }
 
-User **sort_user(int n) {
+User **sort_user(int n, int offset, char type) {
     User **arr = malloc((n + 1) * sizeof(char *));
     User *temp = first_user;
     int i = 0;
@@ -114,7 +155,9 @@ User **sort_user(int n) {
         i++;
     }
 
-    merge_sort(arr, n, 24, 'u');
+    printf("%lf\n", (*((double *) (((char *) arr[0]) + offset))));
+
+    merge_sort(arr, n, offset, type);
     /*
     Offset 24 Byte weil Nachrichten_len isch an Stelle 4. Dovor gibs drei Pointer. Jeder Pointer hot
     64 Bit also 8 Byte.
