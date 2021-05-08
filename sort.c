@@ -46,6 +46,7 @@ void merge(char **arr, int size,int offset,char type){
             break;
         default:
             printf("Merge: Unbekanntes Format");
+            break;
     }
     if(j<middle){
         for(i;j<middle;i++){

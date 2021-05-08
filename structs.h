@@ -28,7 +28,8 @@ typedef struct User{
 
 typedef struct Woerterbook{
     struct Woerterbook *next;
-    char *wort;
+    char *wortanfang;
+    int laenge;
 } Woerterbook;
 
 Nachricht *get_nachricht(int index);

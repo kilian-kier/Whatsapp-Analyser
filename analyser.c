@@ -154,14 +154,7 @@ User **sort_user(int n, int offset, char type) {
         temp = temp->next;
         i++;
     }
-
-    printf("%lf\n", (*((double *) (((char *) arr[0]) + offset))));
-
     merge_sort(arr, n, offset, type);
-    /*
-    Offset 24 Byte weil Nachrichten_len isch an Stelle 4. Dovor gibs drei Pointer. Jeder Pointer hot
-    64 Bit also 8 Byte.
-     */
     return arr;
 }
 

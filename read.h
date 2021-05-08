@@ -11,6 +11,6 @@ bool checkNewString(const char *string);
 int countlines(FILE *f);
 void *readFile(void *f);
 int lenght(const char buffer[1000], char suche,int anfang);
-char * string_to_lower(char*);
+char * string_convert(char *string, int offset);
 
 #endif //INFORMATIK_PROJEKT_READ_H
