@@ -62,6 +62,9 @@ void main_menu(){
                             case 2:
                                 print_nachricht_len(1);
                                 break;
+                            case 3:
+                                print_average_words();
+                                break;
                             case 4:
                                 clearscreen();
                                 printf("\x1b[%dB",y_pos);

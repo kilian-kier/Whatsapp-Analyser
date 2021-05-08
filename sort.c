@@ -32,6 +32,18 @@ void merge(char **arr, int size,int offset,char type){
                 }
             }
             break;
+        case 'd':
+            for (i = 0; k < size && j < middle; i++) {
+                if ((*((double *) (((char *) arr[j]) + offset))) <
+                    (*((double *) (((char *) arr[k]) + offset)))) {
+                    arr2[i] = arr[k];
+                    k++;
+                } else {
+                    arr2[i] = arr[j];
+                    j++;
+                }
+            }
+            break;
         default:
             printf("Merge: Unbekanntes Format");
             break;
