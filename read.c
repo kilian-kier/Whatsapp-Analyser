@@ -29,17 +29,11 @@ void *readFile(void *f) {
                 ptr->user = (char *) malloc((size * sizeof(char)));
                 strncpy(ptr->user, buffer + 18, size);
                 ptr->user[size] = '\0';
-                string_to_lower(ptr->user);
-                size = lenght(buffer,'\n',size+18);
-                ptr->nachricht = (char *) malloc(size * sizeof(char));
-                strncpy(ptr->nachricht, buffer+18+strlen(ptr->user)+2,size);
+                ptr->nachricht = string_convert(buffer,20 + strlen(ptr->user));
             } else {
                 ptr->user = NULL;
-                size = lenght(buffer,'\n',size+18);
-                ptr->nachricht = (char *) malloc(size * sizeof(char));
-                strncpy(ptr->nachricht, buffer + 18, size);
+                ptr->nachricht = string_convert(buffer,20);
             }
-            string_to_lower(ptr->nachricht);
             Nachricht *next = (Nachricht *) malloc(sizeof(Nachricht));
             ptr->next = next;
             next->previous = ptr;
@@ -49,6 +43,7 @@ void *readFile(void *f) {
         count_nachrichten();
         pthread_create(&read_user_tread, NULL, read_user, NULL);
     }
+    woerterbook();
 }
 char * getMessage(char *buffer,FILE *f){
     buffer[0]=0;
@@ -81,14 +76,47 @@ int lenght(const char buffer[buffersize], char suche,int anfang){
     return x;
 }
 
-char * string_to_lower(char *string) {
-    int len = strlen(string);
-    for(int i=0; i<len; i++) {
-        if(string[i] >= 'A' && string[i] <= 'Z') {
-            string[i] += 32;
+
+char * string_convert(char *string, int offset) {
+    int len = strlen(string), y = 0;
+    char string2[len];
+    for(int i=offset; i<len; i++) {
+        if(string[i] >= 'A' && string[i] <= 'Z') string2[y] = string[i] + 32;
+        else if (string[i] == -61 && (string[i+1] == -92 || string[i+1] == -100)){
+            string2[y] = 'a';
+            y++;
+            string2[y] = 'e';
+            i++;
         }
+        else if (string[i] == -61 && (string[i+1] == -74 || string[i+1] == -106)){
+            string2[y] = 'o';
+            y++;
+            string2[y] = 'e';
+            i++;
+        }
+        else if (string[i] == -61 && (string[i+1] == -68) || string[i+1] == -124){
+            string2[y] = 'u';
+            y++;
+            string2[y] = 'e';
+            i++;
+        }
+        else if (string[i] == -61 && string[i+1] == -97){
+            string2[y] = 's';
+            y++;
+            string2[y] = 's';
+            i++;
+        }
+
+        else if (string[i] < 0) {
+            string2[y] = ' ';
+            i += 3;
+        }
+        else if (string[i] == 13) string2[y] = ' ';
+        else string2[y] = string[i];
+        y++;
     }
-    return string;
+    string2[y] = '\0';
+    char *ptr = (char *) malloc ((y+1) * sizeof(char));
+    strcpy(ptr,string2);
+    return ptr;
 }
-
-

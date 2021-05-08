@@ -154,14 +154,7 @@ User **sort_user(int n, int offset, char type) {
         temp = temp->next;
         i++;
     }
-
-    printf("%lf\n", (*((double *) (((char *) arr[0]) + offset))));
-
     merge_sort(arr, n, offset, type);
-    /*
-    Offset 24 Byte weil Nachrichten_len isch an Stelle 4. Dovor gibs drei Pointer. Jeder Pointer hot
-    64 Bit also 8 Byte.
-     */
     return arr;
 }
 
@@ -327,3 +320,51 @@ int *count_hours() {
 }
 
 
+void create_dict(){
+
+}
+void woerterbook() {
+    int x, y;
+    Nachricht *ptr = first_nachricht;
+    Woerterbook *ptr2 = (Woerterbook *) malloc(sizeof(Woerterbook));
+    first_word = ptr2;
+    while (ptr->next != NULL) {
+        y = 0;
+        while (ptr->nachricht[y] != '\0' && ptr->nachricht[y] != '\n') {
+            ptr2->wortanfang = ptr->nachricht + y;
+            x = 0;
+            while (ptr->nachricht[x + y] != ' ' && ptr->nachricht[x + y] != '.' &&
+                   ptr->nachricht[x + y] != ',' && ptr->nachricht[x + y] != ':' && ptr->nachricht[x + y] != '!' &&
+                   ptr->nachricht[x + y] != '?' && ptr->nachricht[x + y] != '\n' &&
+                   ptr->nachricht[x + y] != '\0' &&
+                   ptr->nachricht[x + y] != '<' &&
+                   ptr->nachricht[x + y] != '>' &&
+                   ptr->nachricht[x + y] != '|' &&
+                   ptr->nachricht[x + y] != '/'){
+                x++;
+            }
+            if (x == 0) y++;
+            else {
+                ptr2->laenge = x;
+                y += x + 1;
+                Woerterbook *next = (Woerterbook *) malloc(sizeof(Woerterbook));
+                ptr2->next = next;
+                ptr2 = ptr2->next;
+            }
+        }
+        ptr = ptr->next;
+    }
+    ptr2->next = NULL;
+    /*
+    ptr2 = first_word;
+    char buffer[50];
+    while (ptr2->next != NULL) {
+        for (int i = 0; i < 50; i++) {
+            buffer[i] = '\0';
+        }
+        strncpy(buffer, ptr2->wortanfang, ptr2->laenge);
+        printf("%s\t %d\n", buffer, ptr2->laenge);
+        ptr2 = ptr2->next;
+    }
+    */
+}
