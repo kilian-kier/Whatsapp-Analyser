@@ -1,4 +1,4 @@
-#include "analyser.h"
+#include "include/analyser.h"
 
 void *read_user() {
     Nachricht *nachricht = first_nachricht;

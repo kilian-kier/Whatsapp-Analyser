@@ -51,10 +51,6 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-# i muis et enkre chats lesen
-*txt
-!CMakeLists.txt
-
 # CLion zoigs brauchts a et
 cmake-build-debug
 .idea

@@ -1,5 +1,5 @@
-#include "read.h"
-#include "analyser.h"
+#include "include/read.h"
+#include "include/analyser.h"
 #include <stdbool.h>
 
 void *readFile(void *f) {

@@ -32,7 +32,7 @@ typedef struct Pixel{
 Pixel picture_buffer[y_size][x_size];
 
 void main_menu();
-int menu(int quantity,int select,...);
+int menu(int quantity,int select,wchar_t **options);
 void anzeigeHintergrund(int r, int g, int b);
 void anzeigeVordergrund(int r, int g, int b);
 void clearscreen();

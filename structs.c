@@ -1,4 +1,4 @@
-#include "structs.h"
+#include "include/structs.h"
 
 Nachricht *get_nachricht(int index) {
     Nachricht *ptr = first_nachricht;

@@ -1,7 +1,4 @@
-#include <time.h>
-
-
-#include "menu.h"
+#include "include/menu.h"
 #define menuefarbe 255,255,0
 
 void main_menu(){
@@ -12,20 +9,30 @@ void main_menu(){
     //Tests
     bool menu1;
     bool menu2;
+
+    /*
+    Ä = \x8e
+    ä = \x84
+    Ö = \x99
+    ö = \x94
+    Ü = \x9a
+    ü = \x81
+    ß = \xe1
+     */
+
     draw_picture(picture_buffer, "whatsapptest.ppm", 0, 0,100,40);
-    //print_to_buffer("Hallo Welt\nHallo Welt",-1,-1,(Color){255,0,0},black);
-    //print_to_buffer("Hallo Welt\nHallo Welt",50,20,white,black);
-    //draw_rect(0,0,1,5,white,1,1);
-    char info[]="WhatsApp Analyzer\n";
-    char opt1[]="Datei oeffnen";
-    char opt2[]="Exit";
-    char opt_back[]="Zurueck";
+    wchar_t info[]=L"WhatsApp Analyzer\n";
+    wchar_t opt1[]=L"Datei öffnen";
+    wchar_t opt2[]=L"Exit";
+    wchar_t opt_back[]=L"Zurück";
 
-    char opt1_1[]="Users";
+    wchar_t opt1_1[]=L"Users";
 
-    char opt1_1_1[]="Anzahl geschriebene Nachrichten";
-    char opt1_1_2[]="prozentual geschriebene Nachrichten";
-    char opt1_1_3[]="durchschnittliche Woerteranzahl pro Nachricht";
+    wchar_t opt1_1_1[]=L"Anzahl Nachrichten";
+    wchar_t opt1_1_2[]=L"prozentual\n";
+    wchar_t opt1_1_3[]=L"durchschnittliche Wörter\n";
+
+    wchar_t
 
     int is_read = 0;
 
@@ -38,7 +45,7 @@ void main_menu(){
             clearscreen();
             do{
                 printf("\x1b[%dB",y_pos);
-                switch (menu(2, 0, info, opt1_1, opt_back)) {
+                switch (menu(2, 0, {info, opt1_1, opt_back})) {
                     case 0:
                         exit(0);
                     case 1:
@@ -102,7 +109,7 @@ void main_menu(){
 }
 
 
-int menu(int quantity,int select,...){ // Koan Fehler des mitn Endless loop. CLION hot an schodn
+int menu(int quantity,int select,wchar_t **options){
     anzeigeHintergrund(0,0,0);
     anzeigeVordergrund(255,255,255);
     int input=0;
@@ -119,10 +126,8 @@ int menu(int quantity,int select,...){ // Koan Fehler des mitn Endless loop. CLI
     else{
         startselect=select;
     }
-    va_list options;
-    va_start(options, select);
     anzeigeVordergrund(menuefarbe);
-    printf("%s\n",va_arg(options, char*));
+    printf("%ls\n", options[0]);
     anzeigeVordergrund(255,255,255);
     for(int i=1;i<=quantity;i++){
         GetConsoleScreenBufferInfo(hStdout,&cursor);
@@ -136,8 +141,7 @@ int menu(int quantity,int select,...){ // Koan Fehler des mitn Endless loop. CLI
         else{
             printf("[ ]\t");
         }
-        printf("%s\n",va_arg(options, char*));
-        va_end(options);
+        printf("%ls\n", options[i]);
         anzeigeVordergrund(255,255,255);
     }
     SetConsoleCursorPosition(hStdout,line[select-1]);
