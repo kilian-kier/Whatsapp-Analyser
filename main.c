@@ -1,5 +1,5 @@
-#include "main.h"
-#include "menu.h"
+#include "include/main.h"
+#include "include/menu.h"
 
 int main(int args, char *argv[]) {
     system("cls");
