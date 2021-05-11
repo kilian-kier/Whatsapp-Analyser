@@ -2,31 +2,34 @@
 #define menuefarbe 255,255,0
 
 void main_menu(){
-    Pixel picture_buffer[y_size][x_size];
     FILE *f = NULL;
     ShowWindow(GetConsoleWindow(),SW_MAXIMIZE);
-    init_picture_buffer(picture_buffer);
+    picture_buffer = malloc(x_size * y_size * sizeof(Pixel));
+    init_picture_buffer();
     printf("\x1b[?25l");
     //Tests
     bool menu1;
     bool menu2;
-    draw_picture(picture_buffer, "whatsapptest.ppm", 0, 0,100,40);
+    draw_picture("whatsapptest.ppm", 0, 0,100,40);
+    //print_to_buffer("Hallo Welt\nHallo Welt",-1,-1,(Color){255,0,0},black);
+    //print_to_buffer("Hallo Welt\nHallo Welt",50,20,white,black);
+    //draw_rect(0,0,1,5,white,1,1);
     char info[]="WhatsApp Analyzer\n";
-    char opt1[]="Datei oeffnen";
+    char opt1[]="Datei oeffnen\n";
     char opt2[]="Exit";
     char opt_back[]="Zurueck";
 
-    char opt1_1[]="Users";
+    char opt1_1[]="Users\n";
 
     char opt1_1_1[]="Anzahl Nachrichten";
     char opt1_1_2[]="prozentual\n";
-    char opt1_1_3[]="durchschnittliche Woerter";
+    char opt1_1_3[]="durchschnittliche Woerter\n";
 
     int is_read = 0;
 
     do{
         clearscreen();
-        draw_picture_buffer(picture_buffer);
+        draw_picture_buffer();
         printf("\x1b[%dB",y_pos);
         if (f != NULL) {
             menu2=true;
@@ -66,7 +69,7 @@ void main_menu(){
                                     menu1=false;
                                     break;
                             }
-                            draw_picture_buffer(picture_buffer);
+                            draw_picture_buffer();
                         }while(menu1);
                         break;
                     case 2:
@@ -162,9 +165,13 @@ int menu(int quantity,int select,...){ // Koan Fehler des mitn Endless loop. CLI
 
     return select;
 }
-void init_picture_buffer(Pixel picture_buffer[y_size][x_size]){
+void init_picture_buffer(){
+    Pixel **temp = picture_buffer;
+    int xx = x_size;
+    int yy = y_size;
     for(int y=0;y<y_size;y++){
         for(int x=0;x<x_size;x++){
+            picture_buffer[y] = malloc(x_size * sizeof(Pixel));
             picture_buffer[y][x].character=' ';
             picture_buffer[y][x].foreground= white;
             picture_buffer[y][x].background= black;
@@ -172,7 +179,7 @@ void init_picture_buffer(Pixel picture_buffer[y_size][x_size]){
         }
     }
 }
-void print_to_buffer(char string[], int xpos,int ypos,Color foreground,Color background, struct Pixel **picture_buffer){
+void print_to_buffer(char string[], int xpos,int ypos,Color foreground,Color background){
     static int y=0;
     static int x=0;
     if(xpos>=0){
@@ -202,7 +209,7 @@ void print_to_buffer(char string[], int xpos,int ypos,Color foreground,Color bac
     }
     return;
 }
-void draw_rect(int xpos,int ypos,int xsize, int ysize, Color color, bool fill, bool layer, struct Pixel **picture_buffer){
+void draw_rect(int xpos,int ypos,int xsize, int ysize, Color color, bool fill, bool layer){
     for (int y = 0; y < ysize; y++) {
         for (int x = 0; x < xsize; x++) {
             if (fill || (!x || !y || y == ysize - 1 || x == xsize - 1)) {
@@ -218,7 +225,7 @@ void draw_rect(int xpos,int ypos,int xsize, int ysize, Color color, bool fill, b
     }
     return;
 }
-void draw_picture(Pixel picture_buffer[y_size][x_size], char *file, int xpos, int ypos,int xsize, int ysize){
+void draw_picture(char *file, int xpos, int ypos,int xsize, int ysize){
     char rubbish[100];
     unsigned char color;
     int ret=1;
@@ -269,7 +276,7 @@ void draw_picture(Pixel picture_buffer[y_size][x_size], char *file, int xpos, in
     free(*buffer);
     return;
 }
-void draw_picture_buffer(Pixel picture_buffer[y_size][x_size]){
+void draw_picture_buffer(){
     int r=0;
     int br;
     int g=0;
