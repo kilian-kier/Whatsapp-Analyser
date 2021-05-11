@@ -1,5 +1,5 @@
-#include "read.h"
-#include "analyser.h"
+#include "include/read.h"
+#include "include/analyser.h"
 #include <stdbool.h>
 
 void *readFile(void *f) {
@@ -43,7 +43,6 @@ void *readFile(void *f) {
         count_nachrichten();
         pthread_create(&read_user_tread, NULL, read_user, NULL);
     }
-    woerterbook();
 }
 char * getMessage(char *buffer,FILE *f){
     buffer[0]=0;

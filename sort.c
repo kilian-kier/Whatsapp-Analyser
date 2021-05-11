@@ -1,4 +1,4 @@
-#include "sort.h"
+#include "include/sort.h"
 
 void merge(char **arr, int size,int offset,char type){
     char ** arr2[size];

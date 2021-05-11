@@ -12,7 +12,7 @@
 #include "structs.h"
 #include "analyser.h"
 
-void print_nachricht(Nachricht *nachricht);
+void print_nachricht(struct Nachricht *nachricht);
 char *get_file_name();
 
 #endif //INFORMATIK_PROJEKT_MAIN_H
