@@ -7,7 +7,6 @@
 #include "main.h"
 #include "analyser.h"
 
-int x_size = 115;
 int y_size = 50;
 int x_pos = 40;
 int y_pos = 3;
