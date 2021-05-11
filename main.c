@@ -2,6 +2,10 @@
 #include "include/menu.h"
 
 int main(int args, char *argv[]) {
+    HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
+    GetConsoleScreenBufferInfo(hStdout, &csbiInfo);
+    int x = csbiInfo.dwSize.X - 42;
     system("cls");
     main_menu();
     //FILE *f = fopen(argv[1], "rb"); readFile(f); read_user(); print_nachricht_len(0), print_nachricht_len(1);

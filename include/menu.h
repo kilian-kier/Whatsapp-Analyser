@@ -7,10 +7,10 @@
 #include "main.h"
 #include "analyser.h"
 
-#define x_size 150
-#define y_size 50
-#define x_pos 40
-#define y_pos 3
+int x_size = 115;
+int y_size = 50;
+int x_pos = 40;
+int y_pos = 3;
 
 
 #define white (Color){255,255,255}
@@ -29,10 +29,8 @@ typedef struct Pixel{
     Color background;
 }Pixel;
 
-Pixel picture_buffer[y_size][x_size];
-
 void main_menu();
-int menu(int quantity,int select,wchar_t **options);
+int menu(int quantity,int select,...);
 void anzeigeHintergrund(int r, int g, int b);
 void anzeigeVordergrund(int r, int g, int b);
 void clearscreen();
@@ -43,5 +41,4 @@ void print_to_buffer(char string[], int xpos,int ypos,Color foreground,Color bac
 void draw_rect(int xpos,int ypos,int xsize, int ysize, Color color, bool fill, bool layer);
 void draw_rect(int xpos,int ypos,int xsize, int ysize, Color color, bool fill, bool layer);
 void print_to_buffer(char string[], int xpos,int ypos,Color foreground,Color background);
-Pixel picture_buffer[y_size][x_size];
 #endif //INFORMATIK_PROJEKT_MENU_H

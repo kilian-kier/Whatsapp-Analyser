@@ -2,6 +2,7 @@
 #define menuefarbe 255,255,0
 
 void main_menu(){
+    Pixel picture_buffer[y_size][x_size];
     FILE *f = NULL;
     ShowWindow(GetConsoleWindow(),SW_MAXIMIZE);
     init_picture_buffer(picture_buffer);
@@ -9,30 +10,17 @@ void main_menu(){
     //Tests
     bool menu1;
     bool menu2;
-
-    /*
-    Ä = \x8e
-    ä = \x84
-    Ö = \x99
-    ö = \x94
-    Ü = \x9a
-    ü = \x81
-    ß = \xe1
-     */
-
     draw_picture(picture_buffer, "whatsapptest.ppm", 0, 0,100,40);
-    wchar_t info[]=L"WhatsApp Analyzer\n";
-    wchar_t opt1[]=L"Datei öffnen";
-    wchar_t opt2[]=L"Exit";
-    wchar_t opt_back[]=L"Zurück";
+    char info[]="WhatsApp Analyzer\n";
+    char opt1[]="Datei oeffnen";
+    char opt2[]="Exit";
+    char opt_back[]="Zurueck";
 
-    wchar_t opt1_1[]=L"Users";
+    char opt1_1[]="Users";
 
-    wchar_t opt1_1_1[]=L"Anzahl Nachrichten";
-    wchar_t opt1_1_2[]=L"prozentual\n";
-    wchar_t opt1_1_3[]=L"durchschnittliche Wörter\n";
-
-    wchar_t
+    char opt1_1_1[]="Anzahl Nachrichten";
+    char opt1_1_2[]="prozentual\n";
+    char opt1_1_3[]="durchschnittliche Woerter";
 
     int is_read = 0;
 
@@ -45,7 +33,7 @@ void main_menu(){
             clearscreen();
             do{
                 printf("\x1b[%dB",y_pos);
-                switch (menu(2, 0, {info, opt1_1, opt_back})) {
+                switch (menu(2, 0, info, opt1_1, opt_back)) {
                     case 0:
                         exit(0);
                     case 1:
@@ -109,7 +97,7 @@ void main_menu(){
 }
 
 
-int menu(int quantity,int select,wchar_t **options){
+int menu(int quantity,int select,...){ // Koan Fehler des mitn Endless loop. CLION hot an schodn
     anzeigeHintergrund(0,0,0);
     anzeigeVordergrund(255,255,255);
     int input=0;
@@ -126,8 +114,10 @@ int menu(int quantity,int select,wchar_t **options){
     else{
         startselect=select;
     }
+    va_list options;
+    va_start(options, select);
     anzeigeVordergrund(menuefarbe);
-    printf("%ls\n", options[0]);
+    printf("%s\n",va_arg(options, char*));
     anzeigeVordergrund(255,255,255);
     for(int i=1;i<=quantity;i++){
         GetConsoleScreenBufferInfo(hStdout,&cursor);
@@ -141,7 +131,8 @@ int menu(int quantity,int select,wchar_t **options){
         else{
             printf("[ ]\t");
         }
-        printf("%ls\n", options[i]);
+        printf("%s\n",va_arg(options, char*));
+        va_end(options);
         anzeigeVordergrund(255,255,255);
     }
     SetConsoleCursorPosition(hStdout,line[select-1]);
@@ -181,7 +172,7 @@ void init_picture_buffer(Pixel picture_buffer[y_size][x_size]){
         }
     }
 }
-void print_to_buffer(char string[], int xpos,int ypos,Color foreground,Color background){
+void print_to_buffer(char string[], int xpos,int ypos,Color foreground,Color background, struct Pixel **picture_buffer){
     static int y=0;
     static int x=0;
     if(xpos>=0){
@@ -211,7 +202,7 @@ void print_to_buffer(char string[], int xpos,int ypos,Color foreground,Color bac
     }
     return;
 }
-void draw_rect(int xpos,int ypos,int xsize, int ysize, Color color, bool fill, bool layer){
+void draw_rect(int xpos,int ypos,int xsize, int ysize, Color color, bool fill, bool layer, struct Pixel **picture_buffer){
     for (int y = 0; y < ysize; y++) {
         for (int x = 0; x < xsize; x++) {
             if (fill || (!x || !y || y == ysize - 1 || x == xsize - 1)) {
