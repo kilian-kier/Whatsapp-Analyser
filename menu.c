@@ -166,9 +166,6 @@ int menu(int quantity,int select,...){ // Koan Fehler des mitn Endless loop. CLI
     return select;
 }
 void init_picture_buffer(){
-    Pixel **temp = picture_buffer;
-    int xx = x_size;
-    int yy = y_size;
     for(int y=0;y<y_size;y++){
         for(int x=0;x<x_size;x++){
             picture_buffer[y] = malloc(x_size * sizeof(Pixel));
@@ -207,7 +204,6 @@ void print_to_buffer(char string[], int xpos,int ypos,Color foreground,Color bac
         picture_buffer[y][x].background=background;
         x++;
     }
-    return;
 }
 void draw_rect(int xpos,int ypos,int xsize, int ysize, Color color, bool fill, bool layer){
     for (int y = 0; y < ysize; y++) {
@@ -223,7 +219,6 @@ void draw_rect(int xpos,int ypos,int xsize, int ysize, Color color, bool fill, b
             }
         }
     }
-    return;
 }
 void draw_picture(char *file, int xpos, int ypos,int xsize, int ysize){
     char rubbish[100];
@@ -274,7 +269,6 @@ void draw_picture(char *file, int xpos, int ypos,int xsize, int ysize){
         }
     }
     free(*buffer);
-    return;
 }
 void draw_picture_buffer(){
     int r=0;
@@ -308,18 +302,14 @@ void draw_picture_buffer(){
     anzeigeVordergrund(255,255,255);
     printf("\x1b[H");
     setvbuf(stdout,NULL,_IONBF,0);
-    return;
 }
 
 void clearscreen(){
     printf("\x1b[H\x1b[0J");
-    return;
 }
 void anzeigeVordergrund(int r, int g, int b){
     printf("\x1b[38;2;%d;%d;%dm", r, g, b);
-    return;
 }
 void anzeigeHintergrund(int r, int g, int b){
     printf("\x1b[48;2;%d;%d;%dm",r,g,b);
-    return;
 }

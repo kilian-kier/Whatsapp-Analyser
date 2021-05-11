@@ -7,9 +7,9 @@
 #include "main.h"
 #include "analyser.h"
 
-int y_size = 50;
-int x_pos = 40;
-int y_pos = 3;
+#define y_size 50
+#define x_pos 40
+#define y_pos 3
 
 
 #define white (Color){255,255,255}
@@ -28,14 +28,16 @@ typedef struct Pixel{
     Color background;
 }Pixel;
 
+Pixel **picture_buffer;
+
 void main_menu();
 int menu(int quantity,int select,...);
 void anzeigeHintergrund(int r, int g, int b);
 void anzeigeVordergrund(int r, int g, int b);
 void clearscreen();
-void draw_picture_buffer(Pixel picture_buffer[y_size][x_size]);
-void init_picture_buffer(Pixel picture_buffer[y_size][x_size]);
-void draw_picture(Pixel picture_buffer[y_size][x_size], char *file, int xpos, int ypos,int xsize,int ysize);
+void draw_picture_buffer();
+void init_picture_buffer();
+void draw_picture(char *file, int xpos, int ypos,int xsize,int ysize);
 void print_to_buffer(char string[], int xpos,int ypos,Color foreground,Color background);
 void draw_rect(int xpos,int ypos,int xsize, int ysize, Color color, bool fill, bool layer);
 void draw_rect(int xpos,int ypos,int xsize, int ysize, Color color, bool fill, bool layer);
