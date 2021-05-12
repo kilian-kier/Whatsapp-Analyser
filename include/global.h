@@ -12,6 +12,4 @@ struct Woerterbook *first_word;
 pthread_t read_file_tread;
 pthread_t read_user_tread;
 
-int x_size;
-
 #endif //INFORMATIK_PROJEKT_GLOBAL_H

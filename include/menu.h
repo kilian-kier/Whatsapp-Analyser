@@ -7,6 +7,7 @@
 #include "main.h"
 #include "analyser.h"
 
+#define x_size 160
 #define y_size 50
 #define x_pos 40
 #define y_pos 3
@@ -28,7 +29,7 @@ typedef struct Pixel{
     Color background;
 }Pixel;
 
-Pixel **picture_buffer;
+Pixel picture_buffer[y_size][x_size];
 
 void main_menu();
 int menu(int quantity,int select,...);
