@@ -2,10 +2,6 @@
 #include "include/menu.h"
 
 int main(int args, char *argv[]) {
-    HANDLE screenHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-    struct _CONSOLE_SCREEN_BUFFER_INFO *screenBufferInfo;
-    GetConsoleScreenBufferInfo(screenHandle, screenBufferInfo);
-    x_size = screenBufferInfo->dwSize.X - 42;
     system("cls");
     main_menu();
     //FILE *f = fopen(argv[1], "rb"); readFile(f); read_user(); print_nachricht_len(0), print_nachricht_len(1);
