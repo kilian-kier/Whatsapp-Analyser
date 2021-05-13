@@ -4,7 +4,6 @@
 void main_menu(){
     FILE *f = NULL;
     ShowWindow(GetConsoleWindow(),SW_MAXIMIZE);
-    picture_buffer = malloc(x_size * y_size * sizeof(Pixel));
     init_picture_buffer();
     printf("\x1b[?25l");
     //Tests
@@ -168,7 +167,6 @@ int menu(int quantity,int select,...){ // Koan Fehler des mitn Endless loop. CLI
 void init_picture_buffer(){
     for(int y=0;y<y_size;y++){
         for(int x=0;x<x_size;x++){
-            picture_buffer[y] = malloc(x_size * sizeof(Pixel));
             picture_buffer[y][x].character=' ';
             picture_buffer[y][x].foreground= white;
             picture_buffer[y][x].background= black;
