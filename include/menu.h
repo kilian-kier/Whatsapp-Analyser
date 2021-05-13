@@ -7,17 +7,15 @@
 #include "main.h"
 #include "analyser.h"
 
-#define x_size 160
+int x_size;
 #define y_size 50
 #define x_pos 40
 #define y_pos 3
-
 
 #define white (Color){255,255,255}
 #define black (Color){0,0,0}
 #define FOREGROUND_LAYER 1
 #define BACKGROUND_LAYER 0
-
 typedef struct Color{
     unsigned char r;
     unsigned char g;
@@ -29,7 +27,7 @@ typedef struct Pixel{
     Color background;
 }Pixel;
 
-Pixel picture_buffer[y_size][x_size];
+Pixel **picture_buffer;
 
 void main_menu();
 int menu(int quantity,int select,...);

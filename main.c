@@ -8,7 +8,7 @@ int main(int args, char *argv[]) {
     //FILE *f = fopen(argv[1], "rb"); readFile(f); read_user(); print_nachricht_len(1);
 }
 
-void print_nachricht(struct Nachricht *nachricht) {
+void print_nachricht(Nachricht *nachricht) {
     printf("%02u.", nachricht->tag);
     printf("%02u.", nachricht->monat);
     printf("%02u\n", nachricht->jahr);

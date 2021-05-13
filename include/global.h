@@ -2,7 +2,6 @@
 #define INFORMATIK_PROJEKT_GLOBAL_H
 
 #include "structs.h"
-#include "menu.h"
 #include <pthread.h>
 
 int anz_nachrichten;

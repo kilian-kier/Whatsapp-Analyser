@@ -3,7 +3,20 @@
 
 void main_menu(){
     FILE *f = NULL;
-    ShowWindow(GetConsoleWindow(),SW_MAXIMIZE);
+
+    ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
+
+    struct _CONSOLE_SCREEN_BUFFER_INFO screenBufferInfo;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &screenBufferInfo);
+    x_size = screenBufferInfo.dwSize.X - x_pos-1;
+    picture_buffer = (Pixel**) malloc(y_size*sizeof(Pixel*));
+    for(int i = 0; i < y_size; i++){
+        picture_buffer[i] = (Pixel*) malloc( x_size * sizeof(Pixel));
+        if(picture_buffer[i]==NULL){
+            perror("malloc");
+        }
+    }
+
     init_picture_buffer();
     printf("\x1b[?25l");
     //Tests
