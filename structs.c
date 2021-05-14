@@ -1,7 +1,7 @@
 #include "include/structs.h"
 
 Nachricht *get_nachricht(int index) {
-    Nachricht *ptr = first_nachricht;
+    Nachricht *ptr = global_first_nachricht;
     for (int i = 0; i < index; i++) {
         ptr = ptr->next;
     }
@@ -9,7 +9,7 @@ Nachricht *get_nachricht(int index) {
 }
 
 User *get_user(int index) {
-    User *ptr = first_user;
+    User *ptr = global_first_user;
     for (int i = 0; i < index; i++) {
         ptr = ptr->next;
     }
@@ -25,7 +25,7 @@ void insert_user(User *ptr, int index) {
 }
 
 void append_nachricht(Nachricht *ptr) {
-    Nachricht *temp = first_nachricht;
+    Nachricht *temp = global_first_nachricht;
     while (temp->next != NULL) {
         temp = temp->next;
     }
@@ -43,4 +43,18 @@ void insert_nachricht(Nachricht *ptr, int index) {
 void delete_nachricht(Nachricht *ptr) {
     ptr->previous->next = ptr->next;
     free(ptr);
+}
+
+Option_tree *create_option(wchar_t *opt, void (*function)(int, char *), int argc, char *argv, Option_tree *parent, int n_childs, int index) {
+    Option_tree *temp = malloc(sizeof(Option_tree));
+    temp->opt = opt;
+    temp->n_childs = n_childs;
+    temp->parent = parent;
+    temp->function = function;
+    temp->argc = argc;
+    temp->argv = argv;
+    temp->childs = malloc(temp->n_childs * sizeof(Option_tree));
+    if (temp->parent != NULL)
+        temp->parent->childs[index] = temp;
+    return temp;
 }

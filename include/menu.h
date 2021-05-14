@@ -6,9 +6,10 @@
 #define INFORMATIK_PROJEKT_MENU_H
 #include "main.h"
 #include "analyser.h"
+#include "structs.h"
 
 #define x_size 160
-#define y_size 50
+#define y_size 160
 #define x_pos 40
 #define y_pos 3
 
@@ -32,7 +33,7 @@ typedef struct Pixel{
 Pixel picture_buffer[y_size][x_size];
 
 void main_menu();
-int menu(int quantity,int select,...);
+int menu(int select, struct Option_tree *option);
 void anzeigeHintergrund(int r, int g, int b);
 void anzeigeVordergrund(int r, int g, int b);
 void clearscreen();
