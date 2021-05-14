@@ -178,32 +178,7 @@ int *count_weekday() {
             k = ptr->jahr;
         }
         weekday = (ptr->tag + 2 * h + (3 * h + 3) / 5 + k + k / 4 - k / 100 + k / 400 + 1) % 7;
-        switch (weekday) {
-            case 0:
-                *(arr1 + 6) += 1;
-                break;
-            case 1:
-                *arr1 += 1;
-                break;
-            case 2:
-                *(arr1 + 1) += 1;
-                break;
-            case 3:
-                *(arr1 + 2) += 1;
-                break;
-            case 4:
-                *(arr1 + 3) += 1;
-                break;
-            case 5:
-                *(arr1 + 4) += 1;
-                break;
-            case 6:
-                *(arr1 + 5) += 1;
-                break;
-            default:
-                perror("Fehler Wochentag!");
-                break;
-        }
+        *(arr1 + weekday) += 1;
         ptr = ptr->next;
     }
     return arr1;
@@ -237,86 +212,86 @@ int *count_hours() {
         *(arr1 + x) = 0;
     }
     while (ptr->next != NULL) {
-        switch (ptr->stunde) {
-            case 0:
-                *(arr1) += 1;
-                break;
-            case 1:
-                *(arr1 + 1) += 1;
-                break;
-            case 2:
-                *(arr1 + 2) += 1;
-                break;
-            case 3:
-                *(arr1 + 3) += 1;
-                break;
-            case 4:
-                *(arr1 + 4) += 1;
-                break;
-            case 5:
-                *(arr1 + 5) += 1;
-                break;
-            case 6:
-                *(arr1 + 6) += 1;
-                break;
-            case 7:
-                *(arr1 + 7) += 1;
-                break;
-            case 8:
-                *(arr1 + 8) += 1;
-                break;
-            case 9:
-                *(arr1 + 9) += 1;
-                break;
-            case 10:
-                *(arr1 + 10) += 1;
-                break;
-            case 11:
-                *(arr1 + 11) += 1;
-                break;
-            case 12:
-                *(arr1 + 12) += 1;
-                break;
-            case 13:
-                *(arr1 + 13) += 1;
-                break;
-            case 14:
-                *(arr1 + 14) += 1;
-                break;
-            case 15:
-                *(arr1 + 15) += 1;
-                break;
-            case 16:
-                *(arr1 + 16) += 1;
-                break;
-            case 17:
-                *(arr1 + 17) += 1;
-                break;
-            case 18:
-                *(arr1 + 18) += 1;
-                break;
-            case 19:
-                *(arr1 + 19) += 1;
-                break;
-            case 20:
-                *(arr1 + 20) += 1;
-                break;
-            case 21:
-                *(arr1 + 21) += 1;
-                break;
-            case 22:
-                *(arr1 + 22) += 1;
-                break;
-            case 23:
-                *(arr1 + 23) += 1;
-                break;
-            default:
-                perror("Fehler Uhrzeit!");
-                break;
-        }
+        *(arr1 + ptr->stunde) += 1;
+        ptr = ptr->next;
+    }
+    return arr1;
+}
+
+int *count_month() {
+    Nachricht *ptr = first_nachricht;
+    int *arr1 = (int *) malloc(12 * sizeof(int));
+    for (int x = 0; x < 12; x++) {
+        *(arr1 + x) = 0;
+    }
+    while (ptr->next != NULL) {
+        *(arr1 + ptr->monat) += 1;
         ptr = ptr->next;
     }
     return arr1;
 }
 
 
+/*void woerterbook() {
+    first_word = NULL;
+    int laenge, offset;
+    char *anfang;
+    Nachricht *ptr = first_nachricht;
+    while (ptr->next != NULL) {
+        if ((strcmp(ptr->nachricht,"<medien ausgeschlossen>")) == 0) continue;
+        offset = 0;
+        while (ptr->nachricht[offset] != '\0' && ptr->nachricht[offset] != '\n') {
+            anfang = ptr->nachricht + offset;
+            laenge = 0;
+            while (ptr->nachricht[laenge + offset] != ' ' && ptr->nachricht[laenge + offset] != '.' &&
+                   ptr->nachricht[laenge + offset] != ',' && ptr->nachricht[laenge + offset] != ':' && ptr->nachricht[laenge + offset] != '!' &&
+                   ptr->nachricht[laenge + offset] != '?' && ptr->nachricht[laenge + offset] != '\n' &&
+                   ptr->nachricht[laenge + offset] != '\0' &&
+                   ptr->nachricht[laenge + offset] != '<' &&
+                   ptr->nachricht[laenge + offset] != '>' &&
+                   ptr->nachricht[laenge + offset] != '|' &&
+                   ptr->nachricht[laenge + offset] != '/'){
+                laenge++;
+            }
+            if (laenge == 0) offset++;
+            //else insert(anfang,laenge,first_word);
+            }
+        ptr = ptr->next;
+    }
+    //print(first_word);
+}
+
+
+void insert(char *anfang, int l, Woerterbook *temp){
+    int x = 0;
+    if (temp == NULL){
+        Woerterbook *x = (Woerterbook *) malloc(sizeof(Woerterbook));
+        x->left = NULL;
+        x->right = NULL;
+        x->anzahl = 1;
+        x->wortanfang = anfang;
+        x->laenge = l;
+        if (first_word == NULL) first_word = x;
+        else temp = x;
+        return;
+    }
+    else {
+        if (l <= temp->laenge) x = l;
+        else x = temp->laenge;
+        if ((strncmp(anfang, temp->wortanfang, x) == 0)) {
+            temp->anzahl++;
+            return;
+        }
+        else if ((strncmp(anfang, temp->wortanfang, x) < 0)) insert(anfang, l, temp->left);
+        else if ((strncmp(anfang, temp->wortanfang, x) > 0)) insert(anfang, l, temp->right);
+    }
+}
+
+void print(Woerterbook *ptr){
+    char buffer[200];
+    if(ptr == NULL) return;
+    print(ptr->left);
+    strncpy(buffer,ptr->wortanfang,ptr->laenge);
+    printf("%s",buffer);
+    print(ptr->right);
+}*/

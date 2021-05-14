@@ -27,8 +27,10 @@ typedef struct User{
 } User;
 
 typedef struct Woerterbook{
-    struct Woerterbook *next;
+    struct Woerterbook *left;
+    struct Woerterbook *right;
     char *wortanfang;
+    int anzahl;
     int laenge;
 } Woerterbook;
 

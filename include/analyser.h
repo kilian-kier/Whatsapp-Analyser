@@ -20,5 +20,8 @@ struct User **sort_user(int n, int offset, char type);
 void swap_user(struct User *user1, struct User *user2);
 unsigned int count_words(const char *string);
 void create_dict();
-void woerterbook();
+//void woerterbook();
+int *count_month();
+//void insert(char *anfang, int l, Woerterbook *temp);
+//void print(Woerterbook *ptr);
 #endif //INFORMATIK_PROJEKT_ANALYSER_H
