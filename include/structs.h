@@ -23,6 +23,8 @@ typedef struct User{
     Nachricht *nachrichten;
     unsigned int nachrichten_len;
     double average_words;
+    int weekday_arr[7];
+    int hour_arr[24];
     struct User *previous;
 } User;
 
@@ -32,11 +34,23 @@ typedef struct Woerterbook{
     int laenge;
 } Woerterbook;
 
+
+typedef struct Option_tree{
+    wchar_t *opt;
+    void (*function)(int, char *);
+    int argc;
+    char *argv;
+    struct Option_tree *parent;
+    int n_childs;
+    struct Option_tree **childs;
+} Option_tree;
+
 Nachricht *get_nachricht(int index);
 User *get_user(int index);
 void insert_user(User *ptr, int index);
 void append_nachricht(Nachricht *ptr);
 void insert_nachricht(Nachricht *ptr, int index);
 void delete_nachricht(Nachricht *ptr);
+Option_tree *create_option(wchar_t *opt, void (*function)(int, char *), int argc, char *argv, Option_tree *parent, int n_childs, int index);
 
 #endif //INFORMATIK_PROJEKT_STRUCTS_H
