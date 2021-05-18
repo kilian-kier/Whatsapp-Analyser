@@ -1,7 +1,7 @@
 #include "include/print_to_screen.h"
 
 void print_weekday() {
-    init_picture_buffer(global_picture_buffer);
+    init_picture_buffer();
     print_to_buffer("Montag", 0, 0, white, black);
     print_to_buffer("Dienstag", 0, 2, white, black);
     print_to_buffer("Mittwoch", 0, 4, white, black);
@@ -32,7 +32,7 @@ void print_weekday() {
 }
 
 void print_hour() {
-    init_picture_buffer(global_picture_buffer);
+    init_picture_buffer();
     for (int i = 0; i < 24; i++) {
         char string[6];
         sprintf(string, "%02d-%02d", i, i + 1);
@@ -61,7 +61,7 @@ void print_hour() {
 }
 
 void print_month() {
-    init_picture_buffer(global_picture_buffer);
+    init_picture_buffer();
     print_to_buffer("Januar", 0, 0, white, black);
     print_to_buffer("Februar", 0, 2, white, black);
     print_to_buffer("Maerz", 0, 4, white, black);
@@ -97,7 +97,7 @@ void print_month() {
 }
 
 void print_average_words() {
-    init_picture_buffer(global_picture_buffer);
+    init_picture_buffer();
     int n = 0;
     User *temp = global_first_user;
     while (temp->next != NULL) {
@@ -131,7 +131,7 @@ void print_average_words() {
 }
 
 void print_message_len(unsigned short mode) {
-    init_picture_buffer(global_picture_buffer);
+    init_picture_buffer();
     int n = 0;
     User *temp = global_first_user;
     while (temp->next != NULL) {

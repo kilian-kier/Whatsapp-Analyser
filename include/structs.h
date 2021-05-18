@@ -47,10 +47,17 @@ typedef struct Color{
 }Color;
 
 typedef struct Pixel{
-    char character;
+    wchar_t character;
     Color foreground;
     Color background;
 }Pixel;
+
+typedef struct Console_buffer{
+    unsigned int n;
+    Pixel ** buffer;
+    struct Console_buffer * next;
+    struct Console_buffer * previous;
+}Console_buffer;
 
 #include "global.h"
 

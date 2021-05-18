@@ -9,18 +9,9 @@ void main_menu() {
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &screenBufferInfo);
     x_size = screenBufferInfo.srWindow.Right - x_pos-1;
     y_size = screenBufferInfo.srWindow.Bottom - y_pos-1;
-    global_picture_buffer = (Pixel**) malloc(y_size*sizeof(Pixel*));
-    for(int i = 0; i < y_size; i++){
-        global_picture_buffer[i] = (Pixel*) malloc( x_size * sizeof(Pixel));
-        if(global_picture_buffer[i]==NULL){
-            perror("malloc");
-        }
-    }
-
-
-    init_picture_buffer();
 
     draw_picture((char*)&_binary_whatsapptest_ppm_start,(char*)&_binary_whatsapptest_ppm_end,0, 0,100,40);
+    draw_picture((char*)&_binary_whatsapptest_ppm_start,(char*)&_binary_whatsapptest_ppm_end,0, 90,100,40);
 
     printf("\x1b[?25l");
 
@@ -46,7 +37,7 @@ void main_menu() {
         printf("\x1b[%dB", y_pos);
         x = menu(1, temp);
         if (x == 0) {
-            init_picture_buffer(global_picture_buffer);
+            init_picture_buffer();
             draw_picture_buffer();
             temp = temp->parent;
             if (temp == NULL)
@@ -87,13 +78,13 @@ int menu(int select, Option_tree *option) {
         fwprintf(stdout, L"%s\n", option->children[i - 1]->opt);
         foreground_color(255, 255, 255);
     }
-    SetConsoleCursorPosition(hStdout, line[select - 1]);
+    COORD jumpto;
     do {
         do {
             fflush(stdin);
             input = _getch();
-        } while (input != 10 && input != 13 && input != 'w' && input != 's' && input != 27);
-
+        } while (input != 10 && input != 13 && input != 'w' && input != 's' && input != 27  && input!='r' && input !='f' && input !='a' && input !='d');
+        jumpto=line[select - 1];
         switch (input) {
             case 'w':
                 select = select > 1 ? select - 1 : option->n_child;
@@ -101,11 +92,42 @@ int menu(int select, Option_tree *option) {
             case 's':
                 select = select < option->n_child ? select + 1 : 1;
                 break;
+            case 'f':
+                if(current_pos<page_count*y_size-y_size){
+                    current_pos++;
+                    draw_picture_buffer();
+                }
+                break;
+            case 'r':
+                if(current_pos>0){
+                    current_pos--;
+                    draw_picture_buffer();
+                }
+                break;
+            case 'a':
+                if(current_pos-y_size>0){
+                    current_pos-=y_size;
+                    draw_picture_buffer();
+                }else if(current_pos!=0){
+                    current_pos=0;
+                    draw_picture_buffer();
+                }
+                break;
+            case 'd':
+                if(current_pos+y_size<page_count*y_size-y_size+1){
+                    current_pos+=y_size;
+                    draw_picture_buffer();
+                }else if(current_pos+y_size!=page_count*y_size-y_size){
+                    current_pos=(page_count-1)*y_size;
+                    draw_picture_buffer();
+                }
+                break;
             case '':
                 return 0;
             default:
                 break;
         }
+        SetConsoleCursorPosition(hStdout, jumpto);
         printf("\x1b[1K\x1b[3D[ ]");
         SetConsoleCursorPosition(hStdout, line[select - 1]);
         printf("\x1b[1K\x1b[3D[*]");
