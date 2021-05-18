@@ -1,9 +1,12 @@
-#ifndef INFORMATIK_PROJEKT_SORT_H
-#define INFORMATIK_PROJEKT_SORT_H
+#ifndef SORT_H
+#define SORT_H
 
-#include "main.h"
+#include "std_include.h"
+#include "structs.h"
+
+User **sort_user(int n, int offset, char type);
 void merge(char ** arr, int size,int offset,char type);
 char ** merge_sort(char ** arr, int size, int offset,char type);
 void arr_cpy(int size, char**arr1,char**arr2);
 
-#endif //INFORMATIK_PROJEKT_SORT_H
+#endif //SORT_H
