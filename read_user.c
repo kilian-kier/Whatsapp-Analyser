@@ -1,49 +1,44 @@
-//
-// Created by kierk on 14.05.2021.
-//
-
 #include "include/read_user.h"
 
 void *read_user() {
-    Nachricht *nachricht = global_first_nachricht;
+    Message *message = global_first_message;
     User *user = (User *) malloc(sizeof(User));
     global_first_user = user;
-    global_first_user->previous = NULL;
     User *temp_user;
-    Nachricht *temp_nachricht;
+    Message *temp_message;
     int n_user = 0, found;
-    while (nachricht->next != NULL) {
-        if (nachricht->user == NULL) {
-            nachricht = nachricht->next;
+    while (message->next != NULL) {
+        if (message->user == NULL) {
+            message = message->next;
             continue;
         }
         temp_user = global_first_user;
         found = 0;
         for (int i = 0; i < n_user; i++) {
             if (found != 1) {
-                //TODO: Debuggen crasht do olbm
+                //TODO: Debuggen crasht do olbm, wohrscheinlich wegn é ba René
                 while (temp_user->next != NULL) {
-                    if (strcmp(nachricht->user, temp_user->name) == 0) {
-                        temp_nachricht = temp_user->nachrichten;
-                        while (temp_nachricht->nextUser != NULL) {
-                            temp_nachricht = temp_nachricht->nextUser;
+                    if (strcmp(message->user, temp_user->name) == 0) {
+                        temp_message = temp_user->message;
+                        while (temp_message->nextUser != NULL) {
+                            temp_message = temp_message->nextUser;
                         }
-                        temp_user->nachrichten_len++;
-                        temp_user->hour_arr[nachricht->stunde]++;
+                        temp_user->message_len++;
+                        temp_user->hour_arr[message->hour]++;
                         int h, k;
-                        if ((int)nachricht->monat <= 2) {
-                            h = (int)nachricht->monat + 12;
-                            k = (int)nachricht->jahr - 1;
+                        if ((int)message->month <= 2) {
+                            h = (int)message->month + 12;
+                            k = (int)message->year - 1;
                         } else {
-                            h = (int)nachricht->monat;
-                            k = (int)nachricht->jahr;
+                            h = (int)message->month;
+                            k = (int)message->year;
                         }
-                        user->weekday_arr[((int)nachricht->tag + 2 * h + (3 * h + 3) / 5 + k + k / 4 - k / 100 + k / 400 + 1) % 7]++;
-                        temp_user->average_words += count_words(nachricht->nachricht);
-                        temp_nachricht->nextUser = nachricht;
-                        temp_nachricht->nextUser->nextUser = NULL;
+                        user->weekday_arr[((int)message->day + 2 * h + (3 * h + 3) / 5 + k + k / 4 - k / 100 + k / 400 + 1) % 7]++;
+                        temp_user->average_words += count_words(message->message);
+                        temp_message->nextUser = message;
+                        temp_message->nextUser->nextUser = NULL;
                         found = 1;
-                        nachricht = nachricht->next;
+                        message = message->next;
                         break;
                     }
                     temp_user = temp_user->next;
@@ -52,30 +47,29 @@ void *read_user() {
         }
         if (found != 1) {
             n_user++;
-            user->name = (char *) malloc(strlen(nachricht->user) * sizeof(char));
-            strcpy(user->name, nachricht->user);
-            user->nachrichten = nachricht;
-            user->average_words = count_words(nachricht->nachricht);
-            user->nachrichten_len = 1;
-            user->nachrichten->nextUser = NULL;
+            user->name = (char *) malloc(strlen(message->user) * sizeof(char));
+            strcpy(user->name, message->user);
+            user->message = message;
+            user->average_words = count_words(message->message);
+            user->message_len = 1;
+            user->message->nextUser = NULL;
             for (int j = 0; j < 24; j++)
                 user->hour_arr[j] = 0;
             for (int j = 0; j < 7; j++)
                 user->weekday_arr[j] = 0;
-            user->hour_arr[nachricht->stunde]++;
+            user->hour_arr[message->hour]++;
             int h, k;
-            if ((int)nachricht->monat <= 2) {
-                h = (int)nachricht->monat + 12;
-                k = (int)nachricht->jahr - 1;
+            if ((int)message->month <= 2) {
+                h = (int)message->month + 12;
+                k = (int)message->year - 1;
             } else {
-                h = (int)nachricht->monat;
-                k = (int)nachricht->jahr;
+                h = (int)message->month;
+                k = (int)message->year;
             }
-            user->weekday_arr[((int)nachricht->tag + 2 * h + (3 * h + 3) / 5 + k + k / 4 - k / 100 + k / 400 + 1) % 7]++;
-            nachricht = nachricht->next;
+            user->weekday_arr[((int)message->day + 2 * h + (3 * h + 3) / 5 + k + k / 4 - k / 100 + k / 400 + 1) % 7]++;
+            message = message->next;
             User *next = (User *) malloc(sizeof(User));
             user->next = next;
-            user->next->previous = user;
             user = next;
             user->next = NULL;
         }
@@ -84,7 +78,7 @@ void *read_user() {
     int n = 0;
     while (temp_user->next != NULL) {
         n++;
-        temp_user->average_words = temp_user->average_words / temp_user->nachrichten_len;
+        temp_user->average_words = temp_user->average_words / temp_user->message_len;
         temp_user = temp_user->next;
     }
 }

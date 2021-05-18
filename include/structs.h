@@ -1,56 +1,59 @@
-#ifndef INFORMATIK_PROJEKT_STRUCTS_H
-#define INFORMATIK_PROJEKT_STRUCTS_H
+#ifndef STRUCTS_H
+#define STRUCTS_H
 
-#include "stdlib.h"
-#include "global.h"
+#include "std_include.h"
 
-typedef struct Nachricht{
-    struct Nachricht *next;
-    unsigned int tag :5;
-    unsigned int monat :4;
-    unsigned int jahr :7;
-    unsigned int stunde :5;
+typedef struct Message{
+    struct Message *next;
+    unsigned int day :5;
+    unsigned int month :4;
+    unsigned int year :7;
+    unsigned int hour :5;
     unsigned int minute :6;
     char *user;
-    char *nachricht;
-    struct Nachricht *nextUser;
-    struct Nachricht *previous;
-} Nachricht;
+    char *message;
+    struct Message *nextUser;
+} Message;
 
 typedef struct User{
     struct User *next;
     char *name;
-    Nachricht *nachrichten;
-    unsigned int nachrichten_len;
+    Message *message;
+    unsigned int message_len;
     double average_words;
     int weekday_arr[7];
     int hour_arr[24];
-    struct User *previous;
 } User;
 
-typedef struct Woerterbook{
-    struct Woerterbook *next;
-    char *wortanfang;
-    int laenge;
-} Woerterbook;
+typedef struct Dictionary{
+    struct Dictionary *next;
+    char *word_start;
+    int len;
+} Dictionary;
 
 
 typedef struct Option_tree{
     wchar_t *opt;
-    void (*function)(int, char *);
-    int argc;
-    char *argv;
+    void (*function)(FILE *f);
     struct Option_tree *parent;
-    int n_childs;
-    struct Option_tree **childs;
+    int n_child;
+    struct Option_tree **children;
 } Option_tree;
 
-Nachricht *get_nachricht(int index);
-User *get_user(int index);
-void insert_user(User *ptr, int index);
-void append_nachricht(Nachricht *ptr);
-void insert_nachricht(Nachricht *ptr, int index);
-void delete_nachricht(Nachricht *ptr);
-Option_tree *create_option(wchar_t *opt, void (*function)(int, char *), int argc, char *argv, Option_tree *parent, int n_childs, int index);
+typedef struct Color{
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+}Color;
 
-#endif //INFORMATIK_PROJEKT_STRUCTS_H
+typedef struct Pixel{
+    char character;
+    Color foreground;
+    Color background;
+}Pixel;
+
+#include "global.h"
+
+Option_tree *create_option(wchar_t *opt, void (*function)(FILE *), Option_tree *parent, int n_child, int index);
+
+#endif //STRUCTS_H
