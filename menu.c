@@ -1,9 +1,27 @@
 #include "include/menu.h"
-
+extern char*_binary_whatsapptest_ppm_start;
+extern char*_binary_whatsapptest_ppm_end;
 void main_menu() {
     FILE *f = NULL;
     ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
+
+    struct _CONSOLE_SCREEN_BUFFER_INFO screenBufferInfo;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &screenBufferInfo);
+    x_size = screenBufferInfo.srWindow.Right - x_pos-1;
+    y_size = screenBufferInfo.srWindow.Bottom - y_pos-1;
+    global_picture_buffer = (Pixel**) malloc(y_size*sizeof(Pixel*));
+    for(int i = 0; i < y_size; i++){
+        global_picture_buffer[i] = (Pixel*) malloc( x_size * sizeof(Pixel));
+        if(global_picture_buffer[i]==NULL){
+            perror("malloc");
+        }
+    }
+
+
     init_picture_buffer();
+
+    draw_picture((char*)&_binary_whatsapptest_ppm_start,(char*)&_binary_whatsapptest_ppm_end,0, 0,100,40);
+
     printf("\x1b[?25l");
 
     Option_tree *temp = create_option(NULL, NULL, NULL, 2, 0);
@@ -45,17 +63,19 @@ void main_menu() {
 
 
 int menu(int select, Option_tree *option) {
-    draw_background(0, 0, 0);
-    draw_foreground(255, 255, 255);
+    background_color(0, 0, 0);
+    foreground_color(255, 255, 255);
     int input;
 
     HANDLE hStdout;
     hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO cursor;
     COORD line[option->n_child];
-    draw_foreground(menucolor);
+    foreground_color(menucolor);
+
     printf("%s\n", "WhatsApp Analyzer\n");
-    draw_foreground(255, 255, 255);
+    foreground_color(255, 255, 255);
+
     for (int i = 1; i <= option->n_child; i++) {
         GetConsoleScreenBufferInfo(hStdout, &cursor);
         line[i - 1] = cursor.dwCursorPosition;
@@ -65,7 +85,7 @@ int menu(int select, Option_tree *option) {
             printf("[ ]\t");
         }
         fwprintf(stdout, L"%s\n", option->children[i - 1]->opt);
-        draw_foreground(255, 255, 255);
+        foreground_color(255, 255, 255);
     }
     SetConsoleCursorPosition(hStdout, line[select - 1]);
     do {

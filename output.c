@@ -57,55 +57,89 @@ void draw_rect(int xpos, int ypos, int xsize, int ysize, Color color, bool fill,
     }
 }
 
-void draw_picture(char *file, int xpos, int ypos, int xsize, int ysize) {
-    char rubbish[100];
+void draw_picture(char *pointer1, char*pointer2, int xpos, int ypos, int xsize, int ysize) {
+    char temp[100];
     unsigned char color;
     int ret = 1;
     int columns = 0;
     int rows = 0;
+    FILE*picture;
 
-    FILE *picture = fopen(file, "rb");
-    if (picture == NULL) {
-        perror("fopen");
-        return;
-    }
-    rewind(picture);
-
-    for (int i = 0; i < 2; i++) {
-        fgets(rubbish, 100, picture);
-    }
-    fscanf(picture, "%d %d\n", &columns, &rows);
     if (xsize + xpos > x_size || ysize + ypos > y_size) {
         printf("Bild ist zu gross");
         return;
     }
 
+    if(pointer2==NULL) {
+        picture = fopen(pointer1, "rb");
+        if (picture == NULL) {
+            perror("fopen");
+            return;
+        }
+        rewind(picture);
+        for (int i = 0; i < 2; i++) {
+            fgets(temp, 100, picture);
+        }
+        fscanf(picture, "%d %d\n", &columns, &rows);
+        fgets(temp, 100, picture);
+    }else{
+        int i=0;
+        while(i<2){
+            if(*pointer1=='\n') i++;
+            pointer1++;
+        }
+        for(i=0;pointer1[i]!=' ';i++);
+        pointer1[i]=0;
+        columns=atoi(pointer1);
+        pointer1=&pointer1[i]+1;
+        for(i=0;pointer1[i]!='\n';i++);
+        pointer1[i]=0;
+        rows=atoi(pointer1);
+
+
+        for(pointer1;*pointer1!='\n';pointer1++);
+        pointer1++;
+    }
     unsigned char (*buffer)[rows][columns][3] = (unsigned char (*)[rows][columns][3]) malloc(
             sizeof(unsigned char) * rows * columns * 3);
 
-    fgets(rubbish, 100, picture);
-    for (int y = 0; y < rows && ret == 1; y++) {
-        for (int x = 0; x < columns && ret == 1; x++) {
-            fread(&color, 1, 1, picture);
-            (*buffer)[y][x][0] = color;
-            fread(&color, 1, 1, picture);
-            (*buffer)[y][x][1] = color;
-            ret = (int)fread(&color, 1, 1, picture);
-            (*buffer)[y][x][2] = color;
+    if(pointer2==NULL){
+        for (int y = 0; y < rows && ret == 1; y++) {
+            for (int x = 0; x < columns && ret == 1; x++) {
+                fread(&color, 1, 1, picture);
+                (*buffer)[y][x][0] = color;
+                fread(&color, 1, 1, picture);
+                (*buffer)[y][x][1] = color;
+                ret = fread(&color, 1, 1, picture);
+                (*buffer)[y][x][2] = color;
+            }
+        }
+        fclose(picture);
+    }else{
+        for (int y = 0; y < rows; y++) {
+            for (int x = 0; x < columns; x++) {
+                (*buffer)[y][x][0] = *pointer1;
+                pointer1++;
+                (*buffer)[y][x][1] = *pointer1;
+                pointer1++;
+                (*buffer)[y][x][2] = *pointer1;
+                pointer1++;
+            }
         }
     }
-    int new_x;
-    int new_y;
+
+    int newx;
+    int newy;
     for (int y = 0; y < ysize; y++) {
         for (int x = 0; x < xsize; x++) {
-            new_x = x * columns / xsize;
-            new_y = y * rows / ysize;
+            newx = x * columns / xsize;
+            newy = y * rows / ysize;
             global_picture_buffer[y + ypos][x + xpos].character = ' ';
-            global_picture_buffer[y + ypos][x + xpos].background = (Color) {(*buffer)[new_y][new_x][0], (*buffer)[new_y][new_x][1],
-                                                                            (*buffer)[new_y][new_x][2]};
+            global_picture_buffer[y + ypos][x + xpos].background = (Color) {(*buffer)[newy][newx][0], (*buffer)[newy][newx][1],
+                                                                     (*buffer)[newy][newx][2]};
         }
     }
-    free(*buffer);
+    free((*buffer));
 }
 
 void draw_picture_buffer() {
@@ -124,14 +158,14 @@ void draw_picture_buffer() {
                 br = global_picture_buffer[y][x].background.r;
                 bg = global_picture_buffer[y][x].background.g;
                 bb = global_picture_buffer[y][x].background.b;
-                draw_background(br, bg, bb);
+                background_color(br, bg, bb);
             }
             if (global_picture_buffer[y][x].foreground.r != br || global_picture_buffer[y][x].foreground.g != bg ||
                 global_picture_buffer[y][x].foreground.b != bb) {
                 r = global_picture_buffer[y][x].foreground.r;
                 g = global_picture_buffer[y][x].foreground.g;
                 b = global_picture_buffer[y][x].foreground.b;
-                draw_foreground(r, g, b);
+                foreground_color(r, g, b);
             }
 
             printf("%c", global_picture_buffer[y][x].character);
@@ -139,7 +173,7 @@ void draw_picture_buffer() {
         printf("\x1b[%dD\x1b[1B", x_size);
     }
     fflush(stdout);
-    draw_foreground(255, 255, 255);
+    foreground_color(255, 255, 255);
     printf("\x1b[H");
     setvbuf(stdout, NULL, _IONBF, 0);
 }
@@ -148,10 +182,10 @@ void clear_screen() {
     printf("\x1b[H\x1b[0J");
 }
 
-void draw_foreground(int r, int g, int b) {
+void foreground_color(int r, int g, int b) {
     printf("\x1b[38;2;%d;%d;%dm", r, g, b);
 }
 
-void draw_background(int r, int g, int b) {
+void background_color(int r, int g, int b) {
     printf("\x1b[48;2;%d;%d;%dm", r, g, b);
 }
