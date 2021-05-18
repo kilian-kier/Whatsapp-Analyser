@@ -5,8 +5,8 @@
 
 #include "structs.h"
 
-#define x_size 160
-#define y_size 160
+int x_size;
+int y_size;
 #define x_pos 40
 #define y_pos 3
 #define buffersize 10000
@@ -18,7 +18,7 @@ struct Dictionary *gloabl_first_word;
 int *global_week_arr;
 int *global_hour_arr;
 int *global_month_arr;
-Pixel global_picture_buffer[y_size][x_size];
+Pixel **global_picture_buffer;
 pthread_t read_file_tread;
 pthread_t read_user_tread;
 pthread_t weekday_thread;

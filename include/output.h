@@ -11,12 +11,12 @@
 #define FOREGROUND_LAYER 1
 #define BACKGROUND_LAYER 0
 
-void draw_background(int r, int g, int b);
-void draw_foreground(int r, int g, int b);
+void background_color(int r, int g, int b);
+void foreground_color(int r, int g, int b);
 void clear_screen();
 void draw_picture_buffer();
 void init_picture_buffer();
-void draw_picture(char *file, int xpos, int ypos,int xsize,int ysize);
+void draw_picture(char *pointer1,char*pointer2 ,int xpos, int ypos,int xsize,int ysize);
 void print_to_buffer(char string[], int xpos,int ypos, Color foreground, struct Color background);
 void draw_rect(int xpos,int ypos,int xsize, int ysize, Color color, bool fill, bool layer);
 
