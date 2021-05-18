@@ -4,14 +4,14 @@
 
 void *readFile(void *f) {
     if ((FILE *)f == NULL)
-        perror("fopen");
+        perror("fopen_readFile");
     else {
         char buffer[buffersize];
         char two_char_buffer[3];
         //strtol convert String to Integer
         char *strtol_buffer[1];
         Nachricht *ptr = (Nachricht *)malloc(sizeof(Nachricht));
-        first_nachricht = ptr;
+        global_first_nachricht = ptr;
         int size = 0;
         while (getMessage(buffer,f) != NULL) {
             strncpy(two_char_buffer, buffer, 2);
@@ -42,6 +42,9 @@ void *readFile(void *f) {
         ptr->next = NULL;
         count_nachrichten();
         pthread_create(&read_user_tread, NULL, read_user, NULL);
+        pthread_create(&weekday_thread, NULL, count_weekday, NULL);
+        pthread_create(&hour_thread, NULL, count_hours, NULL);
+        pthread_create(&month_thread, NULL, count_month, NULL);
     }
 }
 char * getMessage(char *buffer,FILE *f){

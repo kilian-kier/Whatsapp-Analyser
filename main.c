@@ -6,6 +6,7 @@ int main(int args, char *argv[]) {
     main_menu();
     //FILE *f = fopen(argv[1], "rb"); readFile(f); read_user(); print_nachricht_len(0), print_nachricht_len(1);
     //FILE *f = fopen(argv[1], "rb"); readFile(f); read_user(); print_nachricht_len(1);
+    //FILE *f = fopen(argv[1], "rb"); readFile(f); /*read_user();*/ count_weekday(); count_hours(); count_month(); print_weekday(); print_hour();
 }
 
 void print_nachricht(Nachricht *nachricht) {
@@ -38,4 +39,5 @@ char *get_file_name() {
     if (GetOpenFileName(&ofn))
         strcpy(fileNameStr, fileName);
     return fileNameStr;
+
 }
