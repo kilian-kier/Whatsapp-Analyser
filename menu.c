@@ -1,9 +1,18 @@
 #include "include/menu.h"
-
+extern char*_binary_whatsapp_logo_ppm_start;
+extern char*_binary_whatsapp_logo_ppm_end;
 void main_menu() {
     FILE *f = NULL;
     ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
-    init_picture_buffer();
+
+    struct _CONSOLE_SCREEN_BUFFER_INFO screenBufferInfo;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &screenBufferInfo);
+    x_size = screenBufferInfo.srWindow.Right - x_pos-1;
+    y_size = screenBufferInfo.srWindow.Bottom - y_pos-1;
+
+    draw_picture((char*)&_binary_whatsapp_logo_ppm_start,(char*)&_binary_whatsapp_logo_ppm_end,0, 0,x_size,y_size-1);
+    //draw_picture((char*)&_binary_whatsapptest_ppm_start,(char*)&_binary_whatsapptest_ppm_end,0, 90,100,40);
+
     printf("\x1b[?25l");
 
     Option_tree *temp = create_option(NULL, NULL, NULL, 2, 0);
@@ -28,7 +37,7 @@ void main_menu() {
         printf("\x1b[%dB", y_pos);
         x = menu(1, temp);
         if (x == 0) {
-            init_picture_buffer(global_picture_buffer);
+            init_picture_buffer();
             draw_picture_buffer();
             temp = temp->parent;
             if (temp == NULL)
@@ -45,17 +54,19 @@ void main_menu() {
 
 
 int menu(int select, Option_tree *option) {
-    draw_background(0, 0, 0);
-    draw_foreground(255, 255, 255);
+    background_color(0, 0, 0);
+    foreground_color(255, 255, 255);
     int input;
 
     HANDLE hStdout;
     hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO cursor;
     COORD line[option->n_child];
-    draw_foreground(menucolor);
+    foreground_color(menucolor);
+
     printf("%s\n", "WhatsApp Analyzer\n");
-    draw_foreground(255, 255, 255);
+    foreground_color(255, 255, 255);
+
     for (int i = 1; i <= option->n_child; i++) {
         GetConsoleScreenBufferInfo(hStdout, &cursor);
         line[i - 1] = cursor.dwCursorPosition;
@@ -65,15 +76,15 @@ int menu(int select, Option_tree *option) {
             printf("[ ]\t");
         }
         fwprintf(stdout, L"%s\n", option->children[i - 1]->opt);
-        draw_foreground(255, 255, 255);
+        foreground_color(255, 255, 255);
     }
-    SetConsoleCursorPosition(hStdout, line[select - 1]);
+    COORD jumpto;
     do {
         do {
             fflush(stdin);
             input = _getch();
-        } while (input != 10 && input != 13 && input != 'w' && input != 's' && input != 27);
-
+        } while (input != 10 && input != 13 && input != 'w' && input != 's' && input != 27  && input!='r' && input !='f' && input !='a' && input !='d');
+        jumpto=line[select - 1];
         switch (input) {
             case 'w':
                 select = select > 1 ? select - 1 : option->n_child;
@@ -81,11 +92,42 @@ int menu(int select, Option_tree *option) {
             case 's':
                 select = select < option->n_child ? select + 1 : 1;
                 break;
+            case 'f':
+                if(current_pos<page_count*y_size-y_size){
+                    current_pos++;
+                    draw_picture_buffer();
+                }
+                break;
+            case 'r':
+                if(current_pos>0){
+                    current_pos--;
+                    draw_picture_buffer();
+                }
+                break;
+            case 'a':
+                if(current_pos-y_size>0){
+                    current_pos-=y_size;
+                    draw_picture_buffer();
+                }else if(current_pos!=0){
+                    current_pos=0;
+                    draw_picture_buffer();
+                }
+                break;
+            case 'd':
+                if(current_pos+y_size<page_count*y_size-y_size+1){
+                    current_pos+=y_size;
+                    draw_picture_buffer();
+                }else if(current_pos+y_size!=page_count*y_size-y_size){
+                    current_pos=(page_count-1)*y_size;
+                    draw_picture_buffer();
+                }
+                break;
             case '':
                 return 0;
             default:
                 break;
         }
+        SetConsoleCursorPosition(hStdout, jumpto);
         printf("\x1b[1K\x1b[3D[ ]");
         SetConsoleCursorPosition(hStdout, line[select - 1]);
         printf("\x1b[1K\x1b[3D[*]");
