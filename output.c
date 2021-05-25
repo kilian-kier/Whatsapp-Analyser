@@ -1,14 +1,100 @@
 #include "include/output.h"
 
-void init_picture_buffer() {
-    for (int y = 0; y < y_size; y++) {
-        for (int x = 0; x < x_size; x++) {
-            global_picture_buffer[y][x].character = ' ';
-            global_picture_buffer[y][x].foreground = white;
-            global_picture_buffer[y][x].background = black;
 
+int print_point(int x,int y, wchar_t c, Color *foreground, Color *background){
+    static Console_buffer *current=NULL;
+    int buffer_index=y/y_size;
+
+    if(x>=x_size){
+        return -1;
+    }
+    if(current==NULL){
+        global_picture_buffer2=create_console_buffer();
+        if(global_picture_buffer2==NULL){
+            return -1;
+        }
+        global_picture_buffer2->n=0;
+        global_picture_buffer2->next=NULL;
+        global_picture_buffer2->previous=NULL;
+        current=global_picture_buffer2;
+        page_count=1;
+    }
+   while(buffer_index!=current->n){
+       if(buffer_index > current->n){
+           if(current->next==NULL){
+               current->next=create_console_buffer();
+               current->next->previous=current;
+               current->next->next=NULL;
+               current->next->n=current->n+1;
+               if(current->next==NULL){
+                   return -1;
+               }
+           }
+           current=current->next;
+           page_count++;
+       }else{
+           current=current->previous;
+       }
+   }
+   int newy=y%(y_size);
+   if(foreground!=NULL){
+       current->buffer[newy][x].foreground=*foreground;
+   }
+   if(background!=NULL){
+       current->buffer[newy][x].background=*background;
+   }
+   current->buffer[newy][x].character=c;
+   return 0;
+}
+Console_buffer *create_console_buffer(){
+    Console_buffer *buffer=malloc(sizeof(Console_buffer));
+    if(buffer==NULL){
+        return NULL;
+    }
+    buffer->buffer=(Pixel**) malloc(y_size*sizeof(Pixel*)+x_size*y_size*sizeof(Pixel));
+    if(buffer->buffer==NULL){
+        return NULL;
+    }
+    Pixel * buf=(Pixel*) (buffer->buffer+y_size);
+    for(int i = 0; i < y_size; i++){
+        buffer->buffer[i] =buf+(i*x_size);
+    }
+    init_console_buffer(buffer);
+    return buffer;
+}
+void free_console_buffer(Console_buffer *buffer){
+    if(buffer!=NULL){
+        if(buffer->buffer!=NULL){
+            free(buffer->buffer);
+        }
+        free(buffer);
+    }
+    return;
+}
+void init_picture_buffer() {
+    Console_buffer *temp=global_picture_buffer2->next;
+    Console_buffer *temp2;
+
+    while(temp!=NULL){
+        temp2=temp->next;
+        free_console_buffer(temp);
+        temp=temp2->next;
+    }
+    page_count=1;
+    init_console_buffer(global_picture_buffer2);
+    return;
+}
+void init_console_buffer( Console_buffer *buffer){
+    for(int y=0;y<y_size;y++){
+        for(int x=0;x<x_size;x++){
+            buffer->buffer[y][x].character=' ';
+            buffer->buffer[y][x].character=' ';
+            buffer->buffer[y][x].character=' ';
+            buffer->buffer[y][x].foreground=white;
+            buffer->buffer[y][x].background=black;
         }
     }
+    return;
 }
 
 void print_to_buffer(char string[], int xpos, int ypos, Color foreground, Color background) {
@@ -34,9 +120,7 @@ void print_to_buffer(char string[], int xpos, int ypos, Color foreground, Color 
             }
             continue;
         }
-        global_picture_buffer[y][x].character = string[i];
-        global_picture_buffer[y][x].foreground = foreground;
-        global_picture_buffer[y][x].background = background;
+        print_point(x,y,string[i],&foreground,&background);
         x++;
     }
 }
@@ -46,11 +130,9 @@ void draw_rect(int xpos, int ypos, int xsize, int ysize, Color color, bool fill,
         for (int x = 0; x < xsize; x++) {
             if (fill || (!x || !y || y == ysize - 1 || x == xsize - 1)) {
                 if (layer) {
-                    global_picture_buffer[y + ypos][x + xpos].character = -37;
-                    global_picture_buffer[y + ypos][x + xpos].foreground = color;
+                    print_point(x+xpos,y+ypos,-37,&color,NULL);
                 } else {
-                    global_picture_buffer[y + ypos][x + xpos].character = ' ';
-                    global_picture_buffer[y + ypos][x + xpos].background = color;
+                    print_point(x+xpos,y+ypos,' ',NULL,&color);
                 }
             }
         }
@@ -65,7 +147,7 @@ void draw_picture(char *pointer1, char*pointer2, int xpos, int ypos, int xsize, 
     int rows = 0;
     FILE*picture;
 
-    if (xsize + xpos > x_size || ysize + ypos > y_size) {
+    if (xsize + xpos > x_size) {
         printf("Bild ist zu gross");
         return;
     }
@@ -91,12 +173,13 @@ void draw_picture(char *pointer1, char*pointer2, int xpos, int ypos, int xsize, 
         for(i=0;pointer1[i]!=' ';i++);
         pointer1[i]=0;
         columns=atoi(pointer1);
+        pointer1[i]=' ';
         pointer1=&pointer1[i]+1;
         for(i=0;pointer1[i]!='\n';i++);
         pointer1[i]=0;
         rows=atoi(pointer1);
-
-
+        pointer1[i]='\n';
+        pointer1=&pointer1[i]+1;
         for(pointer1;*pointer1!='\n';pointer1++);
         pointer1++;
     }
@@ -130,13 +213,13 @@ void draw_picture(char *pointer1, char*pointer2, int xpos, int ypos, int xsize, 
 
     int newx;
     int newy;
+    Color rgb;
     for (int y = 0; y < ysize; y++) {
         for (int x = 0; x < xsize; x++) {
             newx = x * columns / xsize;
             newy = y * rows / ysize;
-            global_picture_buffer[y + ypos][x + xpos].character = ' ';
-            global_picture_buffer[y + ypos][x + xpos].background = (Color) {(*buffer)[newy][newx][0], (*buffer)[newy][newx][1],
-                                                                     (*buffer)[newy][newx][2]};
+            rgb =(Color){(*buffer)[newy][newx][0], (*buffer)[newy][newx][1],(*buffer)[newy][newx][2]};
+            print_point(x+xpos,y+ypos,' ',NULL,&rgb);
         }
     }
     free((*buffer));
@@ -149,31 +232,49 @@ void draw_picture_buffer() {
     int bg;
     int b;
     int bb;
+
+    int page=current_pos/y_size;
+    int offset=current_pos%y_size;
+    int newy;
+    Console_buffer *temp=global_picture_buffer2;
+    while(temp->n!=page){
+        if(temp->next!=0){
+            temp=temp->next;
+        }else{
+            return;
+        }
+    }
+
     setvbuf(stdout, NULL, _IOFBF, (x_pos + x_size) * (y_pos + y_size) * 25);
     printf("\x1b[%d;%dH", y_pos + 1, x_pos + 1);
     for (int y = 0; y < y_size; y += 1) {
+        newy=y+offset;
         for (int x = 0; x < x_size; x++) {
-            if (global_picture_buffer[y][x].background.r != br || global_picture_buffer[y][x].background.g != bg ||
-                global_picture_buffer[y][x].background.b != bb) {
-                br = global_picture_buffer[y][x].background.r;
-                bg = global_picture_buffer[y][x].background.g;
-                bb = global_picture_buffer[y][x].background.b;
+            if (temp->buffer[newy][x].background.r != br || temp->buffer[newy][x].background.g != bg ||
+                    temp->buffer[newy][x].background.b != bb) {
+                br = temp->buffer[newy][x].background.r;
+                bg = temp->buffer[newy][x].background.g;
+                bb = temp->buffer[newy][x].background.b;
                 background_color(br, bg, bb);
             }
-            if (global_picture_buffer[y][x].foreground.r != br || global_picture_buffer[y][x].foreground.g != bg ||
-                global_picture_buffer[y][x].foreground.b != bb) {
-                r = global_picture_buffer[y][x].foreground.r;
-                g = global_picture_buffer[y][x].foreground.g;
-                b = global_picture_buffer[y][x].foreground.b;
+            if (global_picture_buffer2->buffer[newy][x].foreground.r != br || global_picture_buffer2->buffer[newy][x].foreground.g != bg ||
+                    global_picture_buffer2->buffer[newy][x].foreground.b != bb) {
+                r = global_picture_buffer2->buffer[newy][x].foreground.r;
+                g = global_picture_buffer2->buffer[newy][x].foreground.g;
+                b = global_picture_buffer2->buffer[newy][x].foreground.b;
                 foreground_color(r, g, b);
             }
-
-            printf("%c", global_picture_buffer[y][x].character);
+            printf("%c", global_picture_buffer2->buffer[newy][x].character);
+        }
+        if(newy==y_size-1){
+            offset=-(y+1);
+            temp=temp->next;
         }
         printf("\x1b[%dD\x1b[1B", x_size);
     }
     fflush(stdout);
     foreground_color(255, 255, 255);
+    printf("P[%d | %d]",page+1,page_count);
     printf("\x1b[H");
     setvbuf(stdout, NULL, _IONBF, 0);
 }
