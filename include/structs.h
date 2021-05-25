@@ -26,11 +26,13 @@ typedef struct User{
 } User;
 
 typedef struct Dictionary{
-    struct Dictionary *next;
-    char *word_start;
-    int len;
+    struct Dictionary *left;
+    struct Dictionary *right;
+    char *wortanfang;
+    int anzahl;
+    int laenge;
+    int level;
 } Dictionary;
-
 
 typedef struct Option_tree{
     wchar_t *opt;
