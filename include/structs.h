@@ -25,13 +25,14 @@ typedef struct User{
     int hour_arr[24];
 } User;
 
-typedef struct Woerterbook{
-    struct Woerterbook *left;
-    struct Woerterbook *right;
+typedef struct Dictionary{
+    struct Dictionary *left;
+    struct Dictionary *right;
     char *wortanfang;
     int anzahl;
     int laenge;
-} Woerterbook;
+    int level;
+} Dictionary;
 
 typedef struct Option_tree{
     wchar_t *opt;
