@@ -18,7 +18,7 @@ struct Dictionary *gloabl_first_word;
 int *global_week_arr;
 int *global_hour_arr;
 int *global_month_arr;
-Console_buffer *global_picture_buffer2;
+Console_buffer *global_picture_buffer;
 int current_pos;
 int page_count;
 pthread_t read_file_tread;

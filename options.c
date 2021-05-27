@@ -54,3 +54,11 @@ void opt1_2_2(__attribute__((unused)) FILE *f) {
 void opt1_2_3(__attribute__((unused)) FILE *f) {
     print_hour();
 }
+
+void opt1_3_1(__attribute__((unused)) FILE *f) {
+    print_date_message();
+}
+
+void opt1_3_2(__attribute__((unused)) FILE *f) {
+    print_user_message();
+}

@@ -9,14 +9,14 @@ int print_point(int x,int y, wchar_t c, Color *foreground, Color *background){
         return -1;
     }
     if(current==NULL){
-        global_picture_buffer2=create_console_buffer();
-        if(global_picture_buffer2==NULL){
+        global_picture_buffer=create_console_buffer();
+        if(global_picture_buffer == NULL){
             return -1;
         }
-        global_picture_buffer2->n=0;
-        global_picture_buffer2->next=NULL;
-        global_picture_buffer2->previous=NULL;
-        current=global_picture_buffer2;
+        global_picture_buffer->n=0;
+        global_picture_buffer->next=NULL;
+        global_picture_buffer->previous=NULL;
+        current=global_picture_buffer;
         page_count=1;
     }
    while(buffer_index!=current->n){
@@ -72,7 +72,7 @@ void free_console_buffer(Console_buffer *buffer){
     return;
 }
 void init_picture_buffer() {
-    Console_buffer *temp=global_picture_buffer2->next;
+    Console_buffer *temp=global_picture_buffer->next;
     Console_buffer *temp2;
 
     while(temp!=NULL){
@@ -81,7 +81,7 @@ void init_picture_buffer() {
         temp=temp2->next;
     }
     page_count=1;
-    init_console_buffer(global_picture_buffer2);
+    init_console_buffer(global_picture_buffer);
     return;
 }
 void init_console_buffer( Console_buffer *buffer){
@@ -108,9 +108,6 @@ void print_to_buffer(char string[], int xpos, int ypos, Color foreground, Color 
     }
     int to_print = (int)strlen(string);
     for (int i = 0; i < to_print; i++) {
-        if (y >= y_size) {
-            return;
-        }
         if (string[i] == '\n') {
             y++;
             if (xpos > 0) {
@@ -236,7 +233,7 @@ void draw_picture_buffer() {
     int page=current_pos/y_size;
     int offset=current_pos%y_size;
     int newy;
-    Console_buffer *temp=global_picture_buffer2;
+    Console_buffer *temp=global_picture_buffer;
     while(temp->n!=page){
         if(temp->next!=0){
             temp=temp->next;
@@ -257,14 +254,14 @@ void draw_picture_buffer() {
                 bb = temp->buffer[newy][x].background.b;
                 background_color(br, bg, bb);
             }
-            if (global_picture_buffer2->buffer[newy][x].foreground.r != br || global_picture_buffer2->buffer[newy][x].foreground.g != bg ||
-                    global_picture_buffer2->buffer[newy][x].foreground.b != bb) {
-                r = global_picture_buffer2->buffer[newy][x].foreground.r;
-                g = global_picture_buffer2->buffer[newy][x].foreground.g;
-                b = global_picture_buffer2->buffer[newy][x].foreground.b;
+            if (temp->buffer[newy][x].foreground.r != br || temp->buffer[newy][x].foreground.g != bg ||
+                    temp->buffer[newy][x].foreground.b != bb) {
+                r = temp->buffer[newy][x].foreground.r;
+                g = temp->buffer[newy][x].foreground.g;
+                b = temp->buffer[newy][x].foreground.b;
                 foreground_color(r, g, b);
             }
-            printf("%c", global_picture_buffer2->buffer[newy][x].character);
+            printf("%c", temp->buffer[newy][x].character);
         }
         if(newy==y_size-1){
             offset=-(y+1);

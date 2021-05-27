@@ -184,3 +184,86 @@ void print_message_len(unsigned short mode) {
     }
     free(arr);
 }
+
+void print_date_message() {
+    bool input;
+    clear_screen();
+    init_picture_buffer();
+    printf("\x1b[%dB", y_pos);
+    foreground_color(menucolor);
+    printf("%s\n", "WhatsApp Analyzer\n\n");
+    foreground_color(255, 255, 255);
+    do {
+        input = true;
+        Message *temp = global_first_message;
+        while (temp->next->next != NULL)
+            temp = temp->next;
+        printf("  Wann wurde die Nachricht geschrieben (zwischen %02u.%02u.%02u und %02u.%02u.%02u) [dd.mm.yy]:\n  ", global_first_message->day, global_first_message->month, global_first_message->year, temp->day, temp->month ,temp->year);
+        char *buffer = malloc(9 * sizeof(char));
+        fgets(buffer, 9, stdin);
+        fflush(stdin);
+        unsigned int day, month, year;
+        char tmp[3];
+        char *strtol_buffer;
+        strncpy(tmp, buffer, 2);
+        day = (short) strtol(tmp, &strtol_buffer, 10);
+        strncpy(tmp, buffer + 3, 2);
+        month = (short) strtol(tmp, &strtol_buffer, 10);
+        strncpy(tmp, buffer + 6, 2);
+        year = (short) strtol(tmp, &strtol_buffer, 10);
+        if (true_day(day, month) == false || true_month(month) == false) {
+            input = false;
+            _putws(L"  Gib bitte ein g\x81\x6ctiges Datum ein\n");
+        }
+        else if (true_date(day, month, year, temp) == false) {
+            input = false;
+            puts("  Bitte gib ein Datum im g\x81\x6ctigen Zeitraum sein\n");
+        }
+        free(buffer);
+    } while (input == false);
+}
+
+void print_user_message() {
+    clear_screen();
+    init_picture_buffer();
+    bool input;
+    int max_c = 0, x, i = 0;
+    User *temp = global_first_user;
+    while (temp->next != NULL) {
+        x = (int)strlen(temp->name);
+        if (x > max_c)
+            max_c = x;
+        print_to_buffer(temp->name, 0, i * 2, white, black);
+        i++;
+        temp = temp->next;
+    }
+    draw_picture_buffer();
+    printf("\x1b[%dB", y_pos);
+    foreground_color(menucolor);
+    printf("%s\n", "WhatsApp Analyzer\n\n");
+    foreground_color(255, 255, 255);
+    char *buf = malloc((max_c + 1) * sizeof(char));
+    do {
+        input = true;
+        printf("  Gib den Namen des Nutzers ein\n  ");
+        fgets(buf, max_c + 1, stdin);
+        fflush(stdin);
+        buf[strlen(buf) - 1] = 0;
+        temp = user_exists(buf);
+        if (temp == NULL) {
+            printf("  Diesen Nutzer gibt es nicht!\n");
+            input = false;
+        }
+    } while (input == false);
+    free(buf);
+    init_picture_buffer();
+    draw_picture_buffer();
+    Message *message = temp->message;
+    i = 0;
+    while (message != NULL) {
+        print_to_buffer(message->message, 0, i * 2, white, black);
+        i++;
+        message = message->nextUser;
+    }
+    draw_picture_buffer();
+}

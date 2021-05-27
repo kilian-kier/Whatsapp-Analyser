@@ -17,5 +17,7 @@ void opt1_1_3(FILE *f);
 void opt1_2_1(FILE *f);
 void opt1_2_2(FILE *f);
 void opt1_2_3(FILE *f);
+void opt1_3_1(FILE *f);
+void opt1_3_2(FILE *f);
 
 #endif //OPTIONS_H
