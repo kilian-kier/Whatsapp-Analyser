@@ -1,7 +1,58 @@
 #include "include/dictionary.h"
 
+
+void dictionary_main(FILE *f){
+    int words;
+    int most;
+    int longest;
+
+    static FILE* loaded=NULL;
+    if(f!=loaded || loaded==NULL){
+        create_dictionary();
+    }
+    init_picture_buffer();
+    print_to_buffer("",0,0,white,black);
+
+    words=relative_word_count(global_first_word);
+    longest=find_longest_word(0,global_first_word);
+    //most=find_most_word(0,INT_MAX,global_first_word);
+    printf("\n\n%d %d %d\n",words,longest,most);
+    Sleep(100000);
+    print_dictionary(global_first_word);
+}
+int relative_word_count(Dictionary *ptr) {
+    int ret=0;
+    if (ptr == NULL) return 0;
+    ret+=1;
+    ret+= relative_word_count(ptr->left);
+    ret+= relative_word_count(ptr->right);
+    return ret;
+}
+Dictionary** find_most_word(){
+    Dictionary** array=malloc(sizeof(Dictionary**)*(y_size/2));
+
+}
+void find_most_rec(Dictionary**array,int arraysize,Dictionary*ptr){
+
+    return;
+}
+void shift_pointer_array(char **array,int size){
+    for(int i=size;i>0;i--){
+        array[size]=array[size-1];
+    }
+}
+int find_longest_word(int longest,Dictionary*ptr) {
+    if (ptr == NULL) return 0;
+
+    longest=find_longest_word(longest,ptr->left);
+    longest=find_longest_word(longest,ptr->right);
+    if(longest<ptr->laenge){
+        longest=ptr->laenge;
+    }
+    return longest;
+}
 void create_dictionary() {
-    gloabl_first_word = NULL;
+    global_first_word = NULL;
     int laenge, offset;
     char *anfang;
     Message *ptr = global_first_message->next->next->next;
@@ -17,7 +68,7 @@ void create_dictionary() {
             while ((check_char(*(anfang+laenge)))!= 0) laenge++;
             if (laenge == 0) offset++;
             else {
-                gloabl_first_word = insert_word(anfang, laenge, gloabl_first_word);
+                global_first_word = insert_word(anfang, laenge, global_first_word);
                 offset += laenge;
             }
         }
@@ -47,12 +98,12 @@ Dictionary *insert_word(char *anfang, int l, Dictionary *temp) {
         temp->wortanfang = anfang;
         temp->laenge = l;
         temp->level = 1;
-        if (gloabl_first_word == NULL) gloabl_first_word = temp;
+        if (global_first_word == NULL) global_first_word = temp;
         return temp;
     } else {
         if (l <= temp->laenge) y = l;
         else y = temp->laenge;
-        if (strncmp(anfang, temp->wortanfang, y) == 0) {
+        if (l == temp->laenge && strncmp (anfang, temp->wortanfang, l) == 0) {
             temp->anzahl++;
             return temp;
         } else if (strncmp(anfang, temp->wortanfang, y) < 0) temp->left = insert_word(anfang, l, temp->left);
@@ -92,11 +143,13 @@ Dictionary *insert_word(char *anfang, int l, Dictionary *temp) {
 //inorder print
 void print_dictionary(Dictionary *ptr) {
     char buffer[200];
+    char buffer2[200];
     if (ptr == NULL) return;
     print_dictionary(ptr->left);
     strncpy(buffer, ptr->wortanfang, ptr->laenge);
     buffer[ptr->laenge] = '\0';
-    printf("%-30s\n", buffer);
+    sprintf(buffer2,"%s %d\n",buffer,ptr->anzahl);
+    print_to_buffer(buffer2,-1,-1,white,black);
     print_dictionary(ptr->right);
 }
 

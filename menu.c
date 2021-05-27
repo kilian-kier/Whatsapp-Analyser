@@ -1,6 +1,7 @@
 #include "include/menu.h"
 extern char*_binary_whatsapp_logo_ppm_start;
 extern char*_binary_whatsapp_logo_ppm_end;
+
 void main_menu() {
     FILE *f = NULL;
     ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
@@ -11,17 +12,19 @@ void main_menu() {
     y_size = screenBufferInfo.srWindow.Bottom - y_pos-1;
 
     draw_picture((char*)&_binary_whatsapp_logo_ppm_start,(char*)&_binary_whatsapp_logo_ppm_end,0, 0,x_size,y_size-1);
-    //draw_picture((char*)&_binary_whatsapptest_ppm_start,(char*)&_binary_whatsapptest_ppm_end,0, 90,100,40);
 
     printf("\x1b[?25l");
 
     Option_tree *temp = create_option(NULL, NULL, NULL, 2, 0);
     Option_tree *option_root = temp;
-    temp = create_option(L"Datei \x94\146\146nen", &opt1, temp, 2, 0);
+    temp = create_option(L"Datei \x94\146\146nen", &opt1, temp, 3, 0);
     temp = create_option(L"Users", &opt1_1, temp, 3, 0);
     create_option(L"Anzahl Nachrichten", &opt1_1_1, temp, 0, 0);
     create_option(L"prozentual\n", &opt1_1_2, temp, 0, 1);
     create_option(L"durchschnittliche W\x94rter\n", &opt1_1_3, temp, 0, 2);
+
+    temp = create_option(L"W\x94rterbuch", &opt1_3, temp->parent, 0, 2);
+
     temp = create_option(L"Zeit", &opt1_2, temp->parent, 3, 1);
     create_option(L"Monat", &opt1_2_1, temp, 0, 0);
     create_option(L"Wochentag", &opt1_2_2, temp, 0, 1);

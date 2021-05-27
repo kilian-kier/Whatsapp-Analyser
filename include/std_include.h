@@ -9,5 +9,6 @@
 #include <pthread.h>
 #include <string.h>
 #include <math.h>
+#include <limits.h>
 
 #endif //STD_INCLUDE_H

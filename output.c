@@ -4,7 +4,6 @@
 int print_point(int x,int y, wchar_t c, Color *foreground, Color *background){
     static Console_buffer *current=NULL;
     int buffer_index=y/y_size;
-
     if(x>=x_size){
         return -1;
     }
@@ -82,6 +81,7 @@ void init_picture_buffer() {
     }
     page_count=1;
     init_console_buffer(global_picture_buffer2);
+    global_picture_buffer2->next=NULL;
     return;
 }
 void init_console_buffer( Console_buffer *buffer){
@@ -108,9 +108,6 @@ void print_to_buffer(char string[], int xpos, int ypos, Color foreground, Color 
     }
     int to_print = (int)strlen(string);
     for (int i = 0; i < to_print; i++) {
-        if (y >= y_size) {
-            return;
-        }
         if (string[i] == '\n') {
             y++;
             if (xpos > 0) {
@@ -120,6 +117,7 @@ void print_to_buffer(char string[], int xpos, int ypos, Color foreground, Color 
             }
             continue;
         }
+
         print_point(x,y,string[i],&foreground,&background);
         x++;
     }
@@ -232,6 +230,7 @@ void draw_picture_buffer() {
     int bg;
     int b;
     int bb;
+    char c;
 
     int page=current_pos/y_size;
     int offset=current_pos%y_size;
@@ -257,18 +256,27 @@ void draw_picture_buffer() {
                 bb = temp->buffer[newy][x].background.b;
                 background_color(br, bg, bb);
             }
-            if (global_picture_buffer2->buffer[newy][x].foreground.r != br || global_picture_buffer2->buffer[newy][x].foreground.g != bg ||
-                    global_picture_buffer2->buffer[newy][x].foreground.b != bb) {
-                r = global_picture_buffer2->buffer[newy][x].foreground.r;
-                g = global_picture_buffer2->buffer[newy][x].foreground.g;
-                b = global_picture_buffer2->buffer[newy][x].foreground.b;
+            if (temp->buffer[newy][x].foreground.r != br || temp->buffer[newy][x].foreground.g != bg ||
+                    temp->buffer[newy][x].foreground.b != bb) {
+                r = temp->buffer[newy][x].foreground.r;
+                g = temp->buffer[newy][x].foreground.g;
+                b = temp->buffer[newy][x].foreground.b;
                 foreground_color(r, g, b);
             }
-            printf("%c", global_picture_buffer2->buffer[newy][x].character);
+            if(temp->buffer[newy][x].character==9){
+                c=' ';
+            }else {
+                c=temp->buffer[newy][x].character;
+            }
+            printf("%c", c);
         }
         if(newy==y_size-1){
             offset=-(y+1);
-            temp=temp->next;
+            if(temp->next!=NULL){
+                temp=temp->next;
+            }else{
+                break;
+            }
         }
         printf("\x1b[%dD\x1b[1B", x_size);
     }
