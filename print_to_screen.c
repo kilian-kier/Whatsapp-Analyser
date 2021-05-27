@@ -58,6 +58,7 @@ void print_hour() {
             //print_to_buffer(strcat(buf, "%"), max_j + 2, i * 2, white, black);
             print_to_buffer(buf, max_j, i * 2, white, black);
     }
+    free(buf);
 }
 
 void print_month() {

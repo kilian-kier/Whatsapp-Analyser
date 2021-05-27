@@ -25,6 +25,9 @@ void main_menu() {
     create_option(L"Anzahl Nachrichten", &opt1_1_1, temp, 0, 0);
     create_option(L"prozentual\n", &opt1_1_2, temp, 0, 1);
     create_option(L"durchschnittliche W\x94rter\n", &opt1_1_3, temp, 0, 2);
+
+    temp = create_option(L"W\x94rterbuch", &opt1_3, temp->parent, 0, 2);
+
     temp = create_option(L"Zeit", &opt1_2, temp->parent, 3, 1);
     create_option(L"Monat", &opt1_2_1, temp, 0, 0);
     create_option(L"Wochentag", &opt1_2_2, temp, 0, 1);

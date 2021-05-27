@@ -106,7 +106,7 @@ char *string_convert(char *string, int offset) {
         } else if (string[i] < 0) {
             string2[y] = ' ';
             i += 3;
-        } else if (string[i] == 13) string2[y] = ' ';
+        } else if (string[i] == 13) continue;
         else string2[y] = string[i];
         y++;
     }

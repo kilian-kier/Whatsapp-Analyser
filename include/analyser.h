@@ -22,10 +22,6 @@ void swap_user(struct User *user1, struct User *user2);
 
 unsigned int count_words(const char *string);
 
-void create_dict();
-
-void dictionary();
-
 bool true_day(unsigned int day, unsigned int month);
 
 bool true_month(unsigned int month);

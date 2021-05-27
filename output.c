@@ -4,7 +4,6 @@
 int print_point(int x,int y, wchar_t c, Color *foreground, Color *background){
     static Console_buffer *current=NULL;
     int buffer_index=y/y_size;
-
     if(x>=x_size){
         return -1;
     }
@@ -229,6 +228,7 @@ void draw_picture_buffer() {
     int bg;
     int b;
     int bb;
+    char c;
 
     int page=current_pos/y_size;
     int offset=current_pos%y_size;
@@ -261,11 +261,20 @@ void draw_picture_buffer() {
                 b = temp->buffer[newy][x].foreground.b;
                 foreground_color(r, g, b);
             }
-            printf("%c", temp->buffer[newy][x].character);
+            if(temp->buffer[newy][x].character==9){
+                c=' ';
+            }else {
+                c=temp->buffer[newy][x].character;
+            }
+            printf("%c", c);
         }
         if(newy==y_size-1){
             offset=-(y+1);
-            temp=temp->next;
+            if(temp->next!=NULL){
+                temp=temp->next;
+            }else{
+                break;
+            }
         }
         printf("\x1b[%dD\x1b[1B", x_size);
     }

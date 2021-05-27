@@ -30,7 +30,10 @@ void opt1_2(__attribute__((unused)) FILE *f) {
         is_read = true;
     }
 }
-
+void opt1_3(FILE *f) {
+    dictionary_main(f);
+    return;
+}
 void opt1_1_1(__attribute__((unused)) FILE *f) {
     print_message_len(0);
 }

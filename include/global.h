@@ -14,7 +14,7 @@ int y_size;
 int global_message_n;
 struct Message *global_first_message;
 struct User *global_first_user;
-struct Dictionary *gloabl_first_word;
+struct Dictionary *global_first_word;
 int *global_week_arr;
 int *global_hour_arr;
 int *global_month_arr;
