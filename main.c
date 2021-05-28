@@ -4,11 +4,12 @@ int main(int args, char *argv[]) {
     system("cls");
     main_menu();
     /*
-    FILE *f = fopen(argv[1], "r");
+    x_size = 169;
+    y_size = 65;
+    FILE *f = fopen("E:\\Desktop\\Schule\\Informatik\\Whatsapp-Analyser\\chats\\WhatsApp Chat mit 3BT.txt", "r");
     read_file((FILE *)f);
-    read_user();
-    print_message_len(0);
-     */
+    print_date_message();
+    */
 }
 
 char *get_file_name() {

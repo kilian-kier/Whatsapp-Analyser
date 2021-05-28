@@ -117,8 +117,8 @@ void print_average_words() {
     char *buf;
     buf = malloc((int) log10(arr[0]->average_words) + 1 * sizeof(char));
     for (int i = 0; i < n; i++) {
-        int x = (int)((x_size - (int) log10(arr[0]->average_words) - 5 - max_j) *
-                (double)(arr[i]->average_words) / (arr[0]->average_words));
+        int x = (int) ((x_size - (int) log10(arr[0]->average_words) - 5 - max_j) *
+                       (double) (arr[i]->average_words) / (arr[0]->average_words));
         draw_rect(max_j, i * 2, x, 1, white, 1, 0);
         //draw_rect(max_j, i * 2, 1, 1, white, 1, 0);
         sprintf(buf, "%.2lf", arr[i]->average_words);
@@ -156,7 +156,8 @@ void print_message_len(unsigned short mode) {
     if (mode == 0) {
         buf = malloc((int) log10(arr[0]->message_len) + 1 * sizeof(char));
         for (int i = 0; i < n; i++) {
-            int x = (int)((x_size - (int) log10(arr[0]->message_len) - 2 - max_j) * (double)(arr[i]->message_len) / (arr[0]->message_len));
+            int x = (int) ((x_size - (int) log10(arr[0]->message_len) - 2 - max_j) * (double) (arr[i]->message_len) /
+                           (arr[0]->message_len));
             draw_rect(max_j, i * 2, x, 1, white, 1, 0);
 
             //draw_rect(max_j, i * 2, 1, 1, white, 1, 0);
@@ -170,7 +171,7 @@ void print_message_len(unsigned short mode) {
     } else if (mode == 1) {
         buf = malloc(3 * sizeof(char));
         for (int i = 0; i < n; i++) {
-            int x = (int)((x_size - 6 - max_j) * (double)(arr[i]->message_len) / (arr[0]->message_len));
+            int x = (int) ((x_size - 6 - max_j) * (double) (arr[i]->message_len) / (arr[0]->message_len));
             draw_rect(max_j, i * 2, x, 1, white, 1, 0);
             //draw_rect(max_j, i * 2, 1, 1, white, 1, 0);
             float val = (float) arr[i]->message_len * 100 / (float) global_message_n;
@@ -187,23 +188,26 @@ void print_message_len(unsigned short mode) {
 }
 
 void print_date_message() {
+    global_picture_buffer = create_console_buffer();
     bool input;
     clear_screen();
-    init_picture_buffer();
+    //init_picture_buffer();
     printf("\x1b[%dB", y_pos);
     foreground_color(menucolor);
     printf("%s\n", "WhatsApp Analyzer\n\n");
     foreground_color(255, 255, 255);
+    unsigned int day, month, year;
     do {
         input = true;
         Message *temp = global_first_message;
         while (temp->next->next != NULL)
             temp = temp->next;
-        printf("  Wann wurde die Nachricht geschrieben (zwischen %02u.%02u.%02u und %02u.%02u.%02u) [dd.mm.yy]:\n  ", global_first_message->day, global_first_message->month, global_first_message->year, temp->day, temp->month ,temp->year);
+        printf("  Wann wurde die Nachricht geschrieben (zwischen %02u.%02u.%02u und %02u.%02u.%02u) [dd.mm.yy]:\n  ",
+               global_first_message->day, global_first_message->month, global_first_message->year, temp->day,
+               temp->month, temp->year);
         char *buffer = malloc(9 * sizeof(char));
         fgets(buffer, 9, stdin);
         fflush(stdin);
-        unsigned int day, month, year;
         char tmp[3];
         char *strtol_buffer;
         strncpy(tmp, buffer, 2);
@@ -215,13 +219,34 @@ void print_date_message() {
         if (true_day(day, month) == false || true_month(month) == false) {
             input = false;
             _putws(L"  Gib bitte ein g\x81\x6ctiges Datum ein\n");
-        }
-        else if (true_date(day, month, year, temp) == false) {
+        } else if (true_date(day, month, year, temp) == false) {
             input = false;
             puts("  Bitte gib ein Datum im g\x81\x6ctigen Zeitraum sein\n");
         }
         free(buffer);
     } while (input == false);
+    Message *temp = global_first_message;
+    int i = 0;
+    char *output = malloc(1000 + sizeof(char));
+    while (temp->next != NULL) {
+        if (temp->year < year)
+            global_current_pos++;
+        else if (temp->year == year) {
+            if (temp->month < month)
+                global_current_pos++;
+            else if (temp->month == month) {
+                if (temp->day <= day)
+                    global_current_pos++;
+            }
+        }
+        sprintf(output, "%d.%d.%d - %s: %s", (int) temp->day, (int) temp->month, (int) temp->year, temp->user,
+                temp->message);
+        print_to_buffer(output, 0, i * 2, white, black);
+        temp = temp->next;
+        i++;
+    }
+    print_to_buffer("Hallo Welt", 0, 0, (Color){255, 0, 0}, black);
+    draw_picture_buffer();
 }
 
 void print_user_message() {
@@ -231,7 +256,7 @@ void print_user_message() {
     int max_c = 0, x, i = 0;
     User *temp = global_first_user;
     while (temp->next != NULL) {
-        x = (int)strlen(temp->name);
+        x = (int) strlen(temp->name);
         if (x > max_c)
             max_c = x;
         print_to_buffer(temp->name, 0, i * 2, white, black);
@@ -266,5 +291,4 @@ void print_user_message() {
         i++;
         message = message->nextUser;
     }
-    draw_picture_buffer();
 }

@@ -20,13 +20,12 @@ void main_menu() {
 
     Option_tree *temp = create_option(NULL, NULL, NULL, 2, 0);
     Option_tree *option_root = temp;
-    temp = create_option(L"Datei \x94\146\146nen", &opt1, temp, 3, 0);
+    temp = create_option(L"Datei \x94\146\146nen", &opt1, temp, 4, 0);
     temp = create_option(L"Users", &opt1_1, temp, 3, 0);
     create_option(L"Anzahl Nachrichten", &opt1_1_1, temp, 0, 0);
     create_option(L"prozentual\n", &opt1_1_2, temp, 0, 1);
     create_option(L"durchschnittliche W\x94rter\n", &opt1_1_3, temp, 0, 2);
-
-    temp = create_option(L"W\x94rterbuch", &opt1_3, temp->parent, 0, 2);
+    temp = create_option(L"W\x94rterbuch", &opt1_3, temp->parent, 0, 3);
 
     temp = create_option(L"Zeit", &opt1_2, temp->parent, 3, 1);
     create_option(L"Monat", &opt1_2_1, temp, 0, 0);
@@ -48,8 +47,6 @@ void main_menu() {
         printf("\x1b[%dB", y_pos);
         x = menu(1, temp);
         if (x == 0) {
-            init_picture_buffer();
-            draw_picture_buffer();
             temp = temp->parent;
             if (temp == NULL)
                 break;
@@ -104,32 +101,32 @@ int menu(int select, Option_tree *option) {
                     select = select < option->n_child ? select + 1 : 1;
                     break;
                 case 'f':
-                    if (current_pos < page_count * y_size - y_size) {
-                        current_pos++;
+                    if (global_current_pos < global_page_count * y_size - y_size) {
+                        global_current_pos++;
                         draw_picture_buffer();
                     }
                     break;
                 case 'r':
-                    if (current_pos > 0) {
-                        current_pos--;
+                    if (global_current_pos > 0) {
+                        global_current_pos--;
                         draw_picture_buffer();
                     }
                     break;
                 case 'a':
-                    if (current_pos - y_size > 0) {
-                        current_pos -= y_size;
+                    if (global_current_pos - y_size > 0) {
+                        global_current_pos -= y_size;
                         draw_picture_buffer();
-                    } else if (current_pos != 0) {
-                        current_pos = 0;
+                    } else if (global_current_pos != 0) {
+                        global_current_pos = 0;
                         draw_picture_buffer();
                     }
                     break;
                 case 'd':
-                    if (current_pos + y_size < page_count * y_size - y_size + 1) {
-                        current_pos += y_size;
+                    if (global_current_pos + y_size < global_page_count * y_size - y_size + 1) {
+                        global_current_pos += y_size;
                         draw_picture_buffer();
-                    } else if (current_pos + y_size != page_count * y_size - y_size) {
-                        current_pos = (page_count - 1) * y_size;
+                    } else if (global_current_pos + y_size != global_page_count * y_size - y_size) {
+                        global_current_pos = (global_page_count - 1) * y_size;
                         draw_picture_buffer();
                     }
                     break;
@@ -145,10 +142,50 @@ int menu(int select, Option_tree *option) {
             fflush(stdout);
         } while (input != 13 && input != 10);
     } else {
-        while (1) {
-            if (_getch() == '')
-                return 0;
-        }
+        do {
+            do {
+                fflush(stdin);
+                input = _getch();
+            } while (input != 10 && input != 13 && input != 27 && input != 'r' &&
+                     input != 'f' && input != 'a' && input != 'd');
+            switch (input) {
+                case 'f':
+                    if (global_current_pos < global_page_count * y_size - y_size) {
+                        global_current_pos++;
+                        draw_picture_buffer();
+                    }
+                    break;
+                case 'r':
+                    if (global_current_pos > 0) {
+                        global_current_pos--;
+                        draw_picture_buffer();
+                    }
+                    break;
+                case 'a':
+                    if (global_current_pos - y_size > 0) {
+                        global_current_pos -= y_size;
+                        draw_picture_buffer();
+                    } else if (global_current_pos != 0) {
+                        global_current_pos = 0;
+                        draw_picture_buffer();
+                    }
+                    break;
+                case 'd':
+                    if (global_current_pos + y_size < global_page_count * y_size - y_size + 1) {
+                        global_current_pos += y_size;
+                        draw_picture_buffer();
+                    } else if (global_current_pos + y_size != global_page_count * y_size - y_size) {
+                        global_current_pos = (global_page_count - 1) * y_size;
+                        draw_picture_buffer();
+                    }
+                    break;
+                case '':
+                    return 0;
+                default:
+                    break;
+            }
+            fflush(stdout);
+        } while (input != 13 && input != 10);
     }
     return select;
 }

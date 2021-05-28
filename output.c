@@ -16,7 +16,7 @@ int print_point(int x,int y, wchar_t c, Color *foreground, Color *background){
         global_picture_buffer->next=NULL;
         global_picture_buffer->previous=NULL;
         current=global_picture_buffer;
-        page_count=1;
+        global_page_count=1;
     }
    while(buffer_index!=current->n){
        if(buffer_index > current->n){
@@ -30,7 +30,7 @@ int print_point(int x,int y, wchar_t c, Color *foreground, Color *background){
                }
            }
            current=current->next;
-           page_count++;
+           global_page_count++;
        }else{
            current=current->previous;
        }
@@ -68,20 +68,18 @@ void free_console_buffer(Console_buffer *buffer){
         }
         free(buffer);
     }
-    return;
 }
 void init_picture_buffer() {
     Console_buffer *temp=global_picture_buffer->next;
-    Console_buffer *temp2;
+    Console_buffer *temp2 = temp;
 
     while(temp!=NULL){
         temp2=temp->next;
         free_console_buffer(temp);
         temp=temp2->next;
     }
-    page_count=1;
+    global_page_count=1;
     init_console_buffer(global_picture_buffer);
-    return;
 }
 void init_console_buffer( Console_buffer *buffer){
     for(int y=0;y<y_size;y++){
@@ -93,7 +91,6 @@ void init_console_buffer( Console_buffer *buffer){
             buffer->buffer[y][x].background=black;
         }
     }
-    return;
 }
 
 void print_to_buffer(char string[], int xpos, int ypos, Color foreground, Color background) {
@@ -230,8 +227,8 @@ void draw_picture_buffer() {
     int bb;
     char c;
 
-    int page=current_pos/y_size;
-    int offset=current_pos%y_size;
+    int page= global_current_pos / y_size;
+    int offset= global_current_pos % y_size;
     int newy;
     Console_buffer *temp=global_picture_buffer;
     while(temp->n!=page){
@@ -280,7 +277,7 @@ void draw_picture_buffer() {
     }
     fflush(stdout);
     foreground_color(255, 255, 255);
-    printf("P[%d | %d]",page+1,page_count);
+    printf("P[%d | %d]",page+1, global_page_count);
     printf("\x1b[H");
     setvbuf(stdout, NULL, _IONBF, 0);
 }
