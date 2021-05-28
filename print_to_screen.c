@@ -245,7 +245,7 @@ void print_date_message() {
         temp = temp->next;
         i++;
     }
-    print_to_buffer("Hallo Welt", 0, 0, (Color){255, 0, 0}, black);
+    //TODO: tuit nt
     draw_picture_buffer();
 }
 
@@ -291,4 +291,5 @@ void print_user_message() {
         i++;
         message = message->nextUser;
     }
+    // TODO: spinnt oftramol
 }
