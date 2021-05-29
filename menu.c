@@ -1,6 +1,6 @@
 #include "include/menu.h"
-extern char*_binary_whatsapptest_ppm_start;
-extern char*_binary_whatsapptest_ppm_end;
+extern char*_binary_icon_ppm_start;
+extern char*_binary_icon_ppm_end;
 void main_menu() {
     FILE *f = NULL;
     ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
@@ -20,7 +20,7 @@ void main_menu() {
 
     init_picture_buffer();
 
-    draw_picture((char*)&_binary_whatsapptest_ppm_start,(char*)&_binary_whatsapptest_ppm_end,0, 0,100,40);
+    draw_picture((char*)&_binary_icon_ppm_start,(char*)&_binary_icon_ppm_end,0, 0,x_size,y_size);
 
     printf("\x1b[?25l");
 
