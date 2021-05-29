@@ -188,14 +188,14 @@ void print_message_len(unsigned short mode) {
 }
 
 void print_date_message() {
-    global_picture_buffer = create_console_buffer();
     bool input;
     clear_screen();
-    //init_picture_buffer();
+    init_picture_buffer();
     printf("\x1b[%dB", y_pos);
     foreground_color(menucolor);
     printf("%s\n", "WhatsApp Analyzer\n\n");
     foreground_color(255, 255, 255);
+
     unsigned int day, month, year;
     do {
         input = true;
@@ -206,16 +206,11 @@ void print_date_message() {
                global_first_message->day, global_first_message->month, global_first_message->year, temp->day,
                temp->month, temp->year);
         char *buffer = malloc(9 * sizeof(char));
-        fgets(buffer, 9, stdin);
-        fflush(stdin);
-        char tmp[3];
-        char *strtol_buffer;
-        strncpy(tmp, buffer, 2);
-        day = (short) strtol(tmp, &strtol_buffer, 10);
-        strncpy(tmp, buffer + 3, 2);
-        month = (short) strtol(tmp, &strtol_buffer, 10);
-        strncpy(tmp, buffer + 6, 2);
-        year = (short) strtol(tmp, &strtol_buffer, 10);
+        get_string(buffer,9,NULL,0);
+        if(sscanf(buffer,"%d.%d.%d",&day,&month,&year)!=3){
+            input=false;
+        }
+
         if (true_day(day, month) == false || true_month(month) == false) {
             input = false;
             _putws(L"  Gib bitte ein g\x81\x6ctiges Datum ein\n");
@@ -225,35 +220,37 @@ void print_date_message() {
         }
         free(buffer);
     } while (input == false);
+
     Message *temp = global_first_message;
     int i = 0;
-    char *output = malloc(1000 + sizeof(char));
-    while (temp->next != NULL) {
-        if (temp->year < year)
-            global_current_pos++;
-        else if (temp->year == year) {
-            if (temp->month < month)
-                global_current_pos++;
-            else if (temp->month == month) {
-                if (temp->day <= day)
-                    global_current_pos++;
-            }
-        }
-        sprintf(output, "%d.%d.%d - %s: %s", (int) temp->day, (int) temp->month, (int) temp->year, temp->user,
-                temp->message);
-        print_to_buffer(output, 0, i * 2, white, black);
-        temp = temp->next;
-        i++;
+    int output_size=1000;
+    char *output = malloc(output_size * sizeof(char));
+    if(output==NULL){
+        perror("malloc");
     }
-    //TODO: tuit nt
+
+    while (temp != NULL) {
+        if(((temp->user!=NULL?strlen(temp->user):1)+(temp->message!=NULL?strlen(temp->message):1))<output_size-15) {
+            sprintf(output, "%d.%d.%d - %s: %s", (int) temp->day, (int) temp->month, (int) temp->year, temp->user,
+                    temp->message);
+            print_to_buffer(output, 0, i * 2, white, black);
+            i++;
+        }
+        temp = temp->next;
+    }
+    printf("%p",output);
+    free(output);
     draw_picture_buffer();
+    //TODO Suchalgorithmus fos Datum
 }
 
 void print_user_message() {
     clear_screen();
     init_picture_buffer();
+
     bool input;
     int max_c = 0, x, i = 0;
+
     User *temp = global_first_user;
     while (temp->next != NULL) {
         x = (int) strlen(temp->name);
@@ -264,17 +261,17 @@ void print_user_message() {
         temp = temp->next;
     }
     draw_picture_buffer();
+
     printf("\x1b[%dB", y_pos);
     foreground_color(menucolor);
     printf("%s\n", "WhatsApp Analyzer\n\n");
     foreground_color(255, 255, 255);
+
     char *buf = malloc((max_c + 1) * sizeof(char));
     do {
         input = true;
         printf("  Gib den Namen des Nutzers ein\n  ");
-        fgets(buf, max_c + 1, stdin);
-        fflush(stdin);
-        buf[strlen(buf) - 1] = 0;
+        get_string(buf,max_c+1,NULL,0);
         temp = user_exists(buf);
         if (temp == NULL) {
             printf("  Diesen Nutzer gibt es nicht!\n");
@@ -282,8 +279,8 @@ void print_user_message() {
         }
     } while (input == false);
     free(buf);
+
     init_picture_buffer();
-    draw_picture_buffer();
     Message *message = temp->message;
     i = 0;
     while (message != NULL) {
@@ -291,5 +288,4 @@ void print_user_message() {
         i++;
         message = message->nextUser;
     }
-    // TODO: spinnt oftramol
 }

@@ -73,12 +73,16 @@ void init_picture_buffer() {
     Console_buffer *temp=global_picture_buffer->next;
     Console_buffer *temp2 = temp;
 
+    int zaehler=0;
     while(temp!=NULL){
         temp2=temp->next;
         free_console_buffer(temp);
-        temp=temp2->next;
+        temp=temp2;
+        zaehler++;
     }
     global_page_count=1;
+    global_current_pos=0;
+    global_picture_buffer->next=NULL;
     init_console_buffer(global_picture_buffer);
 }
 void init_console_buffer( Console_buffer *buffer){

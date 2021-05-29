@@ -1,6 +1,7 @@
 #ifndef MENU_H
 #define MENU_H
 
+#include "input.h"
 #include "std_include.h"
 #include "structs.h"
 #include "options.h"

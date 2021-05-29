@@ -41,6 +41,10 @@ void main_menu() {
 
     temp = option_root;
     int x;
+
+    //
+    run_input_thread(); //run input_thread
+
     do {
         clear_screen();
         draw_picture_buffer();
@@ -88,10 +92,11 @@ int menu(int select, Option_tree *option) {
         COORD jumpto;
         do {
             do {
-                fflush(stdin);
-                input = _getch();
+                input = global_input_buffer;
+                Sleep(sync_delay/2);
             } while (input != 10 && input != 13 && input != 'w' && input != 's' && input != 27 && input != 'r' &&
                      input != 'f' && input != 'a' && input != 'd');
+            global_input_buffer=0;
             jumpto = line[select - 1];
             switch (input) {
                 case 'w':
@@ -100,35 +105,7 @@ int menu(int select, Option_tree *option) {
                 case 's':
                     select = select < option->n_child ? select + 1 : 1;
                     break;
-                case 'f':
-                    if (global_current_pos < global_page_count * y_size - y_size) {
-                        global_current_pos++;
-                        draw_picture_buffer();
-                    }
-                    break;
-                case 'r':
-                    if (global_current_pos > 0) {
-                        global_current_pos--;
-                        draw_picture_buffer();
-                    }
-                    break;
-                case 'a':
-                    if (global_current_pos - y_size > 0) {
-                        global_current_pos -= y_size;
-                        draw_picture_buffer();
-                    } else if (global_current_pos != 0) {
-                        global_current_pos = 0;
-                        draw_picture_buffer();
-                    }
-                    break;
-                case 'd':
-                    if (global_current_pos + y_size < global_page_count * y_size - y_size + 1) {
-                        global_current_pos += y_size;
-                        draw_picture_buffer();
-                    } else if (global_current_pos + y_size != global_page_count * y_size - y_size) {
-                        global_current_pos = (global_page_count - 1) * y_size;
-                        draw_picture_buffer();
-                    }
+
                     break;
                 case '':
                     return 0;
@@ -144,47 +121,19 @@ int menu(int select, Option_tree *option) {
     } else {
         do {
             do {
-                fflush(stdin);
-                input = _getch();
-            } while (input != 10 && input != 13 && input != 27 && input != 'r' &&
-                     input != 'f' && input != 'a' && input != 'd');
+                input = global_input_buffer;
+                Sleep(sync_delay/2);
+            } while ( input != 27 && input !=10 );
+            global_input_buffer=0;
             switch (input) {
-                case 'f':
-                    if (global_current_pos < global_page_count * y_size - y_size) {
-                        global_current_pos++;
-                        draw_picture_buffer();
-                    }
-                    break;
-                case 'r':
-                    if (global_current_pos > 0) {
-                        global_current_pos--;
-                        draw_picture_buffer();
-                    }
-                    break;
-                case 'a':
-                    if (global_current_pos - y_size > 0) {
-                        global_current_pos -= y_size;
-                        draw_picture_buffer();
-                    } else if (global_current_pos != 0) {
-                        global_current_pos = 0;
-                        draw_picture_buffer();
-                    }
-                    break;
-                case 'd':
-                    if (global_current_pos + y_size < global_page_count * y_size - y_size + 1) {
-                        global_current_pos += y_size;
-                        draw_picture_buffer();
-                    } else if (global_current_pos + y_size != global_page_count * y_size - y_size) {
-                        global_current_pos = (global_page_count - 1) * y_size;
-                        draw_picture_buffer();
-                    }
-                    break;
                 case '':
+                    printf("davor\n");
+                    init_picture_buffer();
+                    printf("danach");
                     return 0;
                 default:
                     break;
             }
-            fflush(stdout);
         } while (input != 13 && input != 10);
     }
     return select;
