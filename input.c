@@ -1,26 +1,17 @@
 #include "include/input.h"
 
-void *blink_input() {
-    HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
-    CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
-    GetConsoleScreenBufferInfo(h, &bufferInfo);
-    COORD coord;
-    coord.X = bufferInfo.dwCursorPosition.X;
-    coord.Y = bufferInfo.dwCursorPosition.Y;
-    while (1) {
-        SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
-        printf("-> ");
-        Sleep(500);
-        SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
-        printf("  ");
-        Sleep(500);
-    }
-}
-
 char *get_string(char *string, int size, char *pointer, int type) {
     int i = 0, j = 0;
+    int array_size = 0;
+    Suggestions *suggestions = NULL;
+    if (pointer != NULL && type == STRING_ARRAY) {
+        for (array_size = 0; ((char **) pointer)[array_size] != NULL; array_size++);
+        merge_sort((char **) pointer, array_size, 0, 'n');
+    }
     global_input_buffer = 0;
     global_send_input = false;
+    Suggestions *temp_suggestions = NULL;
+    bool changed_string = true;
     HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
     GetConsoleScreenBufferInfo(h, &bufferInfo);
@@ -39,27 +30,60 @@ char *get_string(char *string, int size, char *pointer, int type) {
             printf("  ");
         }
         if (global_send_input == true) {
-            if (global_input_buffer == 8) {
-                if (i > 0) {
-                    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord2);
-                    printf(" ");
-                    coord2.X--;
-                    global_send_input = false;
-                    i--;
-                }
-            } else if (global_input_buffer == '')
-                return NULL;
-            else {
-                string[i] = global_input_buffer;
-                coord2.X++;
-                SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord2);
-                printf("%c", string[i]);
-                global_send_input = false;
-                if (i < size) {
-                    i++;
-                } else {
+            switch (global_input_buffer) {
+                case 8:
+                    if (i > 0) {
+                        SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord2);
+                        printf(" ");
+                        coord2.X--;
+                        global_send_input = false;
+                        i--;
+                        string[i] = 0;
+                        changed_string = true;
+                    }
                     break;
-                }
+                case '':
+                    return NULL;
+                case 9:
+                    if (pointer != NULL) {
+                        if (type == STRING_ARRAY) {
+                            if (changed_string) {
+                                free_suggestions(suggestions);
+                                suggestions = get_suggestions_from_array((char **) pointer, array_size, string);
+                                temp_suggestions = suggestions;
+                                changed_string = false;
+                            }
+                            if (suggestions != NULL) {
+                                if (temp_suggestions == NULL) {
+                                    temp_suggestions = suggestions;
+                                }
+                                while (i > 0) {
+                                    printf("\x1b[1D%c\x1b[1D", ' ');
+                                    i--;
+                                }
+                                printf("%s", temp_suggestions->string);
+                                strcpy(string, temp_suggestions->string);
+                                i = strlen(temp_suggestions->string);
+                                temp_suggestions = temp_suggestions->next;
+                            }
+                        }
+                        global_send_input = false;
+                    }
+                    break;
+                default:
+                    string[i] = global_input_buffer;
+                    coord2.X++;
+                    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord2);
+                    printf("%c", string[i]);
+                    global_send_input = false;
+                    if (i < size) {
+                        i++;
+                        string[i] = 0;
+                    } else {
+                        break;
+                    }
+                    changed_string = true;
+                    break;
             }
         }
         j++;
@@ -147,69 +171,71 @@ void *input_thread() {
 
 }
 
-int run_input_thread(){
+int run_input_thread() {
     pthread_t pthread;
     pthread_create(&pthread, NULL, input_thread, NULL);
-    while(global_send_input == -1){
+    while (global_send_input == -1) {
         Sleep(sync_delay);
     }
     return 0;
 }
-Suggestions *get_suggestions_from_array(char**array,int size,char*search){
-    if(search[0]==0){
+
+Suggestions *get_suggestions_from_array(char **array, int size, char *search) {
+    if (search[0] == 0) {
         return NULL;
     }
     Suggestions first_suggestion;
-    Suggestions *suggestions=&first_suggestion;
-    suggestions->next=NULL;
-    suggestions->string=NULL;
+    Suggestions *suggestions = &first_suggestion;
+    suggestions->next = NULL;
+    suggestions->string = NULL;
 
-    char *result = (char*)binary_search(array,search,size);
-    if(result ==NULL){
+    char *result = (char *) binary_search(array, search, size);
+    if (result == NULL) {
         return NULL;
     }
 
-    int index=(int)((unsigned long long)result-(unsigned long long)array)/8;
-    suggestions->next=malloc(sizeof(Suggestions));
-    if(suggestions->next==NULL){
+    int index = (int) ((unsigned long long) result - (unsigned long long) array) / 8;
+    suggestions->next = malloc(sizeof(Suggestions));
+    if (suggestions->next == NULL) {
         perror("malloc");
         return NULL;
     }
-    suggestions->next->string=array[index];
-    suggestions->next->next=NULL;
-    suggestions=suggestions->next;
+    suggestions->next->string = array[index];
+    suggestions->next->next = NULL;
+    suggestions = suggestions->next;
 
-    int temp_index=index;
-    while(index-1>0 && strncmp(search,array[index-1],strlen(search))==0) {
+    int temp_index = index;
+    while (index - 1 > 0 && strncmp(search, array[index - 1], strlen(search)) == 0) {
         suggestions->next = malloc(sizeof(Suggestions));
         if (suggestions->next == NULL) {
             perror("malloc");
             return NULL;
         }
         suggestions->next->string = array[index - 1];
-        suggestions->next->next=NULL;
-        suggestions=suggestions->next;
+        suggestions->next->next = NULL;
+        suggestions = suggestions->next;
         index--;
     }
-    index=temp_index;
-    while(index+1<size && strncmp(search,array[index+1],strlen(search))==0) {
+    index = temp_index;
+    while (index + 1 < size && strncmp(search, array[index + 1], strlen(search)) == 0) {
         suggestions->next = malloc(sizeof(Suggestions));
         if (suggestions->next == NULL) {
             perror("malloc");
             return NULL;
         }
         suggestions->next->string = array[index + 1];
-        suggestions->next->next=NULL;
-        suggestions=suggestions->next;
+        suggestions->next->next = NULL;
+        suggestions = suggestions->next;
         index++;
     }
     return first_suggestion.next;
 }
-void free_suggestions(Suggestions *suggestions){
-    Suggestions*temp;
-    while(suggestions!=NULL){
-        temp=suggestions->next;
+
+void free_suggestions(Suggestions *suggestions) {
+    Suggestions *temp;
+    while (suggestions != NULL) {
+        temp = suggestions->next;
         free(suggestions);
-        suggestions=temp;
+        suggestions = temp;
     }
 }

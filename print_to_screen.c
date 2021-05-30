@@ -277,16 +277,13 @@ void print_date_message() {
 void print_user_message() {
     clear_screen();
     init_picture_buffer();
-
     bool input;
     int max_c = 0, x, i = 0;
-
     User *temp = global_first_user;
     while (temp->next != NULL) {
         x = (int) strlen(temp->name);
         if (x > max_c)
             max_c = x;
-        print_to_buffer(temp->name, 0, i);
         i++;
         temp = temp->next;
     }
@@ -302,7 +299,7 @@ void print_user_message() {
     merge_sort(name_array,i,0,'n');
 
     for(int j=0;j<i;j++){
-        print_to_buffer(name_array[j], 0, j * 2);
+        print_to_buffer(name_array[j], 0, j);
     }
     draw_picture_buffer();
 
