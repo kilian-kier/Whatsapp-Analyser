@@ -7,11 +7,15 @@
 
 void create_dictionary();
 int check_char(char c);
-Dictionary *insert_word(char *anfang, int l, Dictionary *temp);
-//int height(Dictionary *temp);
-//Dictionary *right_rotaition(Dictionary *temp);
-//Dictionary *left_rotaition(Dictionary *temp);
+Dictionary *insert_word(char *word_begin, int length, Dictionary *temp);
+int height(Dictionary *temp);
+Dictionary *right_rotate(Dictionary *temp);
+Dictionary *left_rotate(Dictionary *temp);
 void print_dictionary(Dictionary *ptr);
+int get_balanced(Dictionary * temp);
+int max_height(int left, int right);
+void update_height(Dictionary *temp, int level);
+
 void dictionary_main(FILE*f);
 int relative_word_count(Dictionary *ptr);
 int find_longest_word(int longest,Dictionary*ptr);
