@@ -15,4 +15,6 @@ int run_input_thread();
 char* get_string(char*string,int size,char*pointer,int type);
 Suggestions *get_suggestions_from_array(char**array,int size,char*search);
 void free_suggestions(Suggestions *suggestions);
+void delete_n_char(int n);
+void cursor_blink(bool on,int offset);
 #endif //INFORMATIK_PROJEKT_INPUT_H
