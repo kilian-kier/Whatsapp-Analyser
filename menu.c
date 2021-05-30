@@ -1,7 +1,7 @@
 #include "include/menu.h"
 
-extern char *_binary_whatsapp_logo_ppm_start;
-extern char *_binary_whatsapp_logo_ppm_end;
+extern char *_binary_icon_ppm_start;
+extern char *_binary_icon_ppm_end;
 
 void main_menu() {
     FILE *f = NULL;
@@ -12,9 +12,8 @@ void main_menu() {
     x_size = screenBufferInfo.srWindow.Right - x_pos - 1;
     y_size = screenBufferInfo.srWindow.Bottom - y_pos - 1;
 
-    draw_picture((char *) &_binary_whatsapp_logo_ppm_start, (char *) &_binary_whatsapp_logo_ppm_end, 0, 0, x_size,
+    draw_picture((char *) &_binary_icon_ppm_start, (char *) &_binary_icon_ppm_end, 0, 0, x_size,
                  y_size - 1);
-    //draw_picture((char*)&_binary_whatsapptest_ppm_start,(char*)&_binary_whatsapptest_ppm_end,0, 90,100,40);
 
     printf("\x1b[?25l");
 
