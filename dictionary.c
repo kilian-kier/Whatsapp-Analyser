@@ -71,7 +71,7 @@ int get_balanced(Dictionary * temp){
     else return height(temp->left) - height(temp->right);
 }
 void create_dictionary() {
-    gloabl_first_word = NULL;
+    global_first_word = NULL;
     int length, offset;
     char *word_begin;
     Message *ptr = global_first_message;
@@ -88,7 +88,7 @@ void create_dictionary() {
             while ((check_char(*(word_begin + length))) != 0) length++;
             if (length == 0) offset++;
             else {
-                gloabl_first_word = insert_word(word_begin, length, gloabl_first_word);
+                global_first_word = insert_word(word_begin, length, global_first_word);
                 char buffer[100];
                 for (int i = 0; i < 100; i++) buffer[i] = '\0';
                 strncpy(buffer, word_begin, length);
@@ -97,7 +97,7 @@ void create_dictionary() {
         }
         ptr = ptr->next;
     }
-    update_height(gloabl_first_word, 1);
+    update_height(global_first_word, 1);
 }
 
 void update_height(Dictionary *temp, int level){

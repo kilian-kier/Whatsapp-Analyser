@@ -28,9 +28,9 @@ int print_point(int x,int y, wchar_t c, Color *foreground, Color *background){
                if(current->next==NULL){
                    return -1;
                }
+               global_page_count++;
            }
            current=current->next;
-           global_page_count++;
        }else{
            current=current->previous;
        }
@@ -281,7 +281,7 @@ void draw_picture_buffer() {
     }
     fflush(stdout);
     foreground_color(255, 255, 255);
-    printf("P[%d | %d]",page+1, global_page_count);
+    printf("\x1b[2E            \x1b[12DP[%d | %d]",page+1, global_page_count);
     printf("\x1b[H");
     setvbuf(stdout, NULL, _IONBF, 0);
 }

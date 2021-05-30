@@ -106,11 +106,10 @@ void *input_thread() {
                                 } else if (global_current_pos != 0) {
                                     global_current_pos = 0;
                                     draw_picture_buffer();
-
                                 }
                                 break;
                             case 77:
-                                if (global_current_pos + y_size < global_page_count * y_size - y_size + 1) {
+                                if (global_current_pos + y_size < global_page_count * y_size - y_size +1) {
                                     global_current_pos += y_size;
                                     draw_picture_buffer();
                                 } else if (global_current_pos + y_size != global_page_count * y_size - y_size) {
