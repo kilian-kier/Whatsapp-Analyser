@@ -24,7 +24,17 @@ void main_menu() {
     create_option(L"Anzahl Nachrichten", &opt1_1_1, temp, 0, 0);
     create_option(L"prozentual\n", &opt1_1_2, temp, 0, 1);
     create_option(L"durchschnittliche W\x94rter\n", &opt1_1_3, temp, 0, 2);
-    temp = create_option(L"W\x94rterbuch", &opt1_3, temp->parent, 0, 3);
+
+    temp = create_option(L"W\x94rterbuch", &opt1_4, temp->parent, 2, 3);
+    temp=create_option(L"Sortierung", NULL, temp, 4, 1);
+    create_option(L"Alphabet", &opt1_4_2_1, temp, 0, 0);
+    create_option(L"L\x84nge", &opt1_4_2_2, temp, 0, 1);
+    create_option(L"Anzahl", &opt1_4_2_3, temp, 0, 2);
+    create_option(L"Richtung aendern", &opt1_4_2_4, temp, 0, 3);
+
+    temp=create_option(L"Auswahl", &opt1_4_1, temp->parent, 1, 0);
+    create_option(NULL, NULL, temp, 0, 0);
+    temp=temp->parent;
 
     temp = create_option(L"Zeit", &opt1_2, temp->parent, 3, 1);
     create_option(L"Monat", &opt1_2_1, temp, 0, 0);

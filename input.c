@@ -72,6 +72,7 @@ char* get_string(char*string,int size,char*pointer,int type){
         Sleep(sync_delay/2);
     }
     string[i]=0;
+    free_suggestions(suggestions);
     return string;
 }
 
