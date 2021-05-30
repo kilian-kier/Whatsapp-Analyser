@@ -13,6 +13,8 @@ int y_size;
 #define sync_delay 20
 
 Settings global_settings;
+#define DICT_TREE 1
+#define STRING_ARRAY 0
 
 int global_message_n;
 struct Message *global_first_message;
@@ -25,6 +27,7 @@ Day_count *global_day_arr;
 Console_buffer *global_picture_buffer;
 int global_current_pos;
 int global_page_count;
+
 
 short global_arrow_keys;
 char global_send_input;

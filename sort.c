@@ -45,6 +45,18 @@ void merge(char **arr, int size,int offset,char type){
                 }
             }
             break;
+        case 'n':
+            for(i=0;k<size && j<middle;i++){
+                if(strcmp(arr[j],arr[k])>=0){
+                    arr2[i] = (char **) arr[k];
+                    k++;
+                }
+                else{
+                    arr2[i] = (char **) arr[j];
+                    j++;
+                }
+            }
+            break;
         case 'd':
             for (i = 0; k < size && j < middle; i++) {
                 if ((*((double *) (((char *) arr[j]) + offset))) <
@@ -87,5 +99,23 @@ char ** merge_sort(char **arr,int size, int offset,char type){
 void arr_cpy(int size, char**arr1,char**arr2){
     for(int i=0;i<size;i++){
         arr2[i]=arr1[i];
+    }
+}
+char** binary_search(char**array,char*search, int size){
+    int middle=size/2;
+    int cmp = strncmp(search, array[middle], strlen(search));
+    if(size>1) {
+        if (cmp == 0) {
+            return &array[middle];
+        } else if (cmp < 0) {
+            return binary_search(array, search, middle);
+        } else if (cmp > 0) {
+            return binary_search(&array[middle], search, size - middle);
+        }
+    }else{
+        if (cmp == 0) {
+            return &array[middle];
+        }
+        return NULL;
     }
 }

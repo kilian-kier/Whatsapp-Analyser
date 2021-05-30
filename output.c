@@ -18,32 +18,32 @@ int print_point(int x,int y, wchar_t c, Color *foreground, Color *background){
         current=global_picture_buffer;
         global_page_count=1;
     }
-    while(buffer_index!=current->n){
-        if(buffer_index > current->n){
-            if(current->next==NULL){
-                current->next=create_console_buffer();
-                current->next->previous=current;
-                current->next->next=NULL;
-                current->next->n=current->n+1;
-                if(current->next==NULL){
-                    return -1;
-                }
-                global_page_count++;
-            }
-            current=current->next;
-        }else{
-            current=current->previous;
-        }
-    }
-    int newy=y%(y_size);
-    if(foreground!=NULL){
-        current->buffer[newy][x].foreground=*foreground;
-    }
-    if(background!=NULL){
-        current->buffer[newy][x].background=*background;
-    }
-    current->buffer[newy][x].character=c;
-    return 0;
+   while(buffer_index!=current->n){
+       if(buffer_index > current->n){
+           if(current->next==NULL){
+               current->next=create_console_buffer();
+               current->next->previous=current;
+               current->next->next=NULL;
+               current->next->n=current->n+1;
+               if(current->next==NULL){
+                   return -1;
+               }
+               global_page_count++;
+           }
+           current=current->next;
+       }else{
+           current=current->previous;
+       }
+   }
+   int newy=y%(y_size);
+   if(foreground!=NULL){
+       current->buffer[newy][x].foreground=*foreground;
+   }
+   if(background!=NULL){
+       current->buffer[newy][x].background=*background;
+   }
+   current->buffer[newy][x].character=c;
+   return 0;
 }
 Console_buffer *create_console_buffer(){
     Console_buffer *buffer=malloc(sizeof(Console_buffer));

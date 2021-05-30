@@ -114,7 +114,6 @@ void *input_thread() {
                                 } else if (global_current_pos != 0) {
                                     global_current_pos = 0;
                                     draw_picture_buffer();
-
                                 }
                             } else if (global_arrow_keys == 2) {
                                 if (global_settings.top_n >= 11)
@@ -148,11 +147,69 @@ void *input_thread() {
 
 }
 
-int run_input_thread() {
+int run_input_thread(){
     pthread_t pthread;
     pthread_create(&pthread, NULL, input_thread, NULL);
-    while (global_send_input == -1) {
+    while(global_send_input == -1){
         Sleep(sync_delay);
     }
     return 0;
+}
+Suggestions *get_suggestions_from_array(char**array,int size,char*search){
+    if(search[0]==0){
+        return NULL;
+    }
+    Suggestions first_suggestion;
+    Suggestions *suggestions=&first_suggestion;
+    suggestions->next=NULL;
+    suggestions->string=NULL;
+
+    char *result = (char*)binary_search(array,search,size);
+    if(result ==NULL){
+        return NULL;
+    }
+
+    int index=(int)((unsigned long long)result-(unsigned long long)array)/8;
+    suggestions->next=malloc(sizeof(Suggestions));
+    if(suggestions->next==NULL){
+        perror("malloc");
+        return NULL;
+    }
+    suggestions->next->string=array[index];
+    suggestions->next->next=NULL;
+    suggestions=suggestions->next;
+
+    int temp_index=index;
+    while(index-1>0 && strncmp(search,array[index-1],strlen(search))==0) {
+        suggestions->next = malloc(sizeof(Suggestions));
+        if (suggestions->next == NULL) {
+            perror("malloc");
+            return NULL;
+        }
+        suggestions->next->string = array[index - 1];
+        suggestions->next->next=NULL;
+        suggestions=suggestions->next;
+        index--;
+    }
+    index=temp_index;
+    while(index+1<size && strncmp(search,array[index+1],strlen(search))==0) {
+        suggestions->next = malloc(sizeof(Suggestions));
+        if (suggestions->next == NULL) {
+            perror("malloc");
+            return NULL;
+        }
+        suggestions->next->string = array[index + 1];
+        suggestions->next->next=NULL;
+        suggestions=suggestions->next;
+        index++;
+    }
+    return first_suggestion.next;
+}
+void free_suggestions(Suggestions *suggestions){
+    Suggestions*temp;
+    while(suggestions!=NULL){
+        temp=suggestions->next;
+        free(suggestions);
+        suggestions=temp;
+    }
 }

@@ -271,6 +271,7 @@ void print_date_message() {
     printf("%p", output);
     free(output);
     draw_picture_buffer();
+    //TODO Suchalgorithmus fos Datum
 }
 
 void print_user_message() {
@@ -289,6 +290,20 @@ void print_user_message() {
         i++;
         temp = temp->next;
     }
+
+    //Create Array with Names
+    temp=global_first_user;
+    char*name_array[i+1];
+    for(int j=0;j<i;j++){
+        name_array[j]=temp->name;
+        temp=temp->next;
+    }
+    name_array[i]=NULL;
+    merge_sort(name_array,i,0,'n');
+
+    for(int j=0;j<i;j++){
+        print_to_buffer(name_array[j], 0, j * 2, white, black);
+    }
     draw_picture_buffer();
 
     printf("\x1b[%dB", y_pos);
@@ -301,6 +316,7 @@ void print_user_message() {
         printf("  Gib den Namen des Nutzers ein\n  ");
         if (get_string(buf, max_c + 1, NULL, 0) == NULL)
             return;
+        get_string(buf,max_c+1,(char*)name_array,STRING_ARRAY);
         temp = user_exists(buf);
         if (temp == NULL) {
             printf("\n  Diesen Nutzer gibt es nicht!\n\n");

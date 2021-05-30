@@ -1,24 +1,46 @@
 #include "include/dictionary.h"
 
 
-void dictionary_main(FILE *f){
-    int words;
-    int most;
-    int longest;
+void dictionary_main(FILE *f,char sort){
+
+    static bool stat_reverse=0;
+    static char sort_1=0;
+    char buffer[50];
+    if(sort=='r'){
+        stat_reverse=!stat_reverse;
+    }else{
+        sort_1=sort;
+    }
 
     static FILE* loaded=NULL;
     if(f!=loaded || loaded==NULL){
+        loaded=f;
         create_dictionary();
     }
     init_picture_buffer();
-    print_to_buffer("", 0, 0);
-/*
-    words=relative_word_count(global_first_word);
-    longest=find_longest_word(0,global_first_word);
-    find_most_word();
-    printf("\n\n%d %d %d\n",words,longest,most);
-    Sleep(100000);*/
-    print_dictionary(global_first_word);
+  
+    switch(sort_1){
+        case 'A':
+            sprintf(buffer,"Alphabetisch Sortiert - Richtung: %s\n\n",stat_reverse==0?"aufsteigend":"absteigend");
+            break;
+        case 'a':
+            sprintf(buffer,"Nach Anzahl Sortiert - Richtung: %s\n\n",stat_reverse==0?"aufsteigend":"absteigend");
+            break;
+        case 'l':
+            sprintf(buffer,"Nach Laenge Sortiert - Richtung: %s\n\n",stat_reverse==0?"aufsteigend":"absteigend");
+            break;
+    }
+    print_to_buffer(buffer,0,0,white,black);
+    if(sort_1=='a' || sort_1=='l'){
+        global_first_word=rearange_tree(NULL,global_first_word,sort_1);
+        print_dictionary(global_first_word,stat_reverse);
+        global_first_word=rearange_tree(NULL,global_first_word,'A');
+    }else{
+        print_dictionary(global_first_word,stat_reverse);
+    }
+}
+void dictionary_select(){
+
 }
 int relative_word_count(Dictionary *ptr) {
     int ret=0;
@@ -28,49 +50,136 @@ int relative_word_count(Dictionary *ptr) {
     ret+= relative_word_count(ptr->right);
     return ret;
 }
-Dictionary** find_most_word(){
-    Dictionary** array=malloc(sizeof(Dictionary**)*(y_size/2));
-    find_most_rec(array,y_size/2,global_first_word);
-    for(int i=0;i<y_size/2;i++){
-        printf("%d\n",array[0]->anzahl);
-    }
 
-}
-void find_most_rec(Dictionary**array,int arraysize, Dictionary*ptr){
-    if(ptr==NULL)return;
-
-    for(int i=0;i<arraysize;i++){
-        if(ptr->anzahl>array[
-                i]->anzahl);
-        shift_pointer_array((char**)array,i,arraysize);
-        array[i]=ptr;
-        printf("anzahl: %d\n",ptr->anzahl);
-    }
-    find_most_rec(array,arraysize,ptr->left);
-    find_most_rec(array,arraysize,ptr->right);
-    return;
-}
-void shift_pointer_array(char **array,int index, int size){
-    for(int i=size;i>index;i--){
-        array[size]=array[size-1];
-    }
-}
 int find_longest_word(int longest,Dictionary*ptr) {
-    if (ptr == NULL) return 0;
+    if (ptr == NULL) return longest;
 
+    if(longest < ptr->length_word){
+        longest=ptr->length_word;
+    }
     longest=find_longest_word(longest,ptr->left);
+    if(longest < ptr->length_word){
+        longest=ptr->length_word;
+    }
     longest=find_longest_word(longest,ptr->right);
-    if(longest<ptr->laenge){
-        longest=ptr->laenge;
-
+    if(longest<ptr->length_word){
+        longest=ptr->length_word;
     }
     return longest;
 }
+
+int find_most_word(int most,Dictionary*ptr) {
+    if (ptr == NULL) return most;
+
+    if(most < ptr->amount){
+        most=ptr->amount;
+    }
+    most=find_longest_word(most,ptr->left);
+    if(most < ptr->amount){
+        most=ptr->amount;
+    }
+    most=find_longest_word(most,ptr->right);
+    if(most<ptr->amount){
+        most=ptr->amount;
+    }
+    return most;
+}
+Dictionary *rearange_tree(Dictionary*new_dict,Dictionary*dict,char type){
+    if(dict==NULL)return new_dict;
+    new_dict=rearange_tree(new_dict,dict->left,type);
+    new_dict=rearange_tree(new_dict,dict->right,type);
+    new_dict=rearange_word(new_dict,dict,type);
+    return new_dict;
+}
+Dictionary *rearange_word(Dictionary*new_dict,Dictionary *dict,char type){
+    if (new_dict == NULL) {
+        new_dict = dict;
+        new_dict->left = NULL;
+        new_dict->right = NULL;
+        new_dict->level = 1;
+        return new_dict;
+    } else {
+        switch(type) {
+            case 'A':
+             if (strncmp(dict->begin_word, new_dict->begin_word,(dict->length_word < new_dict->length_word) ? dict->length_word: new_dict->length_word) < 0) {
+                 new_dict->left = rearange_word(new_dict->left,dict,type);
+             }
+            else if (strncmp(dict->begin_word, new_dict->begin_word,(dict->length_word < new_dict->length_word) ? dict->length_word : new_dict->length_word) >0) {
+                 new_dict->right = rearange_word(new_dict->right,dict,type);
+             }
+            break;
+            case 'l':
+                if (dict->length_word<new_dict->length_word) {
+                    new_dict->left = rearange_word(new_dict->left,dict,type);
+                }
+                else{
+                    new_dict->right = rearange_word(new_dict->right,dict,type);
+                }
+                break;
+            case 'a':
+                if (dict->amount<new_dict->amount) {
+                    new_dict->left = rearange_word(new_dict->left,dict,type);
+                }
+                else{
+                    new_dict->right = rearange_word(new_dict->right,dict,type);
+                }
+                break;
+        }
+    }
+    new_dict->level =  max_height(height(new_dict->left), height(new_dict->right)) + 1;
+    int balance = get_balanced(new_dict);
+
+    switch(type) {
+        case 'A':
+            if (balance > 1 && strncmp(new_dict->begin_word,new_dict->left->begin_word,(new_dict->length_word < new_dict->left->length_word)? new_dict->length_word : new_dict->left->length_word) <= 0) return right_rotate(new_dict);
+            if (balance < -1 && strncmp(new_dict->begin_word,new_dict->right->begin_word,(new_dict->length_word < new_dict->right->length_word)? new_dict->length_word : new_dict->right->length_word) >= 0) return left_rotate(new_dict);
+            if (balance > 1 && strncmp(new_dict->begin_word,new_dict->left->begin_word,(new_dict->length_word < new_dict->left->length_word)? new_dict->length_word : new_dict->left->length_word) >= 0) {
+                new_dict->left = left_rotate(new_dict->left);
+                return right_rotate(new_dict);
+            }
+            if (balance < -1 &&  strncmp(new_dict->begin_word,new_dict->right->begin_word,(new_dict->length_word < new_dict->right->length_word)? new_dict->length_word : new_dict->right->length_word) <= 0) {
+                new_dict->right = right_rotate(new_dict->right);
+                return left_rotate(new_dict);
+            }
+            break;
+        case 'l':
+            if (balance > 1 && new_dict->begin_word < new_dict->left->begin_word) return right_rotate(new_dict);
+            if (balance < -1 && new_dict->begin_word>new_dict->right->begin_word) return left_rotate(new_dict);
+            if (balance > 1 && new_dict->begin_word > new_dict->left->begin_word) {
+                new_dict->left = left_rotate(new_dict->left);
+                return right_rotate(new_dict);
+            }
+            if (balance < -1 &&  new_dict->begin_word<new_dict->right->begin_word) {
+                new_dict->right = right_rotate(new_dict->right);
+                return left_rotate(new_dict);
+            }
+            break;
+        case 'a':
+            if (balance > 1 && new_dict->amount < new_dict->left->amount) return right_rotate(new_dict);
+            if (balance < -1 && new_dict->amount>new_dict->right->amount) return left_rotate(new_dict);
+            if (balance > 1 && new_dict->amount > new_dict->left->amount) {
+                new_dict->left = left_rotate(new_dict->left);
+                return right_rotate(new_dict);
+            }
+            if (balance < -1 &&  new_dict->amount<new_dict->right->amount) {
+                new_dict->right = right_rotate(new_dict->right);
+                return left_rotate(new_dict);
+            }
+            break;
+    }
+    return new_dict;
+}
+
+
+int get_balanced(Dictionary * temp){
+    if (temp == NULL) return 0;
+    else return height(temp->left) - height(temp->right);
+}
 void create_dictionary() {
     global_first_word = NULL;
-    int laenge, offset;
-    char *anfang;
-    Message *ptr = global_first_message->next->next->next;
+    int length, offset;
+    char *word_begin;
+    Message *ptr = global_first_message;
     while (ptr->next != NULL) {
         if ((strcmp(ptr->message, "<medien ausgeschlossen>\n")) == 0) {
             ptr = ptr->next;
@@ -78,20 +187,31 @@ void create_dictionary() {
         }
         offset = 0;
         while (ptr->message[offset] != '\0') {
-            anfang = ptr->message + offset;
-            laenge = 0;
-            while ((check_char(*(anfang+laenge)))!= 0) laenge++;
-            if (laenge == 0) offset++;
+            word_begin = ptr->message + offset;
+            length = 0;
+            //if(*word_begin == '<' && *(word_begin + 1) == '\\' && *(word_begin + 2) == '1' && *(word_begin + 3) == '>')word_begin += 4;
+            while ((check_char(*(word_begin + length))) != 0) length++;
+            if (length == 0) offset++;
             else {
-                global_first_word = insert_word(anfang, laenge, global_first_word);
-                offset += laenge;
+                global_first_word = insert_word(word_begin, length, global_first_word);
+                char buffer[100];
+                for (int i = 0; i < 100; i++) buffer[i] = '\0';
+                strncpy(buffer, word_begin, length);
+                offset += length;
             }
         }
         ptr = ptr->next;
     }
+    update_height(global_first_word, 1);
 }
 
-int check_char(char c){
+void update_height(Dictionary *temp, int level){
+    if (temp == NULL) return;
+    temp->level = level;
+    update_height(temp->left, level+1);
+    update_height(temp->right, level+1);
+}
+int check_char(char c) {
     if (c == ' ' || c == '.' ||
         c == ',' || c == ':' ||
         c == '!' || c == '?' ||
@@ -99,103 +219,106 @@ int check_char(char c){
         c == '<' || c == '>' ||
         c == '|' || c == '/'
         || c == '"' || c == ';'
-        || c == '(' || c == ')' || c == '*' || c == '=' || c == '[' || c == ']' || c == '^' || c == '{' || c == '}' || c == '\\'  ) return 0;
+        || c == '(' || c == ')' || c == '*' || c == '=' || c == '[' || c == ']' || c == '^' || c == '{' || c == '}' ||
+        c == '\\' || c == '`' || c == '\t' ||c == '\1')
+        return 0;
     else return 1;
 }
 
-Dictionary *insert_word(char *anfang, int l, Dictionary *temp) {
-    int h_left, h_right, balance, y;
+Dictionary *insert_word(char *word_begin, int length, Dictionary *temp) {
     if (temp == NULL) {
         temp = (Dictionary *) malloc(sizeof(Dictionary));
         temp->left = NULL;
         temp->right = NULL;
-        temp->anzahl = 1;
-        temp->wortanfang = anfang;
-        temp->laenge = l;
+        temp->amount = 1;
+        temp->begin_word = word_begin;
+        temp->length_word = length;
         temp->level = 1;
-        if (global_first_word == NULL) global_first_word = temp;
         return temp;
     } else {
-        if (l <= temp->laenge) y = l;
-        else y = temp->laenge;
-        if (l == temp->laenge && strncmp (anfang, temp->wortanfang, l) == 0) {
-            temp->anzahl++;
+        if (length == temp->length_word && strncmp(word_begin, temp->begin_word, length) == 0) {
+            temp->amount++;
             return temp;
-        } else if (strncmp(anfang, temp->wortanfang, y) < 0) temp->left = insert_word(anfang, l, temp->left);
-        else if (strncmp(anfang, temp->wortanfang, y) > 0) temp->right = insert_word(anfang, l, temp->right);
+        } else if (strncmp(word_begin, temp->begin_word, (length < temp->length_word)? length : temp->length_word) < 0)
+            temp->left = insert_word(word_begin, length, temp->left);
+        else if (strncmp(word_begin, temp->begin_word, (length < temp->length_word)? length : temp->length_word) > 0)
+            temp->right = insert_word(word_begin, length, temp->right);
+    }
+
+    temp->level =  max_height(height(temp->left), height(temp->right)) + 1;
+    int balance = get_balanced(temp);
+
+    if (balance > 1 && strncmp(temp->begin_word,temp->left->begin_word,(temp->length_word < temp->left->length_word)? temp->length_word : temp->left->length_word) <= 0) return right_rotate(temp);
+
+    if (balance < -1 && strncmp(temp->begin_word,temp->right->begin_word,(temp->length_word < temp->right->length_word)? temp->length_word : temp->right->length_word) >= 0) return left_rotate(temp);
+
+    if (balance > 1 && strncmp(temp->begin_word,temp->left->begin_word,(temp->length_word < temp->left->length_word)? temp->length_word : temp->left->length_word) >= 0) {
+        temp->left = left_rotate(temp->left);
+        return right_rotate(temp);
+    }
+
+    if (balance < -1 &&  strncmp(temp->begin_word,temp->right->begin_word,(temp->length_word < temp->right->length_word)? temp->length_word : temp->right->length_word) <= 0) {
+        temp->right = right_rotate(temp->right);
+        return left_rotate(temp);
     }
     return temp;
-
-   /* //Höhe ermitteln
-    h_left = height(temp->left);
-    h_right = height(temp->right);
-    temp->level = (h_right < h_left) ? h_left : h_right;
-
-    //Balance ausrechnen
-    balance = h_left-h_right;
-
-    //Überprüfen in welche richtung der Baum "verzogen" ist
-    // Linker Linker Fall
-    if(balance > 1 && strncmp(temp->wortanfang,temp->left->wortanfang , (temp->laenge <= temp->left->laenge)? temp->laenge : temp->left->laenge) < 0){
-        return right_rotaition(temp);
-    }
-    // Rechter Rechter Fall
-    else if(balance < -1 && strncmp(temp->wortanfang,temp->right->wortanfang, (temp->laenge <= temp->right->laenge)? temp->laenge : temp->right->laenge) > 0){
-        return left_rotaition(temp);
-    }
-    // Linken rechten Fall
-    else if (balance > 1 && strncmp(temp->wortanfang,temp->left->wortanfang, (temp->laenge <= temp->left->laenge)? temp->laenge : temp->left->laenge) > 0){
-        temp->left = left_rotaition(temp);
-        return right_rotaition(temp);
-    }
-    else if(balance < -1 && strncmp(temp->wortanfang, temp->right->wortanfang , (temp->laenge <= temp->right->laenge)? temp->laenge : temp->right->laenge) < 0){
-        temp->right = right_rotaition(temp);
-        return left_rotaition(temp);
-    }
-    else return temp;*/
 }
 
-//inorder print
-void print_dictionary(Dictionary *ptr) {
+
+void print_dictionary(Dictionary *ptr,bool reverse) {
     char buffer[200];
     char buffer2[200];
     if (ptr == NULL) return;
-    print_dictionary(ptr->left);
-    strncpy(buffer, ptr->wortanfang, ptr->laenge);
-    buffer[ptr->laenge] = '\0';
-    sprintf(buffer2,"%s %d\n",buffer,ptr->anzahl);
-    print_to_buffer(buffer2, -1, -1);
-    print_dictionary(ptr->right);
+    if(reverse){
+        print_dictionary(ptr->right,reverse);
+    }else{
+        print_dictionary(ptr->left,reverse);
+    }
+    if(ptr->length_word>30){
+        strncpy(buffer, ptr->begin_word, 30);
+        strcpy(&buffer[30],"..");
+        buffer[32]=0;
+    }else{
+        strncpy(buffer, ptr->begin_word, ptr->length_word);
+        buffer[ptr->length_word] = '\0';
+    }
+    sprintf(buffer2,"%s %d\n",buffer,ptr->amount);
+    print_to_buffer(buffer2,-1,-1,white,black);
+    if(reverse){
+        print_dictionary(ptr->left,reverse);
+    }else{
+        print_dictionary(ptr->right,reverse);
+    }
 }
 
-
-/*
-//Geht vom Blatt zur Wurzel
-int height(Dictionary *temp){
+int height(Dictionary *temp) {
     if (temp == NULL) return 0;
     else return temp->level;
 }
 
+int max_height(int left, int right){
+    if (left > right) return left;
+    else return right;
+}
 
-Dictionary *left_rotaition(Dictionary *temp){
-    Dictionary  *x, *y;
-    x = temp->right;
-    y = temp->right->left;
+Dictionary *left_rotate(Dictionary *temp) {
+    if(temp->right == NULL) return temp;
+    Dictionary *x = temp->right;
+    Dictionary *y = temp->right->left;
     x->left = temp;
     temp->right = y;
-    temp->level = (height(temp->left) > height(temp->right)? height(temp->left) : height(temp->right));
-    x->level = (height(x->left) > height(x->right)? height(x->left) : height(x->right));
+    temp->level = max_height(height(temp->left), height(temp->right)) +1;
+    x->level = max_height(height(x->left), height(x->right)) +1;
     return x;
 }
 
-Dictionary *right_rotaition(Dictionary *temp){
-    Dictionary  *x, *y;
-    x = temp->left;
-    y = temp->left->right;
+Dictionary *right_rotate(Dictionary *temp) {
+    if(temp->left == NULL) return temp;
+    Dictionary *x = temp->left;
+    Dictionary *y = temp->left->right;
     x->right = temp;
     temp->left = y;
-    temp->level = (height(temp->left) > height(temp->right)? height(temp->left) : height(temp->right));
-    x->level = (height(x->left) > height(x->right)? height(x->left) : height(x->right));
+    temp->level = max_height(height(temp->left), height(temp->right)) +1;
+    x->level = max_height(height(x->left), height(x->right)) +1;
     return x;
 }
-*/

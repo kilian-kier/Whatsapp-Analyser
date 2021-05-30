@@ -3,7 +3,7 @@
 void opt0(FILE *f) {
     extern char *_binary_whatsapp_logo_ppm_start;
     extern char *_binary_whatsapp_logo_ppm_end;
-    draw_picture((char *) &_binary_whatsapp_logo_ppm_start, (char *) &_binary_whatsapp_logo_ppm_end, 0, 0, x_size,
+    draw_picture((char *) &_binary_icon_ppm_start, (char *) &_binary_icon_ppm_end, 0, 0, x_size,
                  y_size - 1);
 }
 
@@ -44,11 +44,26 @@ void opt1_2(__attribute__((unused)) FILE *f) {
         is_read = true;
     }
 }
-
-
 void opt1_4(FILE *f) {
-    dictionary_main(f);
+    dictionary_main(f,'A');
 }
+void opt1_4_1(FILE *f) {
+    dictionary_select(f);
+}
+
+void opt1_4_2_1(FILE *f){
+    dictionary_main(f,'A');
+}
+void opt1_4_2_2(FILE *f){
+    dictionary_main(f,'l');
+}
+void opt1_4_2_3(FILE *f){
+    dictionary_main(f,'a');
+}
+void opt1_4_2_4(FILE *f){
+    dictionary_main(f,'r');
+}
+
 void opt1_1_1(__attribute__((unused)) FILE *f) {
     print_message_len(0);
 }
