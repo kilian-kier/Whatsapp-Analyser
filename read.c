@@ -104,7 +104,7 @@ char *string_convert(char *string, int offset) {
             string2[y] = 's';
             i++;
         } else if (string[i] < 0) {
-            string2[y] = ' ';
+            string2[y] = '\1';
             i += 3;
         } else if (string[i] == 13) continue;
         else string2[y] = string[i];

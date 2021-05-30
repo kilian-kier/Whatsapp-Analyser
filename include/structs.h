@@ -28,9 +28,9 @@ typedef struct User{
 typedef struct Dictionary{
     struct Dictionary *left;
     struct Dictionary *right;
-    char *wortanfang;
-    int anzahl;
-    int laenge;
+    char *begin_word;
+    int amount;
+    int length_word;
     int level;
 } Dictionary;
 
@@ -53,6 +53,11 @@ typedef struct Pixel{
     Color foreground;
     Color background;
 }Pixel;
+
+typedef struct Suggestions{
+    char*string;
+    struct Suggestions*next;
+}Suggestions;
 
 typedef struct Console_buffer{
     unsigned int n;

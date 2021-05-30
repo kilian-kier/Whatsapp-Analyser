@@ -117,8 +117,8 @@ void print_average_words() {
     char *buf;
     buf = malloc((int) log10(arr[0]->average_words) + 1 * sizeof(char));
     for (int i = 0; i < n; i++) {
-        int x = (int)((x_size - (int) log10(arr[0]->average_words) - 5 - max_j) *
-                (double)(arr[i]->average_words) / (arr[0]->average_words));
+        int x = (int) ((x_size - (int) log10(arr[0]->average_words) - 5 - max_j) *
+                       (double) (arr[i]->average_words) / (arr[0]->average_words));
         draw_rect(max_j, i * 2, x, 1, white, 1, 0);
         //draw_rect(max_j, i * 2, 1, 1, white, 1, 0);
         sprintf(buf, "%.2lf", arr[i]->average_words);
@@ -156,7 +156,8 @@ void print_message_len(unsigned short mode) {
     if (mode == 0) {
         buf = malloc((int) log10(arr[0]->message_len) + 1 * sizeof(char));
         for (int i = 0; i < n; i++) {
-            int x = (int)((x_size - (int) log10(arr[0]->message_len) - 2 - max_j) * (double)(arr[i]->message_len) / (arr[0]->message_len));
+            int x = (int) ((x_size - (int) log10(arr[0]->message_len) - 2 - max_j) * (double) (arr[i]->message_len) /
+                           (arr[0]->message_len));
             draw_rect(max_j, i * 2, x, 1, white, 1, 0);
 
             //draw_rect(max_j, i * 2, 1, 1, white, 1, 0);
@@ -170,7 +171,7 @@ void print_message_len(unsigned short mode) {
     } else if (mode == 1) {
         buf = malloc(3 * sizeof(char));
         for (int i = 0; i < n; i++) {
-            int x = (int)((x_size - 6 - max_j) * (double)(arr[i]->message_len) / (arr[0]->message_len));
+            int x = (int) ((x_size - 6 - max_j) * (double) (arr[i]->message_len) / (arr[0]->message_len));
             draw_rect(max_j, i * 2, x, 1, white, 1, 0);
             //draw_rect(max_j, i * 2, 1, 1, white, 1, 0);
             float val = (float) arr[i]->message_len * 100 / (float) global_message_n;
@@ -184,4 +185,121 @@ void print_message_len(unsigned short mode) {
         }
     }
     free(arr);
+}
+
+void print_date_message() {
+    bool input;
+    clear_screen();
+    init_picture_buffer();
+    printf("\x1b[%dB", y_pos);
+    foreground_color(menucolor);
+    printf("%s\n", "WhatsApp Analyzer\n\n");
+    foreground_color(255, 255, 255);
+
+    unsigned int day, month, year;
+    do {
+        input = true;
+        Message *temp = global_first_message;
+        while (temp->next->next != NULL)
+            temp = temp->next;
+        printf("  Wann wurde die Nachricht geschrieben (zwischen %02u.%02u.%02u und %02u.%02u.%02u) [dd.mm.yy]:\n  ",
+               global_first_message->day, global_first_message->month, global_first_message->year, temp->day,
+               temp->month, temp->year);
+        char *buffer = malloc(9 * sizeof(char));
+        get_string(buffer,9,NULL,0);
+        if(sscanf(buffer,"%d.%d.%d",&day,&month,&year)!=3){
+            input=false;
+        }
+
+        if (true_day(day, month) == false || true_month(month) == false) {
+            input = false;
+            _putws(L"  Gib bitte ein g\x81\x6ctiges Datum ein\n");
+        } else if (true_date(day, month, year, temp) == false) {
+            input = false;
+            puts("  Bitte gib ein Datum im g\x81\x6ctigen Zeitraum sein\n");
+        }
+        free(buffer);
+    } while (input == false);
+
+    Message *temp = global_first_message;
+    int i = 0;
+    int output_size=1000;
+    char *output = malloc(output_size * sizeof(char));
+    if(output==NULL){
+        perror("malloc");
+    }
+
+    while (temp != NULL) {
+        if(((temp->user!=NULL?strlen(temp->user):1)+(temp->message!=NULL?strlen(temp->message):1))<output_size-15) {
+            sprintf(output, "%d.%d.%d - %s: %s", (int) temp->day, (int) temp->month, (int) temp->year, temp->user,
+                    temp->message);
+            print_to_buffer(output, 0, i * 2, white, black);
+            i++;
+        }
+        temp = temp->next;
+    }
+    printf("%p",output);
+    free(output);
+    draw_picture_buffer();
+    //TODO Suchalgorithmus fos Datum
+}
+
+void print_user_message() {
+    clear_screen();
+    init_picture_buffer();
+
+    bool input;
+    int max_c = 0, x, i = 0;
+
+    User *temp = global_first_user;
+    while (temp->next != NULL) {
+        x = (int) strlen(temp->name);
+        if (x > max_c)
+            max_c = x;
+
+        i++;
+        temp = temp->next;
+    }
+
+    //Create Array with Names
+    temp=global_first_user;
+    char*name_array[i+1];
+    for(int j=0;j<i;j++){
+        name_array[j]=temp->name;
+        temp=temp->next;
+    }
+    name_array[i]=NULL;
+    merge_sort(name_array,i,0,'n');
+
+    for(int j=0;j<i;j++){
+        print_to_buffer(name_array[j], 0, j * 2, white, black);
+    }
+    draw_picture_buffer();
+
+    printf("\x1b[%dB", y_pos);
+    foreground_color(menucolor);
+    printf("%s\n", "WhatsApp Analyzer\n\n");
+    foreground_color(255, 255, 255);
+
+    char *buf = malloc((max_c + 1) * sizeof(char));
+    do {
+        input = true;
+        printf("  Gib den Namen des Nutzers ein\n  ");
+        get_string(buf,max_c+1,(char*)name_array,STRING_ARRAY);
+        temp = user_exists(buf);
+        if (temp == NULL) {
+            printf("  Diesen Nutzer gibt es nicht!\n");
+            input = false;
+        }
+    } while (input == false);
+    free(buf);
+
+    init_picture_buffer();
+    Message *message = temp->message;
+    i = 0;
+    while (message != NULL) {
+        print_to_buffer(message->message, 0, i * 2, white, black);
+        i++;
+        message = message->nextUser;
+    }
 }

@@ -8,15 +8,15 @@ int print_point(int x,int y, wchar_t c, Color *foreground, Color *background){
         return -1;
     }
     if(current==NULL){
-        global_picture_buffer2=create_console_buffer();
-        if(global_picture_buffer2==NULL){
+        global_picture_buffer=create_console_buffer();
+        if(global_picture_buffer == NULL){
             return -1;
         }
-        global_picture_buffer2->n=0;
-        global_picture_buffer2->next=NULL;
-        global_picture_buffer2->previous=NULL;
-        current=global_picture_buffer2;
-        page_count=1;
+        global_picture_buffer->n=0;
+        global_picture_buffer->next=NULL;
+        global_picture_buffer->previous=NULL;
+        current=global_picture_buffer;
+        global_page_count=1;
     }
    while(buffer_index!=current->n){
        if(buffer_index > current->n){
@@ -28,9 +28,9 @@ int print_point(int x,int y, wchar_t c, Color *foreground, Color *background){
                if(current->next==NULL){
                    return -1;
                }
+               global_page_count++;
            }
            current=current->next;
-           page_count++;
        }else{
            current=current->previous;
        }
@@ -68,21 +68,22 @@ void free_console_buffer(Console_buffer *buffer){
         }
         free(buffer);
     }
-    return;
 }
 void init_picture_buffer() {
-    Console_buffer *temp=global_picture_buffer2->next;
-    Console_buffer *temp2;
+    Console_buffer *temp=global_picture_buffer->next;
+    Console_buffer *temp2 = temp;
 
+    int zaehler=0;
     while(temp!=NULL){
         temp2=temp->next;
         free_console_buffer(temp);
-        temp=temp2->next;
+        temp=temp2;
+        zaehler++;
     }
-    page_count=1;
-    init_console_buffer(global_picture_buffer2);
-    global_picture_buffer2->next=NULL;
-    return;
+    global_page_count=1;
+    global_current_pos=0;
+    global_picture_buffer->next=NULL;
+    init_console_buffer(global_picture_buffer);
 }
 void init_console_buffer( Console_buffer *buffer){
     for(int y=0;y<y_size;y++){
@@ -94,7 +95,6 @@ void init_console_buffer( Console_buffer *buffer){
             buffer->buffer[y][x].background=black;
         }
     }
-    return;
 }
 
 void print_to_buffer(char string[], int xpos, int ypos, Color foreground, Color background) {
@@ -117,7 +117,6 @@ void print_to_buffer(char string[], int xpos, int ypos, Color foreground, Color 
             }
             continue;
         }
-
         print_point(x,y,string[i],&foreground,&background);
         x++;
     }
@@ -232,10 +231,10 @@ void draw_picture_buffer() {
     int bb;
     char c;
 
-    int page=current_pos/y_size;
-    int offset=current_pos%y_size;
+    int page= global_current_pos / y_size;
+    int offset= global_current_pos % y_size;
     int newy;
-    Console_buffer *temp=global_picture_buffer2;
+    Console_buffer *temp=global_picture_buffer;
     while(temp->n!=page){
         if(temp->next!=0){
             temp=temp->next;
@@ -282,7 +281,7 @@ void draw_picture_buffer() {
     }
     fflush(stdout);
     foreground_color(255, 255, 255);
-    printf("P[%d | %d]",page+1,page_count);
+    printf("\x1b[2E            \x1b[12DP[%d | %d]",page+1, global_page_count);
     printf("\x1b[H");
     setvbuf(stdout, NULL, _IONBF, 0);
 }
