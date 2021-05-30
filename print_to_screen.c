@@ -302,7 +302,7 @@ void print_user_message() {
     merge_sort(name_array,i,0,'n');
 
     for(int j=0;j<i;j++){
-        print_to_buffer(name_array[j], 0, j * 2, white, black);
+        print_to_buffer(name_array[j], 0, j * 2);
     }
     draw_picture_buffer();
 
