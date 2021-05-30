@@ -14,7 +14,9 @@ void print_average_words();
 void print_weekday();
 void print_hour();
 void print_month();
+void print_day();
 void print_date_message();
 void print_user_message();
+void print_settings_example();
 
 #endif //PRINT_TO_SCREEN_H

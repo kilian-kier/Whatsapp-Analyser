@@ -11,3 +11,12 @@ Option_tree *create_option(wchar_t *opt, void (*function)(FILE *), Option_tree *
         temp->parent->children[index] = temp;
     return temp;
 }
+
+Day_count *create_day_count(unsigned int day, unsigned int month, unsigned int year, unsigned int n) {
+    Day_count *ret = malloc(sizeof(Day_count));
+    ret->day = day;
+    ret->month = month;
+    ret->year = year;
+    ret->n = n;
+    return ret;
+}

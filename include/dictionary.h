@@ -25,5 +25,4 @@ int find_most_word(int most,Dictionary*ptr);
 Dictionary *rearange_word(Dictionary*new_dict,Dictionary *dict,char type);
 Dictionary *rearange_tree(Dictionary*new_dict,Dictionary*dict,char type);
 
-
 #endif //INFORMATIK_PROJEKT_DICTIONARY_H

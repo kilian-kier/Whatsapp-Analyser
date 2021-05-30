@@ -3,19 +3,19 @@
 
 #include "std_include.h"
 
-typedef struct Message{
+typedef struct Message {
     struct Message *next;
-    unsigned int day :5;
-    unsigned int month :4;
-    unsigned int year :7;
-    unsigned int hour :5;
-    unsigned int minute :6;
+    unsigned int day: 5;
+    unsigned int month: 4;
+    unsigned int year: 7;
+    unsigned int hour: 5;
+    unsigned int minute: 6;
     char *user;
     char *message;
     struct Message *nextUser;
 } Message;
 
-typedef struct User{
+typedef struct User {
     struct User *next;
     char *name;
     Message *message;
@@ -25,7 +25,7 @@ typedef struct User{
     int hour_arr[24];
 } User;
 
-typedef struct Dictionary{
+typedef struct Dictionary {
     struct Dictionary *left;
     struct Dictionary *right;
     char *begin_word;
@@ -34,40 +34,58 @@ typedef struct Dictionary{
     int level;
 } Dictionary;
 
-typedef struct Option_tree{
+typedef struct Option_tree {
     wchar_t *opt;
+
     void (*function)(FILE *f);
+
     struct Option_tree *parent;
     int n_child;
     struct Option_tree **children;
 } Option_tree;
 
-typedef struct Color{
-    unsigned char r;
-    unsigned char g;
-    unsigned char b;
-}Color;
+typedef struct Color {
+    int r;
+    int g;
+    int b;
+} Color;
 
-typedef struct Pixel{
+typedef struct Pixel {
     wchar_t character;
     Color foreground;
     Color background;
-}Pixel;
+} Pixel;
 
+typedef struct Console_buffer {
+    unsigned int n;
+    Pixel **buffer;
+    struct Console_buffer *next;
+    struct Console_buffer *previous;
+} Console_buffer;
+
+typedef struct Day_count {
+    unsigned int day;
+    unsigned int month;
+    unsigned int year;
+    unsigned int n;
+} Day_count;
 typedef struct Suggestions{
     char*string;
     struct Suggestions*next;
 }Suggestions;
 
-typedef struct Console_buffer{
-    unsigned int n;
-    Pixel ** buffer;
-    struct Console_buffer * next;
-    struct Console_buffer * previous;
-}Console_buffer;
+typedef struct Settings {
+    Color fontcolor;
+    Color barcolor;
+    Color menucolor;
+    Color background;
+    int top_n;
+    int empty_lines;
+} Settings;
 
 #include "global.h"
 
 Option_tree *create_option(wchar_t *opt, void (*function)(FILE *), Option_tree *parent, int n_child, int index);
+Day_count *create_day_count(unsigned int day, unsigned int month, unsigned int year, unsigned int n);
 
 #endif //STRUCTS_H

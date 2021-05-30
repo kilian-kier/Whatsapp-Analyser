@@ -18,8 +18,7 @@ void dictionary_main(FILE *f,char sort){
         create_dictionary();
     }
     init_picture_buffer();
-
-
+  
     switch(sort_1){
         case 'A':
             sprintf(buffer,"Alphabetisch Sortiert - Richtung: %s\n\n",stat_reverse==0?"aufsteigend":"absteigend");
@@ -51,6 +50,7 @@ int relative_word_count(Dictionary *ptr) {
     ret+= relative_word_count(ptr->right);
     return ret;
 }
+
 int find_longest_word(int longest,Dictionary*ptr) {
     if (ptr == NULL) return longest;
 
@@ -67,6 +67,7 @@ int find_longest_word(int longest,Dictionary*ptr) {
     }
     return longest;
 }
+
 int find_most_word(int most,Dictionary*ptr) {
     if (ptr == NULL) return most;
 
@@ -124,7 +125,6 @@ Dictionary *rearange_word(Dictionary*new_dict,Dictionary *dict,char type){
                 }
                 break;
         }
-
     }
     new_dict->level =  max_height(height(new_dict->left), height(new_dict->right)) + 1;
     int balance = get_balanced(new_dict);

@@ -1,106 +1,113 @@
 #include "include/input.h"
 
-char* get_string(char*string,int size,char*pointer,int type){
-    int i=0;
-    int array_size=0;
-    Suggestions *suggestions=NULL;
-    if(pointer!=NULL && type == STRING_ARRAY){
-        for(array_size =0;((char**)pointer)[array_size]!=NULL;array_size++);
-        merge_sort((char**)pointer,array_size,0,'n');
+void *blink_input() {
+    HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
+    GetConsoleScreenBufferInfo(h, &bufferInfo);
+    COORD coord;
+    coord.X = bufferInfo.dwCursorPosition.X;
+    coord.Y = bufferInfo.dwCursorPosition.Y;
+    while (1) {
+        SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+        printf("-> ");
+        Sleep(500);
+        SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+        printf("  ");
+        Sleep(500);
     }
+}
 
-    printf("-> ");
-    global_input_buffer=0;
-    global_send_input=false;
-
-    Suggestions* temp_suggestions=NULL;
-    bool changed_string=true;
-
-    while(global_input_buffer!=13 || global_input_buffer=='\n'){
-        if(global_send_input==true){
-            switch(global_input_buffer){
-            case 8:
-                if(i>0) {
-                    printf("\x1b[1D%c\x1b[1D", ' ');
+char *get_string(char *string, int size, char *pointer, int type) {
+    int i = 0, j = 0;
+    global_input_buffer = 0;
+    global_send_input = false;
+    HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
+    GetConsoleScreenBufferInfo(h, &bufferInfo);
+    COORD coord1;
+    coord1.X = bufferInfo.dwCursorPosition.X;
+    coord1.Y = bufferInfo.dwCursorPosition.Y;
+    COORD coord2;
+    coord2.X = (short) (bufferInfo.dwCursorPosition.X + 3);
+    coord2.Y = bufferInfo.dwCursorPosition.Y;
+    while (global_input_buffer != 13 && global_input_buffer != '\n') {
+        if (j % 66 < 33) {
+            SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord1);
+            printf("->");
+        } else {
+            SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord1);
+            printf("  ");
+        }
+        if (global_send_input == true) {
+            if (global_input_buffer == 8) {
+                if (i > 0) {
+                    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord2);
+                    printf(" ");
+                    coord2.X--;
                     global_send_input = false;
                     i--;
-                    string[i]=0;
-                    changed_string=true;
                 }
-                break;
-            case 9:
-                if(pointer!=NULL){
-                    if(type==STRING_ARRAY){
-                        if(changed_string) {
-                            free_suggestions(suggestions);
-                            suggestions = get_suggestions_from_array((char **) pointer, array_size, string);
-                            temp_suggestions=suggestions;
-                            changed_string = false;
-                        }
-                        if(suggestions!=NULL){
-                            if(temp_suggestions==NULL){
-                                temp_suggestions=suggestions;
-                            }
-                            while(i>0){
-                                printf("\x1b[1D%c\x1b[1D", ' ');
-                                i--;
-                            }
-                            printf("%s",temp_suggestions->string);
-                            strcpy(string,temp_suggestions->string);
-                            i=strlen(temp_suggestions->string);
-                            temp_suggestions=temp_suggestions->next;
-                        }
-                    }
-                    global_send_input = false;
-                }
-                    break;
-                default:
-                    string[i] = global_input_buffer;
-                    printf("%c", string[i]);
+            } else if (global_input_buffer == '')
+                return NULL;
+            else {
+                string[i] = global_input_buffer;
+                coord2.X++;
+                SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord2);
+                printf("%c", string[i]);
                 global_send_input = false;
                 if (i < size) {
                     i++;
-                    string[i]=0;
                 } else {
                     break;
                 }
-                changed_string=true;
-                break;
             }
-
         }
-        Sleep(sync_delay/2);
+        j++;
+        Sleep(sync_delay / 2);
     }
-    string[i]=0;
-    free_suggestions(suggestions);
+    string[i] = 0;
     return string;
 }
 
 void *input_thread() {
-    global_input_buffer=0;
+    global_input_buffer = 0;
 
     int c;
     do {
-        if(_kbhit()) {
+        if (_kbhit()) {
             c = _getch();
             switch (c) {
                 case 0:
                 case 224:
-                    c=_getch();
-                    switch(c) {
-                            case 80:
+                    c = _getch();
+                    switch (c) {
+                        case 80:
+                            if (global_arrow_keys == 0) {
                                 if (global_current_pos < global_page_count * y_size - y_size) {
                                     global_current_pos++;
                                     draw_picture_buffer();
                                 }
-                                break;
-                            case 72:
+                            } else if (global_arrow_keys == 1) {
+                                if (global_settings.empty_lines != 0)
+                                    global_settings.empty_lines--;
+                            } else if (global_arrow_keys == 2) {
+                                if (global_settings.top_n != 0)
+                                    global_settings.top_n--;
+                            }
+                            break;
+                        case 72:
+                            if (global_arrow_keys == 0) {
                                 if (global_current_pos > 0) {
                                     global_current_pos--;
                                     draw_picture_buffer();
                                 }
-                                break;
-                            case 75:
+                            } else if (global_arrow_keys == 1)
+                                global_settings.empty_lines++;
+                            else if (global_arrow_keys == 2)
+                                global_settings.top_n++;
+                            break;
+                        case 75:
+                            if (global_arrow_keys == 0) {
                                 if (global_current_pos - y_size > 0) {
                                     global_current_pos -= y_size;
                                     draw_picture_buffer();
@@ -108,27 +115,35 @@ void *input_thread() {
                                     global_current_pos = 0;
                                     draw_picture_buffer();
                                 }
-                                break;
-                            case 77:
-                                if (global_current_pos + y_size < global_page_count * y_size - y_size +1) {
+                            } else if (global_arrow_keys == 2) {
+                                if (global_settings.top_n >= 11)
+                                    global_settings.top_n -= 10;
+                            }
+                            break;
+                        case 77:
+                            if (global_arrow_keys == 0) {
+                                if (global_current_pos + y_size < global_page_count * y_size - y_size + 1) {
                                     global_current_pos += y_size;
                                     draw_picture_buffer();
                                 } else if (global_current_pos + y_size != global_page_count * y_size - y_size) {
                                     global_current_pos = (global_page_count - 1) * y_size;
                                     draw_picture_buffer();
                                 }
+                            } else if (global_arrow_keys == 2) {
+                                global_settings.top_n += 10;
+                            }
 
-                                break;
-                        }
-                        break;
+                            break;
+                    }
+                    break;
                 default:
-                    global_input_buffer= c;
-                    global_send_input=true;
+                    global_input_buffer = c;
+                    global_send_input = true;
                     break;
             }
         }
         Sleep(sync_delay);
-    }while(1);
+    } while (1);
 
 }
 

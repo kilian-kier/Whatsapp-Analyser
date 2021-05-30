@@ -55,14 +55,42 @@ void *count_hours() {
 
 void *count_month() {
     Message *ptr = global_first_message;
-    global_month_arr = (int *) malloc(12 * sizeof(int));
-    for (int x = 0; x < 12; x++) {
-        global_month_arr[x] = 0;
-    }
+    global_month_arr = (int *) calloc(12, sizeof(int));
     while (ptr->next != NULL) {
         global_month_arr[(int) ptr->month - 1]++;
         ptr = ptr->next;
     }
+}
+
+void *count_days() {
+    Message *ptr = global_first_message;
+    global_day_arr = (Day_count *) calloc(global_settings.top_n, sizeof(Day_count));
+    Day_count *tmp = (Day_count *) calloc(global_settings.top_n, sizeof(Day_count));
+    unsigned int n = 0, day = 0, month = 0, year = 0;
+    while (ptr->next != NULL) {
+        if (ptr->day != day || ptr->month != month || ptr->year != year) {
+            day = ptr->day;
+            month = ptr->month;
+            year = ptr->year;
+            for (int i = 0; i < global_settings.top_n; i++) {
+                if (n > global_day_arr[i].n) {
+                    // TODO: Insertion ohne an 2. Array
+                    for (int j = i + 1; j < global_settings.top_n; j++) {
+                        tmp[j] = global_day_arr[j - 1];
+                    }
+                    global_day_arr[i] = *create_day_count(day, month, year, n);
+                    for (int j = i + 1; j < global_settings.top_n; j++) {
+                        global_day_arr[j] = tmp[j];
+                    }
+                    break;
+                }
+            }
+            n = 0;
+        } else
+            n++;
+        ptr = ptr->next;
+    }
+    free(tmp);
 }
 
 bool true_day(unsigned int day, unsigned int month) {
@@ -99,12 +127,32 @@ bool true_date(unsigned int day, unsigned int month, unsigned int year, Message 
     return true;
 }
 
-User *user_exists(const char *username) {
+User *user_exists(char *username) {
     User *temp = global_first_user;
     while (temp->next != NULL) {
-        if (strcmp(temp->name, username) == 0)
+        if (strcmp(temp->name, strtok(username, "\n\0")) == 0)
             return temp;
         temp = temp->next;
     }
     return NULL;
+}
+
+int check_date(unsigned int day1, unsigned int month1, unsigned int year1, unsigned int day2, unsigned int month2,
+               unsigned int year2) {
+    if (year1 == year2) {
+        if (month1 == month2) {
+            if (day1 == day2)
+                return 0;
+            else if (day1 < day2)
+                return -1;
+            else
+                return 1;
+        } else if (month1 < month2)
+            return -1;
+        else
+            return 1;
+    } else if (year1 < year2)
+        return -1;
+    else
+        return 1;
 }

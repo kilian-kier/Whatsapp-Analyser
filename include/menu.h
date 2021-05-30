@@ -6,6 +6,7 @@
 #include "structs.h"
 #include "options.h"
 #include "output.h"
+#include "settings.h"
 
 void main_menu();
 int menu(int select, struct Option_tree *option);

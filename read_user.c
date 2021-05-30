@@ -16,7 +16,6 @@ void *read_user() {
         found = 0;
         for (int i = 0; i < n_user; i++) {
             if (found != 1) {
-                //TODO: Debuggen crasht do olbm, wohrscheinlich wegn é ba René
                 while (temp_user->next != NULL) {
                     if (strcmp(message->user, temp_user->name) == 0) {
                         temp_message = temp_user->message;

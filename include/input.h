@@ -9,6 +9,7 @@
 
 #include "std_include.h"
 #include "menu.h"
+
 #include "structs.h"
 int run_input_thread();
 char* get_string(char*string,int size,char*pointer,int type);
