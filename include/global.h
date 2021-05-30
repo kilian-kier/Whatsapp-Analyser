@@ -11,6 +11,8 @@ int y_size;
 #define y_pos 1
 #define buffersize 10000
 #define sync_delay 20
+#define DICT_TREE 1
+#define STRING_ARRAY 0
 
 int global_message_n;
 struct Message *global_first_message;

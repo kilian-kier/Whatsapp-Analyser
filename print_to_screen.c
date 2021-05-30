@@ -256,9 +256,23 @@ void print_user_message() {
         x = (int) strlen(temp->name);
         if (x > max_c)
             max_c = x;
-        print_to_buffer(temp->name, 0, i * 2, white, black);
+
         i++;
         temp = temp->next;
+    }
+
+    //Create Array with Names
+    temp=global_first_user;
+    char*name_array[i+1];
+    for(int j=0;j<i;j++){
+        name_array[j]=temp->name;
+        temp=temp->next;
+    }
+    name_array[i]=NULL;
+    merge_sort(name_array,i,0,'n');
+
+    for(int j=0;j<i;j++){
+        print_to_buffer(name_array[j], 0, j * 2, white, black);
     }
     draw_picture_buffer();
 
@@ -271,7 +285,7 @@ void print_user_message() {
     do {
         input = true;
         printf("  Gib den Namen des Nutzers ein\n  ");
-        get_string(buf,max_c+1,NULL,0);
+        get_string(buf,max_c+1,(char*)name_array,STRING_ARRAY);
         temp = user_exists(buf);
         if (temp == NULL) {
             printf("  Diesen Nutzer gibt es nicht!\n");

@@ -54,6 +54,11 @@ typedef struct Pixel{
     Color background;
 }Pixel;
 
+typedef struct Suggestions{
+    char*string;
+    struct Suggestions*next;
+}Suggestions;
+
 typedef struct Console_buffer{
     unsigned int n;
     Pixel ** buffer;
