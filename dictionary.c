@@ -11,13 +11,13 @@ void dictionary_main(FILE *f){
         create_dictionary();
     }
     init_picture_buffer();
-    print_to_buffer("",0,0,white,black);
-
+    print_to_buffer("", 0, 0);
+/*
     words=relative_word_count(global_first_word);
     longest=find_longest_word(0,global_first_word);
-    //most=find_most_word(0,INT_MAX,global_first_word);
+    find_most_word();
     printf("\n\n%d %d %d\n",words,longest,most);
-    Sleep(100000);
+    Sleep(100000);*/
     print_dictionary(global_first_word);
 }
 int relative_word_count(Dictionary *ptr) {
@@ -30,14 +30,28 @@ int relative_word_count(Dictionary *ptr) {
 }
 Dictionary** find_most_word(){
     Dictionary** array=malloc(sizeof(Dictionary**)*(y_size/2));
+    find_most_rec(array,y_size/2,global_first_word);
+    for(int i=0;i<y_size/2;i++){
+        printf("%d\n",array[0]->anzahl);
+    }
 
 }
-void find_most_rec(Dictionary**array,int arraysize,Dictionary*ptr){
+void find_most_rec(Dictionary**array,int arraysize, Dictionary*ptr){
+    if(ptr==NULL)return;
 
+    for(int i=0;i<arraysize;i++){
+        if(ptr->anzahl>array[
+                i]->anzahl);
+        shift_pointer_array((char**)array,i,arraysize);
+        array[i]=ptr;
+        printf("anzahl: %d\n",ptr->anzahl);
+    }
+    find_most_rec(array,arraysize,ptr->left);
+    find_most_rec(array,arraysize,ptr->right);
     return;
 }
-void shift_pointer_array(char **array,int size){
-    for(int i=size;i>0;i--){
+void shift_pointer_array(char **array,int index, int size){
+    for(int i=size;i>index;i--){
         array[size]=array[size-1];
     }
 }
@@ -48,6 +62,7 @@ int find_longest_word(int longest,Dictionary*ptr) {
     longest=find_longest_word(longest,ptr->right);
     if(longest<ptr->laenge){
         longest=ptr->laenge;
+
     }
     return longest;
 }
@@ -149,7 +164,7 @@ void print_dictionary(Dictionary *ptr) {
     strncpy(buffer, ptr->wortanfang, ptr->laenge);
     buffer[ptr->laenge] = '\0';
     sprintf(buffer2,"%s %d\n",buffer,ptr->anzahl);
-    print_to_buffer(buffer2,-1,-1,white,black);
+    print_to_buffer(buffer2, -1, -1);
     print_dictionary(ptr->right);
 }
 

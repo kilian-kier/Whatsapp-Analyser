@@ -8,7 +8,8 @@ int main(int args, char *argv[]) {
     y_size = 65;
     FILE *f = fopen("E:\\Desktop\\Schule\\Informatik\\Whatsapp-Analyser\\chats\\WhatsApp Chat mit 3BT.txt", "r");
     read_file((FILE *)f);
-    print_date_message();
+    count_days();
+    print_day();
     */
 }
 

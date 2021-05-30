@@ -18,32 +18,32 @@ int print_point(int x,int y, wchar_t c, Color *foreground, Color *background){
         current=global_picture_buffer;
         global_page_count=1;
     }
-   while(buffer_index!=current->n){
-       if(buffer_index > current->n){
-           if(current->next==NULL){
-               current->next=create_console_buffer();
-               current->next->previous=current;
-               current->next->next=NULL;
-               current->next->n=current->n+1;
-               if(current->next==NULL){
-                   return -1;
-               }
-           }
-           current=current->next;
-           global_page_count++;
-       }else{
-           current=current->previous;
-       }
-   }
-   int newy=y%(y_size);
-   if(foreground!=NULL){
-       current->buffer[newy][x].foreground=*foreground;
-   }
-   if(background!=NULL){
-       current->buffer[newy][x].background=*background;
-   }
-   current->buffer[newy][x].character=c;
-   return 0;
+    while(buffer_index!=current->n){
+        if(buffer_index > current->n){
+            if(current->next==NULL){
+                current->next=create_console_buffer();
+                current->next->previous=current;
+                current->next->next=NULL;
+                current->next->n=current->n+1;
+                if(current->next==NULL){
+                    return -1;
+                }
+                global_page_count++;
+            }
+            current=current->next;
+        }else{
+            current=current->previous;
+        }
+    }
+    int newy=y%(y_size);
+    if(foreground!=NULL){
+        current->buffer[newy][x].foreground=*foreground;
+    }
+    if(background!=NULL){
+        current->buffer[newy][x].background=*background;
+    }
+    current->buffer[newy][x].character=c;
+    return 0;
 }
 Console_buffer *create_console_buffer(){
     Console_buffer *buffer=malloc(sizeof(Console_buffer));
@@ -73,12 +73,16 @@ void init_picture_buffer() {
     Console_buffer *temp=global_picture_buffer->next;
     Console_buffer *temp2 = temp;
 
+    int zaehler=0;
     while(temp!=NULL){
         temp2=temp->next;
         free_console_buffer(temp);
-        temp=temp2->next;
+        temp=temp2;
+        zaehler++;
     }
     global_page_count=1;
+    global_current_pos=0;
+    global_picture_buffer->next=NULL;
     init_console_buffer(global_picture_buffer);
 }
 void init_console_buffer( Console_buffer *buffer){
@@ -93,7 +97,8 @@ void init_console_buffer( Console_buffer *buffer){
     }
 }
 
-void print_to_buffer(char string[], int xpos, int ypos, Color foreground, Color background) {
+void print_to_buffer(char string[], int xpos, int ypos) {
+    ypos = ypos * (global_settings.empty_lines + 1);
     static int y = 0;
     static int x = 0;
     if (xpos >= 0) {
@@ -113,19 +118,20 @@ void print_to_buffer(char string[], int xpos, int ypos, Color foreground, Color 
             }
             continue;
         }
-        print_point(x,y,string[i],&foreground,&background);
+        print_point(x,y,string[i],&global_settings.fontcolor,&global_settings.background);
         x++;
     }
 }
 
-void draw_rect(int xpos, int ypos, int xsize, int ysize, Color color, bool fill, bool layer) {
+void draw_rect(int xpos, int ypos, int xsize, int ysize, bool fill, bool layer) {
+    ypos = ypos * (global_settings.empty_lines + 1);
     for (int y = 0; y < ysize; y++) {
         for (int x = 0; x < xsize; x++) {
             if (fill || (!x || !y || y == ysize - 1 || x == xsize - 1)) {
                 if (layer) {
-                    print_point(x+xpos,y+ypos,-37,&color,NULL);
+                    print_point(x+xpos,y+ypos,-37,&global_settings.barcolor,NULL);
                 } else {
-                    print_point(x+xpos,y+ypos,' ',NULL,&color);
+                    print_point(x+xpos,y+ypos,' ',NULL,&global_settings.barcolor);
                 }
             }
         }
@@ -245,18 +251,21 @@ void draw_picture_buffer() {
         newy=y+offset;
         for (int x = 0; x < x_size; x++) {
             if (temp->buffer[newy][x].background.r != br || temp->buffer[newy][x].background.g != bg ||
-                    temp->buffer[newy][x].background.b != bb) {
+                temp->buffer[newy][x].background.b != bb) {
                 br = temp->buffer[newy][x].background.r;
                 bg = temp->buffer[newy][x].background.g;
                 bb = temp->buffer[newy][x].background.b;
-                background_color(br, bg, bb);
+                if (br == 0 && bg == 0 && bb == 0)
+                    background_color(global_settings.background);
+                else
+                    background_color((Color){br, bg, bb});
             }
             if (temp->buffer[newy][x].foreground.r != br || temp->buffer[newy][x].foreground.g != bg ||
-                    temp->buffer[newy][x].foreground.b != bb) {
+                temp->buffer[newy][x].foreground.b != bb) {
                 r = temp->buffer[newy][x].foreground.r;
                 g = temp->buffer[newy][x].foreground.g;
                 b = temp->buffer[newy][x].foreground.b;
-                foreground_color(r, g, b);
+                foreground_color((Color){r, g, b});
             }
             if(temp->buffer[newy][x].character==9){
                 c=' ';
@@ -276,8 +285,8 @@ void draw_picture_buffer() {
         printf("\x1b[%dD\x1b[1B", x_size);
     }
     fflush(stdout);
-    foreground_color(255, 255, 255);
-    printf("P[%d | %d]",page+1, global_page_count);
+    foreground_color(global_settings.fontcolor);
+    printf("\x1b[2E            \x1b[12DP[%d | %d]",page+1, global_page_count);
     printf("\x1b[H");
     setvbuf(stdout, NULL, _IONBF, 0);
 }
@@ -286,10 +295,10 @@ void clear_screen() {
     printf("\x1b[H\x1b[0J");
 }
 
-void foreground_color(int r, int g, int b) {
-    printf("\x1b[38;2;%d;%d;%dm", r, g, b);
+void foreground_color(Color color) {
+    printf("\x1b[38;2;%d;%d;%dm", color.r, color.g, color.b);
 }
 
-void background_color(int r, int g, int b) {
-    printf("\x1b[48;2;%d;%d;%dm", r, g, b);
+void background_color(Color color) {
+    printf("\x1b[48;2;%d;%d;%dm", color.r, color.g, color.b);
 }

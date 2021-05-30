@@ -16,7 +16,7 @@ void dictionary_main(FILE*f);
 int relative_word_count(Dictionary *ptr);
 int find_longest_word(int longest,Dictionary*ptr);
 Dictionary** find_most_word();
-void shift_pointer_array(char **array,int size);
+void shift_pointer_array(char **array,int index,int size);
 void find_most_rec();
 
 #endif //INFORMATIK_PROJEKT_DICTIONARY_H
