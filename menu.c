@@ -29,7 +29,7 @@ void main_menu() {
     create_option(L"Alphabet", &opt1_4_2_1, temp, 0, 0);
     create_option(L"L\x84nge", &opt1_4_2_2, temp, 0, 1);
     create_option(L"Anzahl", &opt1_4_2_3, temp, 0, 2);
-    create_option(L"Richtung aendern", &opt1_4_2_4, temp, 0, 3);
+    create_option(L"Richtung \x84ndern", &opt1_4_2_4, temp, 0, 3);
 
     temp=create_option(L"Auswahl", &opt1_4_1, temp->parent, 1, 0);
     create_option(NULL, NULL, temp, 0, 0);

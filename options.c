@@ -1,10 +1,9 @@
 #include "include/options.h"
 
 void opt0(FILE *f) {
-    extern char *_binary_whatsapp_logo_ppm_start;
-    extern char *_binary_whatsapp_logo_ppm_end;
-    draw_picture((char *) &_binary_icon_ppm_start, (char *) &_binary_icon_ppm_end, 0, 0, x_size,
-                 y_size - 1);
+    extern char *_binary_icon_ppm_start;
+    extern char *_binary_icon_ppm_end;
+    draw_picture((char *) &_binary_icon_ppm_start, (char *) &_binary_icon_ppm_end, 0, 0, x_size,y_size - 1);
 }
 
 void opt1(FILE *f) {

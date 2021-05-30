@@ -30,7 +30,7 @@ void dictionary_main(FILE *f,char sort){
             sprintf(buffer,"Nach Laenge Sortiert - Richtung: %s\n\n",stat_reverse==0?"aufsteigend":"absteigend");
             break;
     }
-    print_to_buffer(buffer,0,0,white,black);
+    print_to_buffer(buffer,0,0);
     if(sort_1=='a' || sort_1=='l'){
         global_first_word=rearange_tree(NULL,global_first_word,sort_1);
         print_dictionary(global_first_word,stat_reverse);
@@ -283,7 +283,7 @@ void print_dictionary(Dictionary *ptr,bool reverse) {
         buffer[ptr->length_word] = '\0';
     }
     sprintf(buffer2,"%s %d\n",buffer,ptr->amount);
-    print_to_buffer(buffer2,-1,-1,white,black);
+    print_to_buffer(buffer2,-1,-1);
     if(reverse){
         print_dictionary(ptr->left,reverse);
     }else{
