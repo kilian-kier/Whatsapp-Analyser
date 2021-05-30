@@ -153,9 +153,7 @@ int menu(int select, Option_tree *option) {
             global_input_buffer=0;
             switch (input) {
                 case '':
-                    printf("davor\n");
                     init_picture_buffer();
-                    printf("danach");
                     return 0;
                 default:
                     break;

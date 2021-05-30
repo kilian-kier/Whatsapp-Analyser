@@ -12,31 +12,24 @@ char *get_string(char *string, int size, char *pointer, int type) {
     global_send_input = false;
     Suggestions *temp_suggestions = NULL;
     bool changed_string = true;
-    HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
-    CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
-    GetConsoleScreenBufferInfo(h, &bufferInfo);
-    COORD coord1;
-    coord1.X = bufferInfo.dwCursorPosition.X;
-    coord1.Y = bufferInfo.dwCursorPosition.Y;
-    COORD coord2;
-    coord2.X = (short) (bufferInfo.dwCursorPosition.X + 3);
-    coord2.Y = bufferInfo.dwCursorPosition.Y;
+
+    printf("   ");
     while (global_input_buffer != 13 && global_input_buffer != '\n') {
         if (j % 66 < 33) {
-            SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord1);
-            printf("->");
+            cursor_blink(true,i);
         } else {
-            SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord1);
-            printf("  ");
+            cursor_blink(false,i);
         }
         if (global_send_input == true) {
             switch (global_input_buffer) {
+                case 10:
+                case 13:
+                    break;
                 case 8:
                     if (i > 0) {
-                        SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord2);
-                        printf(" ");
-                        coord2.X--;
                         global_send_input = false;
+                        printf(" ");
+                        delete_n_char(2);
                         i--;
                         string[i] = 0;
                         changed_string = true;
@@ -57,10 +50,8 @@ char *get_string(char *string, int size, char *pointer, int type) {
                                 if (temp_suggestions == NULL) {
                                     temp_suggestions = suggestions;
                                 }
-                                while (i > 0) {
-                                    printf("\x1b[1D%c\x1b[1D", ' ');
-                                    i--;
-                                }
+                                printf(" ");
+                                delete_n_char(i+1);
                                 printf("%s", temp_suggestions->string);
                                 strcpy(string, temp_suggestions->string);
                                 i = strlen(temp_suggestions->string);
@@ -72,8 +63,6 @@ char *get_string(char *string, int size, char *pointer, int type) {
                     break;
                 default:
                     string[i] = global_input_buffer;
-                    coord2.X++;
-                    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord2);
                     printf("%c", string[i]);
                     global_send_input = false;
                     if (i < size) {
@@ -238,4 +227,36 @@ void free_suggestions(Suggestions *suggestions) {
         free(suggestions);
         suggestions = temp;
     }
+}
+void delete_n_char(int n){
+    HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
+    GetConsoleScreenBufferInfo(hStdout, &bufferInfo);
+    bufferInfo.dwCursorPosition.X-=n;
+    SetConsoleCursorPosition(hStdout,bufferInfo.dwCursorPosition);
+    for(int i=0;i<n;i++){
+        printf(" ");
+    }
+    SetConsoleCursorPosition(hStdout,bufferInfo.dwCursorPosition);
+}
+void cursor_blink(bool on,int offset){
+    HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
+    GetConsoleScreenBufferInfo(hStdout, &bufferInfo);
+    bufferInfo.dwCursorPosition.X-=(offset+3);
+    SetConsoleCursorPosition(hStdout,bufferInfo.dwCursorPosition);
+    if(on){
+        printf("-> ");
+    }else{
+        printf("   ");
+    }
+    bufferInfo.dwCursorPosition.X+=(offset+3);
+    SetConsoleCursorPosition(hStdout,bufferInfo.dwCursorPosition);
+    /*if(on){ // Blinken ?
+        printf("%c",219);
+    }else{
+        printf(" ");
+    }*/
+    printf("%c",219);
+    SetConsoleCursorPosition(hStdout,bufferInfo.dwCursorPosition);
 }

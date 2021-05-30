@@ -311,9 +311,8 @@ void print_user_message() {
     do {
         input = true;
         printf("  Gib den Namen des Nutzers ein\n  ");
-        if (get_string(buf, max_c + 1, NULL, 0) == NULL)
+        if (get_string(buf,max_c+1,(char*)name_array,STRING_ARRAY) == NULL)
             return;
-        get_string(buf,max_c+1,(char*)name_array,STRING_ARRAY);
         temp = user_exists(buf);
         if (temp == NULL) {
             printf("\n  Diesen Nutzer gibt es nicht!\n\n");
