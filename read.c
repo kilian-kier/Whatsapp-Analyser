@@ -42,6 +42,7 @@ void *read_file(void *f) {
         pthread_create(&hour_thread, NULL, count_hours, NULL);
         pthread_create(&month_thread, NULL, count_month, NULL);
         pthread_create(&day_thread, NULL, count_days, NULL);
+        pthread_create(&dictionary_thread, NULL, create_dictionary, NULL);
     }
 }
 

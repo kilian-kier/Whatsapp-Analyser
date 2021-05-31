@@ -7,8 +7,8 @@ void opt0(FILE *f) {
 }
 
 void opt1(FILE *f) {
-    f = fopen(get_file_name(), "rb");
-    pthread_create(&read_file_tread, NULL, read_file, (void *) f);
+    file = fopen(get_file_name(), "rb");
+    pthread_create(&read_file_tread, NULL, read_file, (void *) file);
 }
 
 void opt2(FILE *f) {
@@ -21,46 +21,52 @@ void opt3(__attribute__((unused)) FILE *f) {
 }
 
 void opt1_1(FILE *f) {
-    static bool is_read = false;
-    if (is_read == false) {
+    static FILE *is_read = NULL;
+    if (is_read == NULL || is_read!=file) {
         if (pthread_join(read_file_tread, NULL) != 0)
             read_file(f);
         if (pthread_join(read_user_tread, NULL) != 0)
             read_user();
-        is_read = true;
+        is_read = file;
     }
 }
 
 void opt1_2(__attribute__((unused)) FILE *f) {
-    static bool is_read = false;
-    if (is_read == false) {
+    static FILE *is_read = NULL;
+    if (is_read == NULL || is_read!=file) {
         if (pthread_join(weekday_thread, NULL) != 0)
             count_weekday();
         if (pthread_join(hour_thread, NULL) != 0)
             count_hours();
         if (pthread_join(day_thread, NULL) != 0)
             count_days();
-        is_read = true;
+        is_read = file;
     }
 }
 void opt1_4(FILE *f) {
-    dictionary_main(f,'A');
+    static FILE *is_read = NULL;
+    if (is_read == NULL || is_read!=file) {
+        if (pthread_join(dictionary_thread, NULL) != 0)
+            create_dictionary();
+        is_read = file;
+    }
+    dictionary_main(0);
 }
 void opt1_4_1(FILE *f) {
     dictionary_select(f);
 }
 
 void opt1_4_2_1(FILE *f){
-    dictionary_main(f,'A');
+    dictionary_main('A');
 }
 void opt1_4_2_2(FILE *f){
-    dictionary_main(f,'l');
+    dictionary_main('l');
 }
 void opt1_4_2_3(FILE *f){
-    dictionary_main(f,'a');
+    dictionary_main('a');
 }
 void opt1_4_2_4(FILE *f){
-    dictionary_main(f,'r');
+    dictionary_main('r');
 }
 
 void opt1_1_1(__attribute__((unused)) FILE *f) {
