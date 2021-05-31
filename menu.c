@@ -35,7 +35,7 @@ void main_menu() {
     create_option(NULL, NULL, temp, 0, 0);
     temp=temp->parent;
 
-    temp = create_option(L"Zeit", &opt1_2, temp->parent, 3, 1);
+    temp = create_option(L"Zeit", &opt1_2, temp->parent, 4, 1);
     create_option(L"Monat", &opt1_2_1, temp, 0, 0);
     create_option(L"Wochentag", &opt1_2_2, temp, 0, 1);
     create_option(L"Tag", &opt1_2_3, temp, 0, 2);
@@ -60,14 +60,26 @@ void main_menu() {
     create_option(NULL, NULL, temp, 0, 0);
     create_option(L"Zur\x81cksetzen", &opt2_4, temp->parent, 0, 3);
 
+    // ZUM DEBUGGEN
+    /*x_size = 169;
+    y_size = 65;
+    opt0(f);
+    f = fopen("E:\\Desktop\\Schule\\Informatik\\Whatsapp-Analyser\\chats\\WhatsApp Chat mit 3BT.txt", "r");
+    pthread_create(&read_file_tread, NULL, read_file, (FILE *)f);
+    pthread_join(read_file_tread, NULL);
+    pthread_join(read_user_tread, NULL);
+    pthread_join(weekday_thread, NULL);
+    pthread_join(hour_thread, NULL);
+    pthread_join(month_thread, NULL);
+    pthread_join(day_thread, NULL);
+    dictionary_main(f, 'A');
+    free_memory();*/
 
     temp = option_root;
     temp->function(f);
     int x;
 
-    //
-    run_input_thread(); //run input_thread
-
+    run_input_thread();
     do {
         printf("\x1b[%dB", y_pos);
         x = menu(1, temp);

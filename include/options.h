@@ -7,6 +7,7 @@
 #include "global.h"
 #include "print_to_screen.h"
 #include "dictionary.h"
+#include "memory.h"
 
 void opt0(FILE *f);
 void opt1(FILE *f);

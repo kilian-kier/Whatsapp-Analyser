@@ -17,7 +17,7 @@ void *read_user() {
         for (int i = 0; i < n_user; i++) {
             if (found != 1) {
                 while (temp_user->next != NULL) {
-                    if (strcmp(message->user, temp_user->name) == 0) {
+                    if (message->user != NULL && temp_user->name != NULL && strcmp(message->user, temp_user->name) == 0) {
                         temp_message = temp_user->message;
                         while (temp_message->nextUser != NULL) {
                             temp_message = temp_message->nextUser;

@@ -3,7 +3,8 @@
 void opt0(FILE *f) {
     extern char *_binary_icon_ppm_start;
     extern char *_binary_icon_ppm_end;
-    draw_picture((char *) &_binary_icon_ppm_start, (char *) &_binary_icon_ppm_end, 0, 0, x_size,y_size - 1);
+    draw_picture((char *) &_binary_icon_ppm_start, (char *) &_binary_icon_ppm_end, 15, 0, x_size - 70, y_size - 1);
+    free_memory();
 }
 
 void opt1(FILE *f) {
@@ -21,46 +22,48 @@ void opt3(__attribute__((unused)) FILE *f) {
 }
 
 void opt1_1(FILE *f) {
-    static bool is_read = false;
-    if (is_read == false) {
-        if (pthread_join(read_file_tread, NULL) != 0)
-            read_file(f);
-        if (pthread_join(read_user_tread, NULL) != 0)
-            read_user();
-        is_read = true;
-    }
+    int x = pthread_join(read_file_tread, NULL);
+    int y = pthread_join(read_user_tread, NULL);
+    if (x != 0 && x != 3)
+        read_file(f);
+    if (y != 0 && y != 3)
+        read_user();
 }
 
 void opt1_2(__attribute__((unused)) FILE *f) {
-    static bool is_read = false;
-    if (is_read == false) {
-        if (pthread_join(weekday_thread, NULL) != 0)
-            count_weekday();
-        if (pthread_join(hour_thread, NULL) != 0)
-            count_hours();
-        if (pthread_join(day_thread, NULL) != 0)
-            count_days();
-        is_read = true;
-    }
+    int x = pthread_join(weekday_thread, NULL);
+    int y = pthread_join(hour_thread, NULL);
+    int z = pthread_join(day_thread, NULL);
+    if (x != 0 && x != 3)
+        count_weekday();
+    if (y != 0 && y != 3)
+        count_hours();
+    if (z != 0 && z != 3)
+        count_days();
 }
+
 void opt1_4(FILE *f) {
-    dictionary_main(f,'A');
+    dictionary_main(f, 'A');
 }
+
 void opt1_4_1(FILE *f) {
     dictionary_select(f);
 }
 
-void opt1_4_2_1(FILE *f){
-    dictionary_main(f,'A');
+void opt1_4_2_1(FILE *f) {
+    dictionary_main(f, 'A');
 }
-void opt1_4_2_2(FILE *f){
-    dictionary_main(f,'l');
+
+void opt1_4_2_2(FILE *f) {
+    dictionary_main(f, 'l');
 }
-void opt1_4_2_3(FILE *f){
-    dictionary_main(f,'a');
+
+void opt1_4_2_3(FILE *f) {
+    dictionary_main(f, 'a');
 }
-void opt1_4_2_4(FILE *f){
-    dictionary_main(f,'r');
+
+void opt1_4_2_4(FILE *f) {
+    dictionary_main(f, 'r');
 }
 
 void opt1_1_1(__attribute__((unused)) FILE *f) {
@@ -103,22 +106,27 @@ void opt2_1_1(FILE *f) {
     set_font_color();
     write_config();
 }
+
 void opt2_1_2(FILE *f) {
     set_bar_color();
     write_config();
 }
+
 void opt2_1_3(FILE *f) {
     set_menu_color();
     write_config();
 }
+
 void opt2_1_4(FILE *f) {
     set_background_color();
     write_config();
 }
+
 void opt2_2(FILE *f) {
     set_top_n();
     write_config();
 }
+
 void opt2_3(FILE *f) {
     set_empty_lines();
     write_config();
