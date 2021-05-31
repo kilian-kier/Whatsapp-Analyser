@@ -25,14 +25,16 @@ void main_menu() {
     temp = create_option(L"W\x94rterbuch", &opt1_4, temp->parent, 0, 3);
     temp = create_option(L"Zeit", &opt1_2, temp->parent, 4, 1);
 
-    temp = create_option(L"W\x94rterbuch", &opt1_4, temp->parent, 2, 3);
-    temp=create_option(L"Sortierung", NULL, temp, 4, 1);
+    temp = create_option(L"W\x94rterbuch", &opt1_4, temp->parent, 3, 3);
+
+    create_option(L"\x9a\x62\x65rblick", NULL, temp, 0, 0);
+    temp=create_option(L"Sortierung", NULL, temp, 4, 2);
     create_option(L"Alphabet", &opt1_4_2_1, temp, 0, 0);
     create_option(L"L\x84nge", &opt1_4_2_2, temp, 0, 1);
     create_option(L"Anzahl", &opt1_4_2_3, temp, 0, 2);
     create_option(L"Richtung \x84ndern", &opt1_4_2_4, temp, 0, 3);
 
-    temp=create_option(L"Auswahl", &opt1_4_1, temp->parent, 1, 0);
+    temp=create_option(L"Auswahl", &opt1_4_1, temp->parent, 1, 1);
     create_option(NULL, NULL, temp, 0, 0);
     temp=temp->parent;
 
@@ -81,7 +83,7 @@ void main_menu() {
             if (temp == NULL) {
                 break;
             }
-            else{
+            else if(temp->function!=NULL && wcscmp(temp->opt, L"Datei \x94\146\146nen") !=0){
                 temp->function(f);
             }
             continue;
