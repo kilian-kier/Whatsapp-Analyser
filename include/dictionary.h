@@ -5,7 +5,7 @@
 #include "global.h"
 #include "structs.h"
 
-void create_dictionary();
+void *create_dictionary();
 int check_char(char c);
 Dictionary *insert_word(char *word_begin, int length, Dictionary *temp);
 int height(Dictionary *temp);
@@ -16,7 +16,7 @@ int get_balanced(Dictionary * temp);
 int max_height(int left, int right);
 void update_height(Dictionary *temp, int level);
 
-void dictionary_main(FILE*f,char sort);
+void dictionary_main(char sort);
 int relative_word_count(Dictionary *ptr);
 int find_longest_word(int longest,Dictionary*ptr);
 void dictionary_select();

@@ -5,6 +5,7 @@ void main_menu() {
     global_arrow_keys = 0;
 
     FILE *f = NULL;
+
     ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
 
     struct _CONSOLE_SCREEN_BUFFER_INFO screenBufferInfo;
@@ -52,8 +53,9 @@ void main_menu() {
     create_option(L"Balken", &opt2_1_2, temp, 1, 1);
     create_option(L"Men\x81", &opt2_1_3, temp, 1, 2);
     create_option(L"Hintergrund", &opt2_1_4, temp, 1, 3);
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 4; i++) {
         create_option(NULL, NULL, temp->children[i], 0, 0);
+    }
     temp = create_option(L"Top n", &opt2_2, temp->parent, 1, 1);
     create_option(NULL, NULL, temp, 0, 0);
     temp = create_option(L"Zeilenabstand", &opt2_3, temp->parent, 1, 2);
@@ -69,20 +71,24 @@ void main_menu() {
     run_input_thread(); //run input_thread
 
     do {
+
         printf("\x1b[%dB", y_pos);
         x = menu(1, temp);
         if (x == 0) {
             init_picture_buffer();
             draw_picture_buffer();
             temp = temp->parent;
-            if (temp == NULL)
+            if (temp == NULL) {
                 break;
-            else if (temp->parent == NULL || wcscmp(temp->opt, L"Einstellungen") == 0 || wcscmp(temp->opt, L"Farben") == 0)
+            }
+            else{
                 temp->function(f);
+            }
             continue;
         }
-        if (temp->children[x - 1]->function != NULL)
+        if (temp->children[x - 1]->function != NULL) {
             temp->children[x - 1]->function(f);
+        }
         if (temp->children[x - 1]->n_child != 0)
             temp = temp->children[x - 1];
     } while (1);
@@ -153,7 +159,6 @@ int menu(int select, Option_tree *option) {
             global_input_buffer=0;
             switch (input) {
                 case '':
-                    init_picture_buffer();
                     return 0;
                 default:
                     break;

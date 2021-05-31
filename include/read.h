@@ -5,6 +5,7 @@
 #include "structs.h"
 #include "global.h"
 #include "read_user.h"
+#include "dictionary.h"
 
 char *get_message(char *buffer, FILE *f);
 bool check_new_string(const char *string);
