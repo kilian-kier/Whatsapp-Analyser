@@ -25,10 +25,16 @@ typedef struct User {
     int hour_arr[24];
 } User;
 
+typedef struct word_list{
+    struct word_list *next;
+    char *begin_message;
+    int offset;
+} word_list;
+
 typedef struct Dictionary {
     struct Dictionary *left;
     struct Dictionary *right;
-    char *begin_word;
+    word_list *words;
     int amount;
     int length_word;
     int level;
