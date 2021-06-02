@@ -26,6 +26,11 @@ void free_dictionary(Dictionary *ptr) {
 
 void free_memory() {
     if (global_first_message != NULL) {
+        clear_screen();
+        for (int i = 0; i < 7; i++) {
+            pthread_cancel(*((pthread_t *)global_threads[i][0]));
+            pthread_join(*((pthread_t *)global_threads[i][0]), NULL);
+        }
         free_messages(global_first_message);
         free_users(global_first_user);
         free_dictionary(global_first_word);

@@ -1,61 +1,54 @@
-    #include "include/read.h"
+#include "include/read.h"
 
-void *read_file(void *f) {
-    if ((FILE *) f == NULL)
-        perror("fopen_readFile");
-    else {
-        char buffer[buffersize];
-        char two_char_buffer[3];
-        char *strtol_buffer;
-        Message *ptr = (Message *) malloc(sizeof(Message));
-        global_first_message = ptr;
-        int size;
-        while (get_message(buffer, f) != NULL) {
-            strncpy(two_char_buffer, buffer, 2);
-            ptr->day = (short) strtol(two_char_buffer, &strtol_buffer, 10);
-            strncpy(two_char_buffer, buffer + 3, 2);
-            ptr->month = (short) strtol(two_char_buffer, &strtol_buffer, 10);
-            strncpy(two_char_buffer, buffer + 6, 2);
-            ptr->year = (short) strtol(two_char_buffer, &strtol_buffer, 10);
-            strncpy(two_char_buffer, buffer + 10, 2);
-            ptr->hour = (short) strtol(two_char_buffer, &strtol_buffer, 10);
-            strncpy(two_char_buffer, buffer + 13, 2);
-            ptr->minute = (short) strtol(two_char_buffer, &strtol_buffer, 10);
-            if (strchr(buffer + 13, ':') != NULL) {
-                size = length(buffer, ':', 18);
-                ptr->user = (char *) malloc((size * sizeof(char)));
-                strncpy(ptr->user, buffer + 18, size);
-                ptr->user[size] = '\0';
-                ptr->message = string_convert(buffer, 20 + (int) strlen(ptr->user));
-            } else {
-                ptr->user = NULL;
-                ptr->message = string_convert(buffer, 20);
-            }
-            Message *next = (Message *) malloc(sizeof(Message));
-            ptr->next = next;
-            ptr = ptr->next;
+void *read_file() {
+    char buffer[buffersize];
+    char two_char_buffer[3];
+    char *strtol_buffer;
+    Message *ptr = (Message *) malloc(sizeof(Message));
+    global_first_message = ptr;
+    int size;
+    while (get_message(buffer) != NULL) {
+        strncpy(two_char_buffer, buffer, 2);
+        ptr->day = (short) strtol(two_char_buffer, &strtol_buffer, 10);
+        strncpy(two_char_buffer, buffer + 3, 2);
+        ptr->month = (short) strtol(two_char_buffer, &strtol_buffer, 10);
+        strncpy(two_char_buffer, buffer + 6, 2);
+        ptr->year = (short) strtol(two_char_buffer, &strtol_buffer, 10);
+        strncpy(two_char_buffer, buffer + 10, 2);
+        ptr->hour = (short) strtol(two_char_buffer, &strtol_buffer, 10);
+        strncpy(two_char_buffer, buffer + 13, 2);
+        ptr->minute = (short) strtol(two_char_buffer, &strtol_buffer, 10);
+        if (strchr(buffer + 13, ':') != NULL) {
+            size = length(buffer, ':', 18);
+            ptr->user = (char *) malloc((size * sizeof(char)));
+            strncpy(ptr->user, buffer + 18, size);
+            ptr->user[size] = '\0';
+            ptr->message = string_convert(buffer, 20 + (int) strlen(ptr->user));
+        } else {
+            ptr->user = NULL;
+            ptr->message = string_convert(buffer, 20);
         }
-        ptr->next = NULL;
-        count_message();
-        pthread_create(&read_user_tread, NULL, read_user, NULL);
-        pthread_create(&weekday_thread, NULL, count_weekday, NULL);
-        pthread_create(&hour_thread, NULL, count_hours, NULL);
-        pthread_create(&month_thread, NULL, count_month, NULL);
-        pthread_create(&day_thread, NULL, count_days, NULL);
-        pthread_create(&dictionary_thread, NULL, create_dictionary, NULL);
+        Message *next = (Message *) malloc(sizeof(Message));
+        ptr->next = next;
+        ptr = ptr->next;
+    }
+    ptr->next = NULL;
+    count_message();
+    for (int i = 1; i < 7; i++) {
+        pthread_create((pthread_t *)global_threads[i][0], NULL, (void *)global_threads[i][1], NULL);
     }
 }
 
-char *get_message(char *buffer, FILE *f) {
+char *get_message(char *buffer) {
     buffer[0] = 0;
     char *ret = NULL;
     char temp[buffersize];
     int position;
     do {
-        ret = fgets(buffer + strlen(buffer), buffersize, f);
-        position = ftello(f);
-        fgets(temp, buffersize, f);
-        fseeko(f, position, SEEK_SET);
+        ret = fgets(buffer + strlen(buffer), buffersize, file);
+        position = ftello(file);
+        fgets(temp, buffersize, file);
+        fseeko(file, position, SEEK_SET);
     } while (ret != NULL && !check_new_string(temp));
     return ret;
 }

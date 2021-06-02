@@ -339,4 +339,5 @@ void print_settings_example() {
     draw_rect(24, 0, (int)(x_size * 0.95 - 26), 1, 1, 0);
     draw_rect(24, 1, (int)(x_size * 0.55 - 26), 1, 1, 0);
     draw_rect(24, 2, (int)(x_size * 0.33 - 26), 1, 1, 0);
+    draw_picture_buffer();
 }

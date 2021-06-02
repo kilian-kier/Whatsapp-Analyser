@@ -10,5 +10,6 @@
 #include <string.h>
 #include <math.h>
 #include <limits.h>
+#include <psapi.h>
 
 #endif //STD_INCLUDE_H

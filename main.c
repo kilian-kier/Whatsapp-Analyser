@@ -18,7 +18,7 @@ int main(int args, char *argv[]) {
 
 char *get_file_name() {
     HWND owner = NULL;
-    char *filter = "All Files (*.*)\0*.*\0";
+    char *filter = "WhatsApp Chats(*.txt)\0WhatsApp Chat*.txt\0All Files (*.*)\0*.*\0";
     OPENFILENAME ofn;
     char fileName[MAX_PATH] = "";
     ZeroMemory(&ofn, sizeof(ofn));

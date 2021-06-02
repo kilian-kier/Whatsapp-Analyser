@@ -2,6 +2,7 @@
 #define INFORMATIK_PROJEKT_MEMORY_H
 
 #include "global.h"
+#include "output.h"
 
 void free_messages(Message *ptr);
 void free_users(User *ptr);
