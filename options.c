@@ -1,138 +1,145 @@
 #include "include/options.h"
 
-void opt0(FILE *f) {
+void opt0() {
     extern char *_binary_icon_ppm_start;
     extern char *_binary_icon_ppm_end;
     draw_picture((char *) &_binary_icon_ppm_start, (char *) &_binary_icon_ppm_end, 15, 0, x_size - 70, y_size - 1);
     free_memory();
 }
 
-void opt1(FILE *f) {
-    f = fopen(get_file_name(), "rb");
-    pthread_create(&read_file_tread, NULL, read_file, (void *) f);
+void opt1() {
+    file = fopen(get_file_name(), "rb");
+    int x;
+    if (file != NULL)
+        x = pthread_create((pthread_t *)global_threads[0][0], NULL, (void *)global_threads[0][1], NULL);
+    printf("%d\n", x);
 }
 
-void opt2(FILE *f) {
-    print_settings_example();
-    draw_picture_buffer();
-}
-
-void opt3(__attribute__((unused)) FILE *f) {
+void opt3() {
     exit(0);
 }
 
-void opt1_1(FILE *f) {
-    int x = pthread_join(read_file_tread, NULL);
-    int y = pthread_join(read_user_tread, NULL);
-    if (x != 0 && x != 3)
-        read_file(f);
-    if (y != 0 && y != 3)
-        read_user();
+void opt4() {
+    clear_screen();
+    DWORD processID = GetCurrentProcessId();
+    HANDLE hProcess;
+    PROCESS_MEMORY_COUNTERS pmc;
+    hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processID);
+    GetProcessMemoryInfo(hProcess, &pmc, sizeof(pmc));
+    printf("\x1b[%dB", y_pos);
+    foreground_color(global_settings.menucolor);
+    printf("%s\n", "WhatsApp Analyzer\n");
+    printf("Max RAM: %lf MB\n", (double)pmc.PeakWorkingSetSize / 1048576);
+    printf("Current RAM: %lf MB\n", (double)pmc.WorkingSetSize / 1048576);
+    while (global_input_buffer != '')
+        Sleep(sync_delay);
+    global_input_buffer = 0;
+    file = NULL;
 }
 
-void opt1_2(__attribute__((unused)) FILE *f) {
-    int x = pthread_join(weekday_thread, NULL);
-    int y = pthread_join(hour_thread, NULL);
-    int z = pthread_join(day_thread, NULL);
-    if (x != 0 && x != 3)
-        count_weekday();
-    if (y != 0 && y != 3)
-        count_hours();
-    if (z != 0 && z != 3)
-        count_days();
+void opt1_1() {
+    for (int i = 0; i < 2; i++) {
+        pthread_join(*(pthread_t *)global_threads[i][0], NULL);
+    }
 }
 
-void opt1_4(FILE *f) {
-    dictionary_main(f, 'A');
+void opt1_2() {
+    for (int i = 2; i < 6; i++)
+        pthread_join(*(pthread_t *)global_threads[i][0], NULL);
 }
 
-void opt1_4_1(FILE *f) {
-    dictionary_select(f);
+void opt1_4() {
+    pthread_join(*(pthread_t *)global_threads[6][0], NULL);
+    dictionary_main(0);
 }
 
-void opt1_4_2_1(FILE *f) {
-    dictionary_main(f, 'A');
+void opt1_4_1() {
+    dictionary_select(file);
 }
 
-void opt1_4_2_2(FILE *f) {
-    dictionary_main(f, 'l');
+void opt1_4_2_1() {
+    dictionary_main('A');
 }
 
-void opt1_4_2_3(FILE *f) {
-    dictionary_main(f, 'a');
+void opt1_4_2_2() {
+    dictionary_main('l');
 }
 
-void opt1_4_2_4(FILE *f) {
-    dictionary_main(f, 'r');
+void opt1_4_2_3() {
+    dictionary_main('a');
 }
 
-void opt1_1_1(__attribute__((unused)) FILE *f) {
+void opt1_4_2_4() {
+    dictionary_main('r');
+}
+
+void opt1_1_1() {
     print_message_len(0);
 }
 
-void opt1_1_2(__attribute__((unused)) FILE *f) {
+void opt1_1_2() {
     print_message_len(1);
 }
 
-void opt1_1_3(__attribute__((unused)) FILE *f) {
+void opt1_1_3() {
     print_average_words();
 }
 
-void opt1_2_1(__attribute__((unused)) FILE *f) {
+void opt1_2_1() {
     print_month();
 }
 
-void opt1_2_2(__attribute__((unused)) FILE *f) {
+void opt1_2_2() {
     print_weekday();
 }
 
-void opt1_2_3(__attribute__((unused)) FILE *f) {
+void opt1_2_3() {
     print_day();
 }
 
-void opt1_2_4(__attribute__((unused)) FILE *f) {
+void opt1_2_4() {
     print_hour();
 }
 
-void opt1_3_1(__attribute__((unused)) FILE *f) {
+void opt1_3_1() {
     print_date_message();
 }
 
-void opt1_3_2(__attribute__((unused)) FILE *f) {
+void opt1_3_2() {
     print_user_message();
 }
 
-void opt2_1_1(FILE *f) {
+void opt2_1_1() {
     set_font_color();
     write_config();
 }
 
-void opt2_1_2(FILE *f) {
+void opt2_1_2() {
     set_bar_color();
     write_config();
 }
 
-void opt2_1_3(FILE *f) {
+void opt2_1_3() {
     set_menu_color();
     write_config();
 }
 
-void opt2_1_4(FILE *f) {
+void opt2_1_4() {
     set_background_color();
     write_config();
 }
 
-void opt2_2(FILE *f) {
+void opt2_2() {
     set_top_n();
     write_config();
 }
 
-void opt2_3(FILE *f) {
+void opt2_3() {
     set_empty_lines();
     write_config();
 }
 
-void opt2_4(FILE *f) {
+void opt2_4() {
     default_settings();
     init_picture_buffer();
     print_settings_example();

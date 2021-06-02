@@ -1,22 +1,16 @@
 #include "include/dictionary.h"
 
 
-void dictionary_main(FILE *f,char sort){
-
+void dictionary_main(char sort){
     static bool stat_reverse=0;
-    static char sort_1=0;
+    static char sort_1='A';
     char buffer[50];
     if(sort=='r'){
         stat_reverse=!stat_reverse;
-    }else{
+    }else if(sort!=0){
         sort_1=sort;
     }
 
-    static FILE* loaded=NULL;
-    if(f!=loaded || loaded==NULL){
-        loaded=f;
-        create_dictionary();
-    }
     init_picture_buffer();
   
     switch(sort_1){
@@ -40,7 +34,11 @@ void dictionary_main(FILE *f,char sort){
     }
 }
 void dictionary_select(){
+    global_arrow_keys='s';
+    clear_screen();
+    draw_picture_buffer();
 
+    global_arrow_keys=0;
 }
 int relative_word_count(Dictionary *ptr) {
     int ret=0;
@@ -175,7 +173,7 @@ int get_balanced(Dictionary * temp){
     if (temp == NULL) return 0;
     else return height(temp->left) - height(temp->right);
 }
-void create_dictionary() {
+void* create_dictionary() {
     global_first_word = NULL;
     int length, offset;
     char *word_begin;
@@ -274,10 +272,10 @@ void print_dictionary(Dictionary *ptr,bool reverse) {
     }else{
         print_dictionary(ptr->left,reverse);
     }
-    if(ptr->length_word>30){
-        strncpy(buffer, ptr->begin_word, 30);
-        strcpy(&buffer[30],"..");
-        buffer[32]=0;
+    if(ptr->length_word>x_size-10){
+        strncpy(buffer, ptr->begin_word, x_size-10);
+        strcpy(&buffer[x_size-10],"..");
+        buffer[x_size-8]=0;
     }else{
         strncpy(buffer, ptr->begin_word, ptr->length_word);
         buffer[ptr->length_word] = '\0';

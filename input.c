@@ -78,6 +78,7 @@ char *get_string(char *string, int size, char *pointer, int type) {
         j++;
         Sleep(sync_delay / 2);
     }
+    free_suggestions(suggestions);
     string[i] = 0;
     return string;
 }
@@ -93,6 +94,11 @@ void *input_thread() {
                 case 0:
                 case 224:
                     c = _getch();
+                    if((char)global_arrow_keys=='s'){
+                        global_input_buffer=c;
+                        global_send_input=true;
+                        break;
+                    }
                     switch (c) {
                         case 80:
                             if (global_arrow_keys == 0) {
@@ -253,10 +259,10 @@ void cursor_blink(bool on,int offset){
     bufferInfo.dwCursorPosition.X+=(offset+3);
     SetConsoleCursorPosition(hStdout,bufferInfo.dwCursorPosition);
     /*if(on){ // Blinken ?
-        printf("%c",219);
+        printf("%c",179);
     }else{
         printf(" ");
     }*/
-    printf("%c",219);
+    printf("%c",179);
     SetConsoleCursorPosition(hStdout,bufferInfo.dwCursorPosition);
 }

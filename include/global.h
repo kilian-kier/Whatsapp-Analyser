@@ -16,6 +16,9 @@ Settings global_settings;
 #define DICT_TREE 1
 #define STRING_ARRAY 0
 
+
+FILE *file;
+
 int global_message_n;
 struct Message *global_first_message;
 struct User *global_first_user;
@@ -39,5 +42,6 @@ pthread_t weekday_thread;
 pthread_t hour_thread;
 pthread_t month_thread;
 pthread_t day_thread;
+pthread_t dictionary_thread;
 
 #endif //GLOBAL_H
