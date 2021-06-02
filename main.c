@@ -6,8 +6,8 @@ int main(int args, char *argv[]) {
     /*
     x_size = 169;
     y_size = 65;
-    FILE *f = fopen("E:\\Desktop\\Schule\\Informatik\\Whatsapp-Analyser\\chats\\WhatsApp Chat mit 3BT.txt", "r");
-    read_file((FILE *)f);
+    FILE *f = fopen("C:\\Users\\plank\\Desktop\\Projekt\\chats\\WhatsApp Chat mit 3BT.txt", "r");
+    read_file(f);
     count_days();
     print_day();
     */
