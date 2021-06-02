@@ -7,7 +7,7 @@
 
 void *create_dictionary();
 int check_char(char c);
-Dictionary *insert_word(char *word_begin, int length, Dictionary *temp);
+Dictionary *insert_word(char *ptr, int offset, int length, Dictionary *temp);
 int height(Dictionary *temp);
 Dictionary *right_rotate(Dictionary *temp);
 Dictionary *left_rotate(Dictionary *temp);

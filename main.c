@@ -3,17 +3,6 @@
 int main(int args, char *argv[]) {
     system("cls");
     main_menu();
-    /*
-    x_size = 169;
-    y_size = 65;
-    //opt0(NULL);
-    FILE *f = fopen("E:\\Desktop\\Schule\\Informatik\\Whatsapp-Analyser\\chats\\WhatsApp Chat mit 3BT.txt", "r");
-    read_file((FILE *)f);
-    read_user();
-    count_days();
-    print_day();
-    opt0(NULL);
-    */
 }
 
 char *get_file_name() {
