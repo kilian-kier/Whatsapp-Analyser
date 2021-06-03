@@ -50,7 +50,7 @@ Console_buffer *create_console_buffer(){
     if(buffer==NULL){
         return NULL;
     }
-    buffer->buffer=(Pixel**) malloc(y_size*sizeof(Pixel*)+x_size*y_size*sizeof(Pixel));
+    buffer->buffer=(Pixel**) malloc(y_size*sizeof(Pixel*)+(x_size*y_size*sizeof(Pixel)));
     if(buffer->buffer==NULL){
         return NULL;
     }

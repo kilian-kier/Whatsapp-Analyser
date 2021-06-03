@@ -63,6 +63,7 @@ void *count_month() {
 }
 
 void *count_days() {
+    pthread_join(*(pthread_t *)global_threads[5][0], NULL);
     Message *ptr = global_first_message;
     global_day_arr = (Day_count *) calloc(global_settings.top_n, sizeof(Day_count));
     Day_count *tmp = (Day_count *) calloc(global_settings.top_n, sizeof(Day_count));

@@ -43,7 +43,7 @@ typedef struct Dictionary {
 typedef struct Option_tree {
     wchar_t *opt;
 
-    void (*function)(FILE *f);
+    void (*function)();
 
     struct Option_tree *parent;
     int n_child;
@@ -75,10 +75,10 @@ typedef struct Day_count {
     unsigned int year;
     unsigned int n;
 } Day_count;
-typedef struct Suggestions{
-    char*string;
-    struct Suggestions*next;
-}Suggestions;
+typedef struct Suggestions {
+    char *string;
+    struct Suggestions *next;
+} Suggestions;
 
 typedef struct Settings {
     Color fontcolor;
@@ -89,9 +89,22 @@ typedef struct Settings {
     int empty_lines;
 } Settings;
 
+union uni {
+    int integer;
+    char character;
+};
+
+typedef struct List {
+    struct List *next;
+    union uni item;
+} List;
+
 #include "global.h"
 
-Option_tree *create_option(wchar_t *opt, void (*function)(FILE *), Option_tree *parent, int n_child, int index);
+Option_tree *create_option(wchar_t *opt, void (*function)(), Option_tree *parent, int n_child, int index);
+
 Day_count *create_day_count(unsigned int day, unsigned int month, unsigned int year, unsigned int n);
+
+List *insert_to_list(void *item, List *node, char type);
 
 #endif //STRUCTS_H

@@ -1,10 +1,17 @@
 #include "include/menu.h"
 
 void main_menu() {
+    for (int i = 0; i < 7; i++)
+        global_threads[i][0] = malloc(sizeof(pthread_t));
+    global_threads[0][1] = read_file;
+    global_threads[1][1] = read_user;
+    global_threads[2][1] = count_weekday;
+    global_threads[3][1] = count_hours;
+    global_threads[4][1] = count_month;
+    global_threads[5][1] = count_days;
+    global_threads[6][1] = create_dictionary;
     read_config();
     global_arrow_keys = 0;
-
-    FILE *f = NULL;
 
     ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
 
@@ -15,7 +22,7 @@ void main_menu() {
 
     printf("\x1b[?25l");
 
-    Option_tree *temp = create_option(NULL, &opt0, NULL, 3, 0);
+    Option_tree *temp = create_option(NULL, &opt0, NULL, 4, 0);
     Option_tree *option_root = temp;
     temp = create_option(L"Datei \x94\146\146nen", &opt1, temp, 4, 0);
     temp = create_option(L"Users", &opt1_1, temp, 3, 0);
@@ -38,19 +45,20 @@ void main_menu() {
     create_option(NULL, NULL, temp, 0, 0);
     temp=temp->parent;
 
-    temp = create_option(L"Zeit", &opt1_2, temp->parent, 3, 1);
+    temp = create_option(L"Zeit", &opt1_2, temp->parent, 4, 1);
     create_option(L"Monat", &opt1_2_1, temp, 0, 0);
     create_option(L"Wochentag", &opt1_2_2, temp, 0, 1);
     create_option(L"Tag", &opt1_2_3, temp, 0, 2);
     create_option(L"Uhrzeit\n", &opt1_2_4, temp, 0, 3);
-    create_option(L"Schlie\xe1\145n", &opt3, temp->parent->parent, 0, 2);
-    temp = create_option(L"Nachrichten", NULL, temp->parent, 2, 2);
+    create_option(L"Schlie\xe1\145n", &opt3, temp->parent->parent, 0, 3);
+    temp = create_option(L"Nachrichten", NULL, temp->parent, 3, 2);
     create_option(L"Suchen nach Datum", &opt1_3_1, temp, 1, 0);
     create_option(L"Suchen nach Nutzer", &opt1_3_2, temp, 1, 1);
-    create_option(NULL, NULL, temp->children[0], 0, 0);
-    create_option(NULL, NULL, temp->children[1], 0, 0);
-    temp = create_option(L"Einstellungen", &opt2, temp->parent->parent, 4, 1);
-    temp = create_option(L"Farben", &opt2, temp, 4, 0);
+    create_option(L"Suchen nach W\x94rter", &print_word_message, temp, 1, 2);
+    for (int i = 0; i < 3; i++)
+        create_option(NULL, NULL, temp->children[i], 0, 0);
+    temp = create_option(L"Einstellungen", &print_settings_example, temp->parent->parent, 4, 1);
+    temp = create_option(L"Farben", &print_settings_example, temp, 4, 0);
     create_option(L"Schrift", &opt2_1_1, temp, 1, 0);
     create_option(L"Balken", &opt2_1_2, temp, 1, 1);
     create_option(L"Men\x81", &opt2_1_3, temp, 1, 2);
@@ -63,19 +71,23 @@ void main_menu() {
     temp = create_option(L"Zeilenabstand", &opt2_3, temp->parent, 1, 2);
     create_option(NULL, NULL, temp, 0, 0);
     create_option(L"Zur\x81cksetzen", &opt2_4, temp->parent, 0, 3);
+    temp = create_option(L"Infos", &opt4, option_root, 1, 2);
+    create_option(NULL, NULL, temp, 0, 0);
+
+    // ZUM DEBUGGEN
+    //x_size = 169; y_size = 65;
 
 
     temp = option_root;
-    temp->function(f);
-    int x;
+    temp->function();
+    int x = 0;
 
-    //
-    run_input_thread(); //run input_thread
-
+    run_input_thread();
     do {
 
         printf("\x1b[%dB", y_pos);
         x = menu(1, temp);
+        //scanf("%d", &x)
         if (x == 0) {
             init_picture_buffer();
             draw_picture_buffer();
@@ -83,13 +95,15 @@ void main_menu() {
             if (temp == NULL) {
                 break;
             }
-            else if(temp->function!=NULL && wcscmp(temp->opt, L"Datei \x94\146\146nen") !=0){
-                temp->function(f);
+            else if(temp->function!=NULL && temp->opt == NULL){
+                temp->function();
             }
             continue;
         }
         if (temp->children[x - 1]->function != NULL) {
-            temp->children[x - 1]->function(f);
+            temp->children[x - 1]->function();
+            if (temp->opt == NULL && file == NULL)
+                continue;;
         }
         if (temp->children[x - 1]->n_child != 0)
             temp = temp->children[x - 1];

@@ -36,12 +36,16 @@ short global_arrow_keys;
 char global_send_input;
 char global_input_buffer;
 
-pthread_t read_file_tread;
-pthread_t read_user_tread;
-pthread_t weekday_thread;
-pthread_t hour_thread;
-pthread_t month_thread;
-pthread_t day_thread;
-pthread_t dictionary_thread;
+void *global_threads[7][2];
+
+/*
+global_threads[0] = read_file_thread;
+global_threads[1] = read_user_thread;
+global_threads[2] = weekday_thread;
+global_threads[3] = hour_thread;
+global_threads[4] = month_thread;
+global_threads[5] = day_thread;
+global_threads[6] = dictionary_thread;
+ */
 
 #endif //GLOBAL_H

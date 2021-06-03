@@ -17,6 +17,7 @@ void print_month();
 void print_day();
 void print_date_message();
 void print_user_message();
+void print_word_message();
 void print_settings_example();
 
 #endif //PRINT_TO_SCREEN_H

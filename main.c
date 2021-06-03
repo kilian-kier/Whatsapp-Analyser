@@ -3,19 +3,11 @@
 int main(int args, char *argv[]) {
     system("cls");
     main_menu();
-    /*
-    x_size = 169;
-    y_size = 65;
-    FILE *f = fopen("C:\\Users\\plank\\Desktop\\Projekt\\chats\\WhatsApp Chat mit 3BT.txt", "r");
-    read_file(f);
-    count_days();
-    print_day();
-    */
 }
 
 char *get_file_name() {
     HWND owner = NULL;
-    char *filter = "All Files (*.*)\0*.*\0";
+    char *filter = "WhatsApp Chats(*.txt)\0WhatsApp Chat*.txt\0All Files (*.*)\0*.*\0";
     OPENFILENAME ofn;
     char fileName[MAX_PATH] = "";
     ZeroMemory(&ofn, sizeof(ofn));

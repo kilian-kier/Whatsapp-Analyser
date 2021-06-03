@@ -1,6 +1,6 @@
 #include "include/structs.h"
 
-Option_tree *create_option(wchar_t *opt, void (*function)(FILE *), Option_tree *parent, int n_child, int index) {
+Option_tree *create_option(wchar_t *opt, void (*function)(), Option_tree *parent, int n_child, int index) {
     Option_tree *temp = malloc(sizeof(Option_tree));
     temp->opt = opt;
     temp->n_child = n_child;
@@ -19,4 +19,20 @@ Day_count *create_day_count(unsigned int day, unsigned int month, unsigned int y
     ret->year = year;
     ret->n = n;
     return ret;
+}
+
+List *insert_to_list(void *item, List *node, char type) {
+    if (node == NULL) {
+        node = malloc(sizeof(List));
+        union uni uni;
+        if (type == 'i')
+            uni.integer = *(int *)item;
+        else if (type == 'c')
+            uni.character = *(char *)item;
+        node->item = uni;
+        node->next = NULL;
+        return node;
+    }
+    node->next = insert_to_list(item, node->next, type);
+    return node;
 }
