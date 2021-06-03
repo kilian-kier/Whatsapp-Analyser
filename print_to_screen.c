@@ -2,13 +2,13 @@
 
 void print_weekday() {
     init_picture_buffer();
-    print_to_buffer("Montag", 0, 0);
-    print_to_buffer("Dienstag", 0, 1);
-    print_to_buffer("Mittwoch", 0, 2);
-    print_to_buffer("Donnerstag", 0, 3);
-    print_to_buffer("Freitag", 0, 4);
-    print_to_buffer("Samstag", 0, 5);
-    print_to_buffer("Sonntag", 0, 6);
+    print_to_buffer("Montag", 0, 0, global_settings.fontcolor, global_settings.background);
+    print_to_buffer("Dienstag", 0, 1, global_settings.fontcolor, global_settings.background);
+    print_to_buffer("Mittwoch", 0, 2, global_settings.fontcolor, global_settings.background);
+    print_to_buffer("Donnerstag", 0, 3, global_settings.fontcolor, global_settings.background);
+    print_to_buffer("Freitag", 0, 4, global_settings.fontcolor, global_settings.background);
+    print_to_buffer("Samstag", 0, 5, global_settings.fontcolor, global_settings.background);
+    print_to_buffer("Sonntag", 0, 6, global_settings.fontcolor, global_settings.background);
     int max_j = strlen("Donnerstag") + 1;
     int max_i = 0;
     char *buf;
@@ -24,10 +24,10 @@ void print_weekday() {
         //draw_rect(max_j, i, 1, 1, white, 1, 0);
         sprintf(buf, "%d", global_week_arr[i]);
         if (x > 0)
-            print_to_buffer(buf, max_j + x + 1, i);
+            print_to_buffer(buf, max_j + x + 1, i, global_settings.fontcolor, global_settings.background);
         else
             //print_to_buffer(strcat(buf, "%"), max_j + 2, i, white, black);
-            print_to_buffer(buf, max_j, i);
+            print_to_buffer(buf, max_j, i, global_settings.fontcolor, global_settings.background);
     }
     free(buf);
 }
@@ -37,7 +37,7 @@ void print_hour() {
     for (int i = 0; i < 24; i++) {
         char string[6];
         sprintf(string, "%02d-%02d", i, i + 1);
-        print_to_buffer(string, 0, i);
+        print_to_buffer(string, 0, i, global_settings.fontcolor, global_settings.background);
     }
     int max_j = strlen("00-01") + 1;
     int max_i = 0;
@@ -54,28 +54,28 @@ void print_hour() {
         //draw_rect(max_j, i, 1, 1, white, 1, 0);
         sprintf(buf, "%d", global_hour_arr[i]);
         if (x > 0)
-            print_to_buffer(buf, max_j + x + 1, i);
+            print_to_buffer(buf, max_j + x + 1, i, global_settings.fontcolor, global_settings.background);
         else
             //print_to_buffer(strcat(buf, "%"), max_j + 2, i, white, black);
-            print_to_buffer(buf, max_j, i);
+            print_to_buffer(buf, max_j, i, global_settings.fontcolor, global_settings.background);
     }
     free(buf);
 }
 
 void print_month() {
     init_picture_buffer();
-    print_to_buffer("Januar", 0, 0);
-    print_to_buffer("Februar", 0, 1);
-    print_to_buffer("Maerz", 0, 2);
-    print_to_buffer("April", 0, 3);
-    print_to_buffer("Mai", 0, 4);
-    print_to_buffer("Juni", 0, 5);
-    print_to_buffer("Juli", 0, 6);
-    print_to_buffer("August", 0, 7);
-    print_to_buffer("September", 0, 8);
-    print_to_buffer("Oktober", 0, 9);
-    print_to_buffer("November", 0, 10);
-    print_to_buffer("Dezember", 0, 11);
+    print_to_buffer("Januar", 0, 0, global_settings.fontcolor, global_settings.background);
+    print_to_buffer("Februar", 0, 1, global_settings.fontcolor, global_settings.background);
+    print_to_buffer("Maerz", 0, 2, global_settings.fontcolor, global_settings.background);
+    print_to_buffer("April", 0, 3, global_settings.fontcolor, global_settings.background);
+    print_to_buffer("Mai", 0, 4, global_settings.fontcolor, global_settings.background);
+    print_to_buffer("Juni", 0, 5, global_settings.fontcolor, global_settings.background);
+    print_to_buffer("Juli", 0, 6, global_settings.fontcolor, global_settings.background);
+    print_to_buffer("August", 0, 7, global_settings.fontcolor, global_settings.background);
+    print_to_buffer("September", 0, 8, global_settings.fontcolor, global_settings.background);
+    print_to_buffer("Oktober", 0, 9, global_settings.fontcolor, global_settings.background);
+    print_to_buffer("November", 0, 10, global_settings.fontcolor, global_settings.background);
+    print_to_buffer("Dezember", 0, 11, global_settings.fontcolor, global_settings.background);
     int max_j = strlen("September") + 1;
     int max_i = 0;
     char *buf;
@@ -91,10 +91,10 @@ void print_month() {
         //draw_rect(max_j, i, 1, 1, white, 1, 0);
         sprintf(buf, "%d", global_month_arr[i]);
         if (x > 0)
-            print_to_buffer(buf, max_j + x + 1, i);
+            print_to_buffer(buf, max_j + x + 1, i, global_settings.fontcolor, global_settings.background);
         else
             //print_to_buffer(strcat(buf, "%"), max_j + 2, i, white, black);
-            print_to_buffer(buf, max_j, i);
+            print_to_buffer(buf, max_j, i, global_settings.fontcolor, global_settings.background);
     }
     free(buf);
 }
@@ -105,12 +105,12 @@ void print_day() {
     char *buf2 = malloc(((int) log10(global_day_arr[0].n) + 1) * sizeof(char));
     for (int i = 0; i < global_settings.top_n; i++) {
         sprintf(buf1, "%02d.%02d.%02d", global_day_arr[i].day, global_day_arr[i].month, global_day_arr[i].year);
-        print_to_buffer(buf1, 0, i);
+        print_to_buffer(buf1, 0, i, global_settings.fontcolor, global_settings.background);
         int x = (int) ((x_size - log10(global_day_arr[0].n) - 25) *
                        (double) (global_day_arr[i].n / (double) global_day_arr[0].n));
         draw_rect(10, i, x, 1, 1, 0);
         sprintf(buf2, "%d", global_day_arr[i].n);
-        print_to_buffer(buf2, x + 11, i);
+        print_to_buffer(buf2, x + 11, i, global_settings.fontcolor, global_settings.background);
     }
     free(buf1);
     free(buf2);
@@ -127,7 +127,7 @@ void print_average_words() {
     User **arr = sort_user(n, 32, 'd');
     int max_j = 0;
     for (int i = 0; i < n; i++) {
-        print_to_buffer(arr[i]->name, 0, i);
+        print_to_buffer(arr[i]->name, 0, i, global_settings.fontcolor, global_settings.background);
         if (strlen(arr[i]->name) > max_j) {
             max_j = (int) strlen(arr[i]->name);
         }
@@ -142,10 +142,10 @@ void print_average_words() {
         //draw_rect(max_j, i, 1, 1, white, 1, 0);
         sprintf(buf, "%.2lf", arr[i]->average_words);
         if (x > 0)
-            print_to_buffer(buf, max_j + x + 1, i);
+            print_to_buffer(buf, max_j + x + 1, i, global_settings.fontcolor, global_settings.background);
         else
             //print_to_buffer(strcat(buf, "%"), max_j + 2, i, white, black);
-            print_to_buffer(buf, max_j, i);
+            print_to_buffer(buf, max_j, i, global_settings.fontcolor, global_settings.background);
     }
     free(arr);
     free(buf);
@@ -162,7 +162,7 @@ void print_message_len(unsigned short mode) {
     User **arr = sort_user(n, 24, 'u');
     int max_j = 0;
     for (int i = 0; i < n; i++) {
-        print_to_buffer(arr[i]->name, 0, i);
+        print_to_buffer(arr[i]->name, 0, i, global_settings.fontcolor, global_settings.background);
         if (strlen(arr[i]->name) > max_j) {
             max_j = (int) strlen(arr[i]->name);
         }
@@ -183,10 +183,10 @@ void print_message_len(unsigned short mode) {
             //draw_rect(max_j, i, 1, 1, white, 1, 0);
             itoa((int) arr[i]->message_len, buf, 10);
             if (x > 0)
-                print_to_buffer(buf, max_j + x + 1, i);
+                print_to_buffer(buf, max_j + x + 1, i, global_settings.fontcolor, global_settings.background);
             else
                 //print_to_buffer(buf, max_j + 2, i, white, black);
-                print_to_buffer(buf, max_j, i);
+                print_to_buffer(buf, max_j, i, global_settings.fontcolor, global_settings.background);
         }
     } else if (mode == 1) {
         buf = malloc(3 * sizeof(char));
@@ -197,10 +197,11 @@ void print_message_len(unsigned short mode) {
             float val = (float) arr[i]->message_len * 100 / (float) global_message_n;
             sprintf(buf, "%.1f", val);
             if (x > 0)
-                print_to_buffer(strcat(buf, "%"), max_j + x + 1, i);
+                print_to_buffer(strcat(buf, "%"), max_j + x + 1, i, global_settings.fontcolor,
+                                global_settings.background);
             else
                 //print_to_buffer(strcat(buf, "%"), max_j + 2, i, white, black);
-                print_to_buffer(strcat(buf, "%"), max_j, i);
+                print_to_buffer(strcat(buf, "%"), max_j, i, global_settings.fontcolor, global_settings.background);
 
         }
     }
@@ -257,7 +258,7 @@ void print_date_message() {
             sprintf(output, "%d.%d.%d, %02d:%02d - %s: %s", (int) temp->day, (int) temp->month, (int) temp->year,
                     (int) temp->hour, (int) temp->minute, temp->user,
                     temp->message);
-            print_to_buffer(output, 0, i);
+            print_to_buffer(output, 0, i, global_settings.fontcolor, global_settings.background);
             i++;
             if (found == false) {
                 if (check_date(temp->day, temp->month, temp->year, day, month, year) == -1)
@@ -299,7 +300,7 @@ void print_user_message() {
     merge_sort(name_array,i,0,'n');
 
     for(int j=0;j<i;j++){
-        print_to_buffer(name_array[j], 0, j);
+        print_to_buffer(name_array[j], 0, j, global_settings.fontcolor, global_settings.background);
     }
     draw_picture_buffer();
 
@@ -325,7 +326,7 @@ void print_user_message() {
     Message *message = temp->message;
     i = 0;
     while (message != NULL) {
-        print_to_buffer(message->message, 0, i);
+        print_to_buffer(message->message, 0, i, global_settings.fontcolor, global_settings.background);
         i++;
         message = message->nextUser;
     }
@@ -341,8 +342,9 @@ void print_word_message() {
     char *input = malloc(buffersize);
     if (get_string(input, buffersize, NULL, 0) == NULL)
         return;
-    /*fgets(input, buffersize, stdin);
-    input[strlen(input) - 1] = 0;*/
+    /*fflush(stdin);
+    fgets(input, buffersize, stdin);
+    fflush(stdin);*/
     Dictionary *word = find_word(input, global_first_word);
     List *found = NULL;
     if (word != NULL) {
@@ -350,61 +352,55 @@ void print_word_message() {
         int output_size = 1000;
         char *output = malloc(output_size * sizeof(char));
         int i = 0;
+        word_list *words = word->words;
         while (temp->next != NULL) {
             if (((temp->user != NULL ? strlen(temp->user) : 1) + (temp->message != NULL ? strlen(temp->message) : 1)) <
                 output_size - 15) {
-                if (strcmp(temp->message, word->words->begin_message) == 0) {
+                if (strcmp(temp->message, words->begin_message) == 0) {
                     int x = 0;
                     sprintf(output, "%d.%d.%d, %02d:%02d - %s: ", (int) temp->day, (int) temp->month,
                             (int) temp->year,
                             (int) temp->hour, (int) temp->minute, temp->user);
-                    print_to_buffer(output, x, i);
+                    print_to_buffer(output, x, i, global_settings.fontcolor, global_settings.background);
                     x += (int)strlen(output);
-                    if (word->words->offset != 0) {
-                        strncpy(output, temp->message, word->words->offset);
-                        print_to_buffer(output, x, i);
+                    if (words->offset != 0) {
+                        strncpy(output, temp->message, words->offset);
+                        output[words->offset] = 0;
+                        print_to_buffer(output, x, i, global_settings.fontcolor, global_settings.background);
                         x += (int)strlen(output);
                     }
-                    draw_picture_buffer();
-                    Color color = global_settings.background;
-                    global_settings.background = (Color){0, 255, 255};
-                    Color fontcolor = global_settings.fontcolor;
-                    if (global_settings.background.r + global_settings.background.g + global_settings.background.b > 382) {
-                        global_settings.fontcolor = black;
-                    } else
-                        global_settings.fontcolor = white;
-                    strncpy(output, temp->message + word->words->offset, word->length_word);
+                    strncpy(output, temp->message + words->offset, word->length_word);
                     output[word->length_word] = 0;
-                    print_to_buffer(output, x, i);
-                    draw_picture_buffer();
-                    global_settings.background = color;
-                    global_settings.fontcolor = fontcolor;
+                    print_to_buffer(output, x, i, (Color){0, 0, 0}, (Color){0, 255, 255});
                     x += (int)strlen(output);
-                    strcpy(output, temp->message + word->words->offset + word->length_word);
-                    print_to_buffer(output, x, i);
-                    int uni = i * (global_settings.empty_lines + 1);
-                    found = insert_to_list(&uni, found, 'i');
+                    strcpy(output, temp->message + words->offset + word->length_word);
+                    print_to_buffer(output, x, i, global_settings.fontcolor, global_settings.background);
+                    found = insert_to_list(&i, found, 'i');
+                    if (words->next != NULL)
+                        words = words->next;
                 } else {
                     sprintf(output, "%d.%d.%d, %02d:%02d - %s: %s", (int) temp->day, (int) temp->month,
                             (int) temp->year,
                             (int) temp->hour, (int) temp->minute, temp->user,
                             temp->message);
-                    print_to_buffer(output, 0, i);
+                    print_to_buffer(output, 0, i, global_settings.fontcolor, global_settings.background);
                 }
                 i++;
             }
             temp = temp->next;
         }
+        draw_picture_buffer();
         List *list = found;
-        if (list != NULL)
-            global_current_pos = list->item.integer;
+        if (list != NULL) {
+            global_current_pos = list->item.integer * (global_settings.empty_lines + 1);
+        }
         draw_picture_buffer();
         while (global_input_buffer != '') {
             if (global_input_buffer == 9) {
                 list = list->next;
                 if (list == NULL)
                     list = found;
-                global_current_pos = list->item.integer;
+                global_current_pos = list->item.integer * (global_settings.empty_lines + 1);
                 draw_picture_buffer();
                 global_input_buffer = 0;
             }
@@ -415,9 +411,9 @@ void print_word_message() {
 
 void print_settings_example() {
     init_picture_buffer();
-    print_to_buffer("Max Mustermann", 0, 0);
-    print_to_buffer("Erika Musterfrau", 0, 1);
-    print_to_buffer("Otto Normalverbraucher", 0, 2);
+    print_to_buffer("Max Mustermann", 0, 0, global_settings.fontcolor, global_settings.background);
+    print_to_buffer("Erika Musterfrau", 0, 1, global_settings.fontcolor, global_settings.background);
+    print_to_buffer("Otto Normalverbraucher", 0, 2, global_settings.fontcolor, global_settings.background);
     draw_rect(24, 0, (int)(x_size * 0.95 - 26), 1, 1, 0);
     draw_rect(24, 1, (int)(x_size * 0.55 - 26), 1, 1, 0);
     draw_rect(24, 2, (int)(x_size * 0.33 - 26), 1, 1, 0);

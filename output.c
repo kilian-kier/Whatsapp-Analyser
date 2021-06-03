@@ -97,7 +97,7 @@ void init_console_buffer( Console_buffer *buffer){
     }
 }
 
-void print_to_buffer(char string[], int xpos, int ypos) {
+void print_to_buffer(char string[], int xpos, int ypos, Color foreground, Color background) {
     ypos = ypos * (global_settings.empty_lines + 1);
     static int y = 0;
     static int x = 0;
@@ -118,7 +118,7 @@ void print_to_buffer(char string[], int xpos, int ypos) {
             }
             continue;
         }
-        print_point(x,y,string[i],&global_settings.fontcolor,&global_settings.background);
+        print_point(x,y,string[i],&foreground,&background);
         x++;
     }
 }

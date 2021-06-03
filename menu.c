@@ -80,14 +80,15 @@ void main_menu() {
 
     temp = option_root;
     temp->function();
-    int x = 0;
+    int x;
 
     run_input_thread();
     do {
 
         printf("\x1b[%dB", y_pos);
         x = menu(1, temp);
-        //scanf("%d", &x)
+        /*scanf("%d", &x);
+        fflush(stdin);*/
         if (x == 0) {
             init_picture_buffer();
             draw_picture_buffer();

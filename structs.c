@@ -25,10 +25,18 @@ List *insert_to_list(void *item, List *node, char type) {
     if (node == NULL) {
         node = malloc(sizeof(List));
         union uni uni;
-        if (type == 'i')
-            uni.integer = *(int *)item;
-        else if (type == 'c')
-            uni.character = *(char *)item;
+        switch (type) {
+            case 'i':
+                uni.integer = *(int *)item;
+                break;
+            case 'c':
+                uni.character = *(char *)item;
+                break;;
+            case 'p':
+                uni.pointer = item;
+            default:
+                break;
+        }
         node->item = uni;
         node->next = NULL;
         return node;

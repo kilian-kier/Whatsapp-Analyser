@@ -92,6 +92,7 @@ typedef struct Settings {
 union uni {
     int integer;
     char character;
+    void *pointer;
 };
 
 typedef struct List {
