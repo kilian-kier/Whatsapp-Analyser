@@ -7,7 +7,7 @@
 
 void *create_dictionary();
 int check_char(char c);
-Dictionary *insert_word(char *ptr, int offset, int length, Dictionary *temp);
+Dictionary *insert_word(char *ptr, int offset, int length, Dictionary *temp, int message_number);
 int height(Dictionary *temp);
 Dictionary *right_rotate(Dictionary *temp);
 Dictionary *left_rotate(Dictionary *temp);
@@ -25,5 +25,6 @@ int find_most_word(int most,Dictionary*ptr);
 
 Dictionary *rearange_word(Dictionary*new_dict,Dictionary *dict,char type);
 Dictionary *rearange_tree(Dictionary*new_dict,Dictionary*dict,char type);
+
 
 #endif //INFORMATIK_PROJEKT_DICTIONARY_H
