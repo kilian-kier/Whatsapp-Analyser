@@ -331,6 +331,88 @@ void print_user_message() {
     }
 }
 
+void print_word_message() {
+    clear_screen();
+    init_picture_buffer();
+
+    printf("\x1b[%dB", y_pos);
+    foreground_color(global_settings.menucolor);
+    printf("%s\n", "WhatsApp Analyzer\n");
+    char *input = malloc(buffersize);
+    if (get_string(input, buffersize, NULL, 0) == NULL)
+        return;
+    /*fgets(input, buffersize, stdin);
+    input[strlen(input) - 1] = 0;*/
+    Dictionary *word = find_word(input, global_first_word);
+    List *found = NULL;
+    if (word != NULL) {
+        Message *temp = global_first_message;
+        int output_size = 1000;
+        char *output = malloc(output_size * sizeof(char));
+        int i = 0;
+        while (temp->next != NULL) {
+            if (((temp->user != NULL ? strlen(temp->user) : 1) + (temp->message != NULL ? strlen(temp->message) : 1)) <
+                output_size - 15) {
+                if (strcmp(temp->message, word->words->begin_message) == 0) {
+                    int x = 0;
+                    sprintf(output, "%d.%d.%d, %02d:%02d - %s: ", (int) temp->day, (int) temp->month,
+                            (int) temp->year,
+                            (int) temp->hour, (int) temp->minute, temp->user);
+                    print_to_buffer(output, x, i);
+                    x += (int)strlen(output);
+                    if (word->words->offset != 0) {
+                        strncpy(output, temp->message, word->words->offset);
+                        print_to_buffer(output, x, i);
+                        x += (int)strlen(output);
+                    }
+                    draw_picture_buffer();
+                    Color color = global_settings.background;
+                    global_settings.background = (Color){0, 255, 255};
+                    Color fontcolor = global_settings.fontcolor;
+                    if (global_settings.background.r + global_settings.background.g + global_settings.background.b > 382) {
+                        global_settings.fontcolor = black;
+                    } else
+                        global_settings.fontcolor = white;
+                    strncpy(output, temp->message + word->words->offset, word->length_word);
+                    output[word->length_word] = 0;
+                    print_to_buffer(output, x, i);
+                    draw_picture_buffer();
+                    global_settings.background = color;
+                    global_settings.fontcolor = fontcolor;
+                    x += (int)strlen(output);
+                    strcpy(output, temp->message + word->words->offset + word->length_word);
+                    print_to_buffer(output, x, i);
+                    int uni = i * (global_settings.empty_lines + 1);
+                    found = insert_to_list(&uni, found, 'i');
+                } else {
+                    sprintf(output, "%d.%d.%d, %02d:%02d - %s: %s", (int) temp->day, (int) temp->month,
+                            (int) temp->year,
+                            (int) temp->hour, (int) temp->minute, temp->user,
+                            temp->message);
+                    print_to_buffer(output, 0, i);
+                }
+                i++;
+            }
+            temp = temp->next;
+        }
+        List *list = found;
+        if (list != NULL)
+            global_current_pos = list->item.integer;
+        draw_picture_buffer();
+        while (global_input_buffer != '') {
+            if (global_input_buffer == 9) {
+                list = list->next;
+                if (list == NULL)
+                    list = found;
+                global_current_pos = list->item.integer;
+                draw_picture_buffer();
+                global_input_buffer = 0;
+            }
+            Sleep(sync_delay);
+        }
+    }
+}
+
 void print_settings_example() {
     init_picture_buffer();
     print_to_buffer("Max Mustermann", 0, 0);

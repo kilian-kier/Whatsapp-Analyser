@@ -51,11 +51,12 @@ void main_menu() {
     create_option(L"Tag", &opt1_2_3, temp, 0, 2);
     create_option(L"Uhrzeit\n", &opt1_2_4, temp, 0, 3);
     create_option(L"Schlie\xe1\145n", &opt3, temp->parent->parent, 0, 3);
-    temp = create_option(L"Nachrichten", NULL, temp->parent, 2, 2);
+    temp = create_option(L"Nachrichten", NULL, temp->parent, 3, 2);
     create_option(L"Suchen nach Datum", &opt1_3_1, temp, 1, 0);
     create_option(L"Suchen nach Nutzer", &opt1_3_2, temp, 1, 1);
-    create_option(NULL, NULL, temp->children[0], 0, 0);
-    create_option(NULL, NULL, temp->children[1], 0, 0);
+    create_option(L"Suchen nach W\x94rter", &print_word_message, temp, 1, 2);
+    for (int i = 0; i < 3; i++)
+        create_option(NULL, NULL, temp->children[i], 0, 0);
     temp = create_option(L"Einstellungen", &print_settings_example, temp->parent->parent, 4, 1);
     temp = create_option(L"Farben", &print_settings_example, temp, 4, 0);
     create_option(L"Schrift", &opt2_1_1, temp, 1, 0);
@@ -74,19 +75,19 @@ void main_menu() {
     create_option(NULL, NULL, temp, 0, 0);
 
     // ZUM DEBUGGEN
-    /*x_size = 169;
-    y_size = 65;*/
+    //x_size = 169; y_size = 65;
 
 
     temp = option_root;
     temp->function();
-    int x;
+    int x = 0;
 
     run_input_thread();
     do {
 
         printf("\x1b[%dB", y_pos);
         x = menu(1, temp);
+        //scanf("%d", &x)
         if (x == 0) {
             init_picture_buffer();
             draw_picture_buffer();

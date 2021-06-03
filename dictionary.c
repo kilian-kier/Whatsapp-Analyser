@@ -351,3 +351,15 @@ Dictionary *right_rotate(Dictionary *temp) {
     x->level = max_height(height(x->left), height(x->right)) + 1;
     return x;
 }
+
+Dictionary *find_word(const char *word, Dictionary *tree_node) {
+    if (tree_node == NULL)
+        return NULL;
+    int x = strncmp(word, tree_node->words->begin_message + tree_node->words->offset, tree_node->length_word);
+    if (x == 0)
+        return tree_node;
+    else if (x < 0)
+        find_word(word, tree_node->left);
+    else
+        find_word(word, tree_node->right);
+}

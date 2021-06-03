@@ -20,6 +20,7 @@ void dictionary_main(char sort);
 int relative_word_count(Dictionary *ptr);
 int find_longest_word(int longest,Dictionary*ptr);
 void dictionary_select();
+Dictionary *find_word(const char *word, Dictionary *tree_node);
 int find_most_word(int most,Dictionary*ptr);
 
 Dictionary *rearange_word(Dictionary*new_dict,Dictionary *dict,char type);
