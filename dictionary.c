@@ -183,7 +183,7 @@ int get_balanced(Dictionary *temp) {
 
 void *create_dictionary() {
     global_first_word = NULL;
-    int length, offset;
+    int length, offset, message_count = 0;
     Message *ptr = global_first_message;
     while (ptr->next != NULL) {
         if ((strcmp(ptr->message, "<medien ausgeschlossen>\n")) == 0) {
@@ -196,10 +196,11 @@ void *create_dictionary() {
             while ((check_char(*(ptr->message + offset + length))) != 0) length++;
             if (length == 0) offset++;
             else {
-                global_first_word = insert_word(ptr->message, offset, length, global_first_word);
+                global_first_word = insert_word(ptr->message, offset, length, global_first_word,message_count);
                 offset += length;
             }
         }
+        message_count ++;
         ptr = ptr->next;
     }
     update_height(global_first_word, 1);
@@ -213,21 +214,14 @@ void update_height(Dictionary *temp, int level) {
 }
 
 int check_char(char c) {
-
-    if (c == ' ' || c == '.' ||
-        c == ',' || c == ':' ||
-        c == '!' || c == '?' ||
-        c == '\n' || c == '\0' ||
-        c == '<' || c == '>' ||
-        c == '|' || c == '/'
-        || c == '"' || c == ';'
-        || c == '(' || c == ')' || c == '*' || c == '=' || c == '[' || c == ']' || c == '^' || c == '{' || c == '}' ||
-        c == '\\' || c == '`' || c == '\t' || c == '\1')
-        return 0;
-    else return 1;
+    char check[27] = {' ','.',',',':','!','?','\n','\0','<','>','|','/','"',';','(',')','*','=','[',']','^','{','}','\\','`','\t','\1'};
+    for(int i = 0; i < 27; i ++){
+        if (c == check[i]) return 0;
+    }
+    return 1;
 }
 
-Dictionary *insert_word(char *ptr, int offset, int length, Dictionary *temp) {
+Dictionary *insert_word(char *ptr, int offset, int length, Dictionary *temp, int message_number) {
     if (temp == NULL) {
         temp = (Dictionary *) malloc(sizeof(Dictionary));
         word_list *new;
@@ -237,6 +231,7 @@ Dictionary *insert_word(char *ptr, int offset, int length, Dictionary *temp) {
         temp->amount = 1;
         new->begin_message = ptr;
         new->offset = offset;
+        new->number_message = message_number;
         new->next = NULL;
         temp->words = new;
         temp->length_word = length;
@@ -249,16 +244,17 @@ Dictionary *insert_word(char *ptr, int offset, int length, Dictionary *temp) {
             while (add->next != NULL) add = add->next;
             if ((add->next = (word_list *) malloc(sizeof(word_list))) == NULL) perror("Malloc Fail");
             add->next->offset = offset;
+            add->next->number_message = message_number;
             add->next->begin_message = ptr;
             add->next->next = NULL;
             temp->amount++;
             return temp;
         } else if (strncmp(ptr + offset, temp->words->begin_message + temp->words->offset,
-                           (length < temp->length_word) ? length : temp->length_word) < 0)
-            temp->left = insert_word(ptr, offset, length, temp->left);
+                           (length > temp->length_word) ? length : temp->length_word) < 0)
+            temp->left = insert_word(ptr, offset, length, temp->left,message_number);
         else if (strncmp(ptr + offset, temp->words->begin_message + temp->words->offset,
-                         (length < temp->length_word) ? length : temp->length_word) > 0)
-            temp->right = insert_word(ptr, offset, length, temp->right);
+                         (length > temp->length_word) ? length : temp->length_word) > 0)
+            temp->right = insert_word(ptr, offset, length, temp->right,message_number);
     }
 
     temp->level = max_height(height(temp->left), height(temp->right)) + 1;
