@@ -332,6 +332,16 @@ void print_user_message() {
     }
 }
 
+void print_tree(Tree *node) {
+    if (node == NULL)
+        return;
+    print_tree(node->left);
+    printf("%d.%d.%d, %02d:%02d\n", node->message->current_message->day, node->message->current_message->month,
+           node->message->current_message->year, node->message->current_message->hour,
+           node->message->current_message->minute);
+    print_tree(node->right);
+}
+
 void print_word_message() {
     pthread_join(*(pthread_t *) global_threads[6][0], NULL);
     clear_screen();
@@ -354,24 +364,27 @@ void print_word_message() {
     }
     draw_picture_buffer();
     List *input = NULL;
-    List *found = NULL;
-    List *tmp_found = found;
     Message_tree *m_tree = malloc(sizeof(Message_tree));
+    Tree *tab = NULL;
     global_input_buffer = 0;
     while (global_input_buffer != '') {
+        //global_send_input = true;
         if (global_send_input == true) {
+            //fflush(stdin);
+            //global_input_buffer = getchar();
+            //fflush(stdin);
             switch (global_input_buffer) {
                 case 0:
                     global_send_input = false;
                     break;
                 case 9:
-                    if (tmp_found == NULL)
-                        break;
-                    else if (tmp_found->next == NULL)
-                        tmp_found = found;
-                    else
-                        tmp_found = tmp_found->next;
-                    global_current_pos = ((Dictionary *) tmp_found->item.pointer)->words->number_message * (global_settings.empty_lines + 1);
+                    if (tab != NULL)
+                        tab = get_next_item(tab);
+                    if (tab == NULL)
+                        tab = get_min_right(m_tree->messages);
+                    printf("\n\n\n%d", tab->message->number_message);
+                    global_current_pos = tab->message->number_message *
+                                         (global_settings.empty_lines + 1);
                     draw_picture_buffer();
                     global_send_input = false;
                     break;
@@ -390,20 +403,10 @@ void print_word_message() {
                         printf("%c", global_input_buffer);
                     }
                     char *string = get_string_from_list(input);
-                    found = NULL;
-                    found = find_word(global_first_word, string, found);
-                    tmp_found = found;
-                    int len = get_list_length(found);
-                    m_tree->words = input;
+                    m_tree->words = NULL;
+                    m_tree->words = insert(string, m_tree->words, 'p');
                     m_tree->messages = NULL;
-                    word_list *tmp_word_list = ((Dictionary *) tmp_found->item.pointer)->words;
-                    while (tmp_found != NULL) {
-                        while (tmp_word_list != NULL) {
-                            m_tree->messages = insert_to_tree(tmp_word_list, m_tree->messages, NULL);
-                            tmp_word_list = tmp_word_list->next;
-                        }
-                        tmp_found = tmp_found->next;
-                    }
+                    m_tree->messages = find_word(global_first_word, string, m_tree->messages);
                     temp = global_first_message;
                     i = 0;
                     while (temp->next != NULL) {
@@ -415,23 +418,7 @@ void print_word_message() {
                         i++;
                         temp = temp->next;
                     }
-                    List *tmp = found;
-                    global_current_pos = 0;
-                    for (int j = 0; j < len; j++) {
-                        sprintf(output, "%.*s", get_list_length(input),
-                                ((Dictionary *) tmp->item.pointer)->words->current_message->message +
-                                ((Dictionary *) tmp->item.pointer)->words->offset);
-                        int user_len = (int) strlen(((Dictionary *) tmp->item.pointer)->words->current_message->user);
-                        print_to_buffer(output, ((Dictionary *) tmp->item.pointer)->words->offset + 20 + user_len,
-                                        ((Dictionary *) tmp->item.pointer)->words->number_message, global_settings.highlight_font,
-                                        global_settings.highlight_back);
-                        if (global_current_pos == 0)
-                            global_current_pos = ((Dictionary *) tmp->item.pointer)->words->number_message *
-                                                 (global_settings.empty_lines + 1);
-                        tmp = tmp->next;
-                    }
-                    free(tmp);
-                    tmp_found = found;
+                    highlight_words(m_tree->messages, string);
                     draw_picture_buffer();
                     free(string);
                     global_send_input = false;
@@ -441,6 +428,24 @@ void print_word_message() {
             Sleep(sync_delay);
     }
     free(output);
+}
+
+void highlight_words(Tree *node, const char *input) {
+    if (node == NULL)
+        return;
+    highlight_words(node->left, input);
+
+    char output[x_size];
+    int len = (int) strlen(input);
+    sprintf(output, "%.*s", len, node->message->current_message->message + node->message->offset);
+    output[len] = 0;
+    int user_len = (int) strlen(node->message->current_message->user);
+    print_to_buffer(output, node->message->offset + 20 + user_len, node->message->number_message,
+                    global_settings.highlight_font, global_settings.highlight_back);
+    if (global_current_pos == 0)
+        global_current_pos = node->message->number_message * (global_settings.empty_lines + 1);
+
+    highlight_words(node->right, input);
 }
 
 void print_settings_example() {

@@ -102,11 +102,12 @@ Tree *get_min_right(Tree *node) {
 }
 
 Tree *get_next_item(Tree *node) {
-    if (node->right != NULL)
+    if (node->right != NULL && node != node->right) {
         return get_min_right(node->right);
+    }
     else {
         Tree *temp = node->parent;
-        while (temp < node) {
+        while (temp->message->number_message < node->message->number_message) {
             if (temp->parent == NULL)
                 return NULL;
             else
