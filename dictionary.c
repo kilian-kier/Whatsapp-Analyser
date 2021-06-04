@@ -187,6 +187,7 @@ void *create_dictionary() {
     Message *ptr = global_first_message;
     while (ptr->next != NULL) {
         if ((strcmp(ptr->message, "<medien ausgeschlossen>\n")) == 0) {
+            message_count ++;
             ptr = ptr->next;
             continue;
         }
@@ -196,7 +197,7 @@ void *create_dictionary() {
             while ((check_char(*(ptr->message + offset + length))) != 0) length++;
             if (length == 0) offset++;
             else {
-                global_first_word = insert_word(ptr->message, offset, length, global_first_word,message_count);
+                global_first_word = insert_word(ptr, offset, length, global_first_word,message_count);
                 offset += length;
             }
         }
@@ -221,7 +222,7 @@ int check_char(char c) {
     return 1;
 }
 
-Dictionary *insert_word(char *ptr, int offset, int length, Dictionary *temp, int message_number) {
+Dictionary *insert_word(Message *ptr, int offset, int length, Dictionary *temp, int message_number) {
     if (temp == NULL) {
         temp = (Dictionary *) malloc(sizeof(Dictionary));
         word_list *new;
@@ -229,9 +230,10 @@ Dictionary *insert_word(char *ptr, int offset, int length, Dictionary *temp, int
         temp->left = NULL;
         temp->right = NULL;
         temp->amount = 1;
-        new->begin_message = ptr;
+        new->begin_message = ptr->message;
         new->offset = offset;
         new->number_message = message_number;
+        new->current_message = ptr;
         new->next = NULL;
         temp->words = new;
         temp->length_word = length;
@@ -245,7 +247,8 @@ Dictionary *insert_word(char *ptr, int offset, int length, Dictionary *temp, int
             if ((add->next = (word_list *) malloc(sizeof(word_list))) == NULL) perror("Malloc Fail");
             add->next->offset = offset;
             add->next->number_message = message_number;
-            add->next->begin_message = ptr;
+            add->next->begin_message = ptr->message;
+            add->next->current_message = ptr;
             add->next->next = NULL;
             temp->amount++;
             return temp;

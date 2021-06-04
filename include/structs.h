@@ -27,6 +27,7 @@ typedef struct User {
 
 typedef struct word_list{
     struct word_list *next;
+    Message *current_message;
     char *begin_message;
     int offset;
     int number_message;
