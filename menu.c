@@ -88,6 +88,7 @@ void main_menu() {
         printf("\x1b[%dB", y_pos);
         x = menu(1, temp);
         //scanf("%d", &x);
+        //fflush(stdin);
         if (x == 0) {
             init_picture_buffer();
             draw_picture_buffer();
