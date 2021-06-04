@@ -79,24 +79,16 @@ char *string_convert(char *string, int offset) {
     for (int i = offset; i < len; i++) {
         if (string[i] >= 'A' && string[i] <= 'Z') string2[y] = string[i] + 32;
         else if (string[i] == -61 && (string[i + 1] == -92 || string[i + 1] == -100)) {
-            string2[y] = 'a';
-            y++;
-            string2[y] = 'e';
+            string2[y] = '\x84';
             i++;
         } else if (string[i] == -61 && (string[i + 1] == -74 || string[i + 1] == -106)) {
-            string2[y] = 'o';
-            y++;
-            string2[y] = 'e';
+            string2[y] = '\x94';
             i++;
         } else if (string[i] == -61 && (string[i + 1] == -68) || string[i + 1] == -124) {
-            string2[y] = 'u';
-            y++;
-            string2[y] = 'e';
+            string2[y] = '\x81';
             i++;
         } else if (string[i] == -61 && string[i + 1] == -97) {
-            string2[y] = 's';
-            y++;
-            string2[y] = 's';
+            string2[y] = '\xe1';
             i++;
         } else if (string[i] < 0) {
             string2[y] = '\1';
