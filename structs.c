@@ -78,3 +78,40 @@ char *get_string_from_list(List *list_string) {
     ret_string[i] = 0;
     return ret_string;
 }
+
+Tree *insert_to_tree(word_list *message, Tree *node, Tree *parent) {
+    if (node == NULL) {
+        node = malloc(sizeof(Tree));
+        node->message = message;
+        node->parent = parent;
+        node->left = NULL;
+        node->right = NULL;
+        return node;
+    }
+    if (message->number_message < node->message->number_message)
+        node->left = insert_to_tree(message, node->left, node);
+    else
+        node->right = insert_to_tree(message, node->right, node);
+    return node;
+}
+
+Tree *get_min_right(Tree *node) {
+    if (node->left == NULL)
+        return node;
+    return get_min_right(node->left);
+}
+
+Tree *get_next_item(Tree *node) {
+    if (node->right != NULL)
+        return get_min_right(node->right);
+    else {
+        Tree *temp = node->parent;
+        while (temp < node) {
+            if (temp->parent == NULL)
+                return NULL;
+            else
+                temp = temp->parent;
+        }
+        return temp;
+    }
+}

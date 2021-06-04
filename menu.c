@@ -103,11 +103,13 @@ void main_menu() {
         }
         if (temp->children[x - 1]->function != NULL) {
             temp->children[x - 1]->function();
+            // TODO: Einstellungen
             if (temp->opt == NULL && file == NULL)
                 continue;
         }
-        if (temp->children[x - 1]->n_child != 0)
+        if (temp->children[x - 1]->n_child != 0) {
             temp = temp->children[x - 1];
+        }
     } while (1);
 }
 

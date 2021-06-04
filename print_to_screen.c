@@ -356,20 +356,12 @@ void print_word_message() {
     List *input = NULL;
     List *found = NULL;
     List *tmp_found = found;
+    Message_tree *m_tree = malloc(sizeof(Message_tree));
     global_input_buffer = 0;
     while (global_input_buffer != '') {
         if (global_send_input == true) {
             switch (global_input_buffer) {
                 case 0:
-                    global_send_input = false;
-                    break;
-                case 8:
-                    if (input->next != NULL) {
-                        global_send_input = false;
-                        printf(" ");
-                        delete_n_char(2);
-                        input = pop(input);
-                    }
                     global_send_input = false;
                     break;
                 case 9:
@@ -383,18 +375,39 @@ void print_word_message() {
                     draw_picture_buffer();
                     global_send_input = false;
                     break;
+                case 8:
+                    if (input != NULL) {
+                        global_send_input = false;
+                        printf(" ");
+                        delete_n_char(2);
+                        input = pop(input);
+                    }
+                    global_send_input = false;
                 default:
-                    input = insert(&global_input_buffer, input, 'c');
-                    foreground_color(global_settings.menucolor);
-                    printf("%c", global_input_buffer);
+                    if (global_send_input != false) {
+                        input = insert(&global_input_buffer, input, 'c');
+                        foreground_color(global_settings.menucolor);
+                        printf("%c", global_input_buffer);
+                    }
                     char *string = get_string_from_list(input);
                     found = NULL;
                     found = find_word(global_first_word, string, found);
+                    tmp_found = found;
                     int len = get_list_length(found);
+                    m_tree->words = input;
+                    m_tree->messages = NULL;
+                    word_list *tmp_word_list = ((Dictionary *) tmp_found->item.pointer)->words;
+                    while (tmp_found != NULL) {
+                        while (tmp_word_list != NULL) {
+                            m_tree->messages = insert_to_tree(tmp_word_list, m_tree->messages, NULL);
+                            tmp_word_list = tmp_word_list->next;
+                        }
+                        tmp_found = tmp_found->next;
+                    }
                     temp = global_first_message;
                     i = 0;
                     while (temp->next != NULL) {
-                        sprintf(output, "%d.%d.%d, %02d:%02d - %s: %.*s", (int) temp->day, (int) temp->month,
+                        sprintf(output, "%02d.%02d.%02d, %02d:%02d - %s: %.*s", (int) temp->day, (int) temp->month,
                                 (int) temp->year,
                                 (int) temp->hour, (int) temp->minute, temp->user, x_size - 15,
                                 temp->message);
@@ -409,9 +422,9 @@ void print_word_message() {
                                 ((Dictionary *) tmp->item.pointer)->words->current_message->message +
                                 ((Dictionary *) tmp->item.pointer)->words->offset);
                         int user_len = (int) strlen(((Dictionary *) tmp->item.pointer)->words->current_message->user);
-                        print_to_buffer(output, ((Dictionary *) tmp->item.pointer)->words->offset + 19 + user_len,
-                                        ((Dictionary *) tmp->item.pointer)->words->number_message, black,
-                                        (Color) {0, 255, 255});
+                        print_to_buffer(output, ((Dictionary *) tmp->item.pointer)->words->offset + 20 + user_len,
+                                        ((Dictionary *) tmp->item.pointer)->words->number_message, global_settings.highlight_font,
+                                        global_settings.highlight_back);
                         if (global_current_pos == 0)
                             global_current_pos = ((Dictionary *) tmp->item.pointer)->words->number_message *
                                                  (global_settings.empty_lines + 1);
@@ -428,74 +441,6 @@ void print_word_message() {
             Sleep(sync_delay);
     }
     free(output);
-    /*char *input = malloc(buffersize);
-    if (get_string(input, buffersize, NULL, 0) == NULL)
-        return;*/
-    /*fflush(stdin);
-    fgets(input, buffersize, stdin);
-    fflush(stdin);
-    Dictionary *word = find_word(input, global_first_word);
-    List *found = NULL;
-    if (word != NULL) {
-        Message *temp = global_first_message;
-        int output_size = 1000;
-        char *output = malloc(output_size * sizeof(char));
-        int i = 0;
-        word_list *words = word->words;
-        while (temp->next != NULL) {
-            if (((temp->user != NULL ? strlen(temp->user) : 1) + (temp->message != NULL ? strlen(temp->message) : 1)) <
-                output_size - 15) {
-                if (strcmp(temp->message, words->current_message->message) == 0) {
-                    int x = 0;
-                    sprintf(output, "%d.%d.%d, %02d:%02d - %s: ", (int) temp->day, (int) temp->month,
-                            (int) temp->year,
-                            (int) temp->hour, (int) temp->minute, temp->user);
-                    print_to_buffer(output, x, i, global_settings.fontcolor, global_settings.background);
-                    x += (int)strlen(output);
-                    if (words->offset != 0) {
-                        strncpy(output, temp->message, words->offset);
-                        output[words->offset] = 0;
-                        print_to_buffer(output, x, i, global_settings.fontcolor, global_settings.background);
-                        x += (int)strlen(output);
-                    }
-                    strncpy(output, temp->message + words->offset, word->length_word);
-                    output[word->length_word] = 0;
-                    print_to_buffer(output, x, i, (Color){0, 0, 0}, (Color){0, 255, 255});
-                    x += (int)strlen(output);
-                    strcpy(output, temp->message + words->offset + word->length_word);
-                    print_to_buffer(output, x, i, global_settings.fontcolor, global_settings.background);
-                    found = insert(&i, found, 'i');
-                    if (words->next != NULL)
-                        words = words->next;
-                } else {
-                    sprintf(output, "%d.%d.%d, %02d:%02d - %s: %s", (int) temp->day, (int) temp->month,
-                            (int) temp->year,
-                            (int) temp->hour, (int) temp->minute, temp->user,
-                            temp->message);
-                    print_to_buffer(output, 0, i, global_settings.fontcolor, global_settings.background);
-                }
-                i++;
-            }
-            temp = temp->next;
-        }
-        draw_picture_buffer();
-        List *list = found;
-        if (list != NULL) {
-            global_current_pos = list->item.integer * (global_settings.empty_lines + 1);
-        }
-        draw_picture_buffer();
-        while (global_input_buffer != '') {
-            if (global_input_buffer == 9) {
-                list = list->next;
-                if (list == NULL)
-                    list = found;
-                global_current_pos = list->item.integer * (global_settings.empty_lines + 1);
-                draw_picture_buffer();
-                global_input_buffer = 0;
-            }
-            Sleep(sync_delay);
-        }
-    }*/
 }
 
 void print_settings_example() {

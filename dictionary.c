@@ -373,5 +373,5 @@ bool check_word(Dictionary *tree_node, const char *string, List *ret) {
     if (x == 0)
         return true;
     else
-        false;
+        return false;
 }
