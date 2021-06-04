@@ -107,6 +107,9 @@ Option_tree *create_option(wchar_t *opt, void (*function)(), Option_tree *parent
 
 Day_count *create_day_count(unsigned int day, unsigned int month, unsigned int year, unsigned int n);
 
-List *insert_to_list(void *item, List *node, char type);
+List *insert(void *item, List *node, char type);
+List *pop(List *node);
+int get_list_length(List *list);
+char *get_string_from_list(List *list_string);
 
 #endif //STRUCTS_H

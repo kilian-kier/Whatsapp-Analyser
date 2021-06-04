@@ -348,14 +348,27 @@ Dictionary *right_rotate(Dictionary *temp) {
     return x;
 }
 
-Dictionary *find_word(const char *word, Dictionary *tree_node) {
+List *find_word(Dictionary *tree_node, const char *string, List *ret) {
     if (tree_node == NULL)
-        return NULL;
-    int x = strncmp(word, tree_node->words->begin_message + tree_node->words->offset, tree_node->length_word);
+        return ret;
+    ret = find_word(tree_node->left, string, ret);
+    if (string[0] == tree_node->words->begin_message[tree_node->words->offset])
+        if (check_word(tree_node, string, ret) == true)
+            ret = insert(tree_node, ret, 'p');
+    ret = find_word(tree_node->right, string, ret);
+    return ret;
+}
+
+bool check_word(Dictionary *tree_node, const char *string, List *ret) {
+    int x;
+    if (tree_node->length_word >= strlen(string)) {
+        char *word = malloc(tree_node->length_word);
+        strncpy(word, tree_node->words->begin_message + tree_node->words->offset, tree_node->length_word);
+        x = strncmp(string, tree_node->words->begin_message + tree_node->words->offset, strlen(string));
+    } else
+        x = 1;
     if (x == 0)
-        return tree_node;
-    else if (x < 0)
-        find_word(word, tree_node->left);
+        return true;
     else
-        find_word(word, tree_node->right);
+        false;
 }

@@ -21,7 +21,7 @@ Day_count *create_day_count(unsigned int day, unsigned int month, unsigned int y
     return ret;
 }
 
-List *insert_to_list(void *item, List *node, char type) {
+List *insert(void *item, List *node, char type) {
     if (node == NULL) {
         node = malloc(sizeof(List));
         union uni uni;
@@ -41,6 +41,40 @@ List *insert_to_list(void *item, List *node, char type) {
         node->next = NULL;
         return node;
     }
-    node->next = insert_to_list(item, node->next, type);
+    node->next = insert(item, node->next, type);
     return node;
+}
+
+List *pop(List *node) {
+    if (node->next == NULL) {
+        free(node);
+        return NULL;
+    }
+    else if (node->next->next == NULL) {
+        free(node->next);
+        node->next = NULL;
+        return node;
+    }
+    node->next = pop(node->next);
+    return node;
+}
+
+int get_list_length(List *list) {
+    int ret = 0;
+    List *temp = list;
+    for (ret = 0; temp != NULL; ret++)
+        temp = temp->next;
+    return ret;
+}
+
+char *get_string_from_list(List *list_string) {
+    int i, n = get_list_length(list_string);
+    char *ret_string = malloc((n + 1) * sizeof(char));
+    List *temp = list_string;
+    for (i = 0; i < n; i++) {
+        ret_string[i] = temp->item.character;
+        temp = temp->next;
+    }
+    ret_string[i] = 0;
+    return ret_string;
 }

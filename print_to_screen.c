@@ -333,18 +333,70 @@ void print_user_message() {
 }
 
 void print_word_message() {
+    pthread_join(*(pthread_t *)global_threads[6][0], NULL);
     clear_screen();
     init_picture_buffer();
-
+    draw_picture_buffer();
     printf("\x1b[%dB", y_pos);
     foreground_color(global_settings.menucolor);
     printf("%s\n", "WhatsApp Analyzer\n");
-    char *input = malloc(buffersize);
+    List *input = NULL;
+    global_input_buffer = 0;
+    while (global_input_buffer != '') {
+        if (global_send_input == true) {
+            switch (global_input_buffer) {
+                case 0:
+                    break;
+                case 8:
+                    if (input->next != NULL) {
+                        global_send_input = false;
+                        printf(" ");
+                        delete_n_char(2);
+                        input = pop(input);
+                    }
+                    break;
+                default:
+                    input = insert(&global_input_buffer, input, 'c');
+                    global_send_input = false;
+                    char *string = get_string_from_list(input);
+                    printf("%s", string);
+                    List *words = NULL;
+                    words = find_word(global_first_word, string, words);
+                    int len = get_list_length(words);
+                    char *output = malloc(x_size);
+                    Message *temp = global_first_message;
+                    int i = 0;
+                    while (temp->next != NULL) {
+                        sprintf(output, "%d.%d.%d, %02d:%02d - %s: %.*s", (int) temp->day, (int) temp->month, (int) temp->year,
+                                (int) temp->hour, (int) temp->minute, temp->user, x_size-15,
+                                temp->message);
+                        print_to_buffer(output, 0, i, global_settings.fontcolor, global_settings.background);
+                        i++;
+                        temp = temp->next;
+                    }
+                    for (int j = 0; j < len; j++) {
+                            sprintf(output, "%.*s", ((Dictionary *) words->item.pointer)->length_word,
+                                    ((Dictionary *) words->item.pointer)->words->begin_message +
+                                    ((Dictionary *) words->item.pointer)->words->offset);
+                            print_to_buffer(output, ((Dictionary *) words->item.pointer)->words->offset + 19,
+                                            ((Dictionary *) words->item.pointer)->words->number_message, black,
+                                            (Color) {0, 255, 255});
+                            words = words->next;
+                    }
+                    draw_picture_buffer();
+                    free(string);
+                    free(output);
+                    break;
+            }
+        } else
+            Sleep(sync_delay);
+    }
+    /*char *input = malloc(buffersize);
     if (get_string(input, buffersize, NULL, 0) == NULL)
-        return;
+        return;*/
     /*fflush(stdin);
     fgets(input, buffersize, stdin);
-    fflush(stdin);*/
+    fflush(stdin);
     Dictionary *word = find_word(input, global_first_word);
     List *found = NULL;
     if (word != NULL) {
@@ -375,7 +427,7 @@ void print_word_message() {
                     x += (int)strlen(output);
                     strcpy(output, temp->message + words->offset + word->length_word);
                     print_to_buffer(output, x, i, global_settings.fontcolor, global_settings.background);
-                    found = insert_to_list(&i, found, 'i');
+                    found = insert(&i, found, 'i');
                     if (words->next != NULL)
                         words = words->next;
                 } else {
@@ -406,7 +458,7 @@ void print_word_message() {
             }
             Sleep(sync_delay);
         }
-    }
+    }*/
 }
 
 void print_settings_example() {

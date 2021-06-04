@@ -87,8 +87,7 @@ void main_menu() {
 
         printf("\x1b[%dB", y_pos);
         x = menu(1, temp);
-        /*scanf("%d", &x);
-        fflush(stdin);*/
+        //scanf("%d", &x);
         if (x == 0) {
             init_picture_buffer();
             draw_picture_buffer();
@@ -104,7 +103,7 @@ void main_menu() {
         if (temp->children[x - 1]->function != NULL) {
             temp->children[x - 1]->function();
             if (temp->opt == NULL && file == NULL)
-                continue;;
+                continue;
         }
         if (temp->children[x - 1]->n_child != 0)
             temp = temp->children[x - 1];
