@@ -463,7 +463,7 @@ void print_dictionary(Dictionary *ptr, bool reverse) {
         buffer[ptr->length_word] = '\0';
     }
     sprintf(buffer2,"%s %d\n",buffer,ptr->amount);
-    ptr->position= print_to_buffer(buffer2, -1, -1, global_settings.fontcolor, global_settings.background);
+    ptr->position = print_to_buffer(buffer2, -1, -1, global_settings.fontcolor, global_settings.background);
     if(reverse){
         print_dictionary(ptr->left,reverse);
     }else{
@@ -503,18 +503,23 @@ Dictionary *right_rotate(Dictionary *temp) {
     return x;
 }
 
-List *find_word(Dictionary *tree_node, const char *string, List *ret) {
+Tree * find_word(Dictionary *tree_node, const char *string, Tree *ret) {
     if (tree_node == NULL)
         return ret;
     ret = find_word(tree_node->left, string, ret);
     if (string[0] == tree_node->words->current_message->message[tree_node->words->offset])
-        if (check_word(tree_node, string, ret) == true)
-            ret = insert(tree_node, ret, 'p');
+        if (check_word(tree_node, string) == true) {
+            word_list *temp = tree_node->words;
+            while (temp != NULL) {
+                ret = insert_to_tree(temp, ret, NULL);
+                temp = temp->next;
+            }
+        }
     ret = find_word(tree_node->right, string, ret);
     return ret;
 }
 
-bool check_word(Dictionary *tree_node, const char *string, List *ret) {
+bool check_word(Dictionary *tree_node, const char *string) {
     int x;
     if (tree_node->length_word >= strlen(string)) {
         char *word = malloc(tree_node->length_word);

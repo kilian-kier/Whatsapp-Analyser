@@ -106,7 +106,7 @@ void change_color(int xsize, int ysize,int xpos,int ypos,Color foreground, Color
     }
     return;
 }
-int print_to_buffer(char string[], int xpos, int ypos, Color foreground, Color background) {
+int print_to_buffer(const char *string, int xpos, int ypos, Color foreground, Color background) {
     ypos = ypos * (global_settings.empty_lines + 1);
     static int y = 0;
     static int x = 0;

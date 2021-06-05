@@ -27,10 +27,10 @@ List *insert(void *item, List *node, char type) {
         union uni uni;
         switch (type) {
             case 'i':
-                uni.integer = *(int *)item;
+                uni.integer = *(int *) item;
                 break;
             case 'c':
-                uni.character = *(char *)item;
+                uni.character = *(char *) item;
                 break;;
             case 'p':
                 uni.pointer = item;
@@ -55,8 +55,7 @@ List *pop(List *node) {
     if (node->next == NULL) {
         free(node);
         return NULL;
-    }
-    else if (node->next->next == NULL) {
+    } else if (node->next->next == NULL) {
         free(node->next);
         node->next = NULL;
         return node;
@@ -94,7 +93,12 @@ Tree *insert_to_tree(word_list *message, Tree *node, Tree *parent) {
         node->right = NULL;
         return node;
     }
-    if (message->number_message < node->message->number_message)
+    if (message->number_message == node->message->number_message) {
+        if (message->offset < node->message->offset)
+            node->left = insert_to_tree(message, node->left, node);
+        else
+            node->right = insert_to_tree(message, node->right, node);
+    } else if (message->number_message < node->message->number_message)
         node->left = insert_to_tree(message, node->left, node);
     else
         node->right = insert_to_tree(message, node->right, node);
@@ -108,16 +112,37 @@ Tree *get_min_right(Tree *node) {
 }
 
 Tree *get_next_item(Tree *node) {
-    if (node->right != NULL)
-        return get_min_right(node->right);
-    else {
+    if (node->right != NULL) {
+        Tree *temp = get_min_right(node->right);
+        if (node->message->current_message == temp->message->current_message) {
+            if (temp->message->offset > node->message->offset)
+                return get_next_item(temp);
+            else {
+                return get_next_item(node->right);
+            }
+        } else
+            return temp;
+    } else {
         Tree *temp = node->parent;
-        while (temp < node) {
-            if (temp->parent == NULL)
-                return NULL;
-            else
-                temp = temp->parent;
+        if (node->message->current_message == temp->message->current_message) {
+            while (node->message->current_message >= temp->message->current_message) {
+                if (temp->right != NULL)
+                    temp = get_min_right(temp->right);
+                else {
+                    while (node->message->current_message >= temp->message->current_message)
+                        temp = temp->parent;
+                }
+            }
+            return temp;
+        } else {
+            while (temp->message->number_message < node->message->number_message) {
+                if (temp->parent == NULL)
+                    return NULL;
+                else
+                    temp = temp->parent;
+                return temp;
+            }
         }
-        return temp;
+
     }
 }

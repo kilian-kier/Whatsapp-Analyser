@@ -87,6 +87,7 @@ typedef struct Settings {
     Color highlight_back;
     int top_n;
     int empty_lines;
+    int ram_delay;
 } Settings;
 
 union uni {

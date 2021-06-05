@@ -83,6 +83,7 @@ void main_menu() {
     int x;
 
     run_input_thread();
+    //run_memory_thread();
     do {
 
         printf("\x1b[%dB", y_pos);

@@ -151,6 +151,7 @@ void default_settings() {
     global_settings.highlight_back = (Color) {0, 255, 255};
     global_settings.top_n = 40;
     global_settings.empty_lines = 1;
+    global_settings.ram_delay = 1000;
 }
 
 void read_config() {

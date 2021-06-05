@@ -21,8 +21,9 @@ void dictionary_main(char sort);
 int relative_word_count(Dictionary *ptr);
 int find_longest_word(int longest,Dictionary*ptr);
 void dictionary_select();
-List * find_word(Dictionary *tree_node, const char *string, List *ret);
-bool check_word(Dictionary *tree_node, const char *string, List *ret);
+Tree * find_word(Dictionary *tree_node, const char *string, Tree *ret);
+
+bool check_word(Dictionary *tree_node, const char *string);
 int find_most_word(int most,Dictionary*ptr);
 char*get_string_tree(char *string, int size, char *pointer);
 
