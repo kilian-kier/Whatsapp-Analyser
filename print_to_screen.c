@@ -343,9 +343,10 @@ void print_tree(Tree *node) {
 
 void print_word_message() {
     pthread_join(*(pthread_t *) global_threads[6][0], NULL);
+    pthread_join(*(pthread_t *) global_threads[0][0], NULL);
     clear_screen();
     init_picture_buffer();
-draw_picture_buffer();
+    draw_picture_buffer();
     print_banner();
     foreground_color(global_settings.menucolor);
     Message *temp = global_first_message;
@@ -389,7 +390,6 @@ draw_picture_buffer();
                         tab = get_next_item(tab);
                     if (tab == NULL)
                         tab = get_min_right(m_tree->messages);
-                    printf("\n\n\n%d", tab->message->number_message);
                     global_current_pos = tab->message->number_message *
                                          (global_settings.empty_lines + 1);
                     draw_picture_buffer();
@@ -438,6 +438,9 @@ draw_picture_buffer();
                     }
                     global_current_pos = 0;
                     highlight_words(m_tree->messages, m_tree->words);
+                    tab = m_tree->messages;
+                    while (tab->left != NULL)
+                        tab = tab->left;
                     draw_picture_buffer();
                     free(string);
                     global_send_input = false;
@@ -452,25 +455,27 @@ draw_picture_buffer();
 void highlight_words(Tree *node, List *input) {
     if (node == NULL)
         return;
-    highlight_words(node->left, NULL);
+    highlight_words(node->left, input);
 
-    int user_len = 0, offset = 0;
+    int user_len = 0, offset;
     if (node->message->current_message->user != NULL)
         user_len = (int) strlen(node->message->current_message->user);
     List *temp_input = input;
+    List *temp_offset;
     while (temp_input != NULL) {
-        char *string = (char *) temp_input->item.pointer;
-        List *temp_offset = (List *) node->offsets->item.pointer;
+        char *string = (char *) temp_input->i.pointer;
+        int string_len = (int) strlen(string);
+        temp_offset = (List *) node->offsets->i.pointer;
         while (temp_offset != NULL) {
-            offset = temp_offset->item.integer;
-            if (offset < x_size - 20 - user_len)
-                print_to_buffer(string, offset + 20 + user_len, node->message->number_message,
-                                global_settings.highlight_font, global_settings.highlight_back);
+            offset = temp_offset->i.integer;
+            if (offset < x_size - 20 - user_len && true_highlight(node->message->current_message->message, offset) == true)
+                change_color(string_len, 1, offset + 20 + user_len, node->message->number_message,
+                             global_settings.highlight_font, global_settings.highlight_back);
             temp_offset = temp_offset->next;
         }
         temp_input = temp_input->next;
         if (node->offsets->next != NULL)
-            temp_offset = (List *) node->offsets->next->item.pointer;
+            temp_offset = (List *) node->offsets->next->i.pointer;
     }
 
     if (global_current_pos == 0)

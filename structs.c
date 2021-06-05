@@ -98,9 +98,9 @@ Tree *insert_to_tree(word_list *message, Tree *node, Tree *parent) {
         return node;
     }
     if (message->number_message == node->message->number_message) {
-        List *temp = (List *) node->offsets->item.pointer;
+        List *temp = (List *) node->offsets->i.pointer;
         temp = insert(&message->offset, temp, 'i');
-        node->offsets->item.pointer = temp;
+        node->offsets->i.pointer = temp;
         return node;
     } else if (message->number_message < node->message->number_message)
         node->left = insert_to_tree(message, node->left, node);
@@ -125,8 +125,7 @@ Tree *get_next_item(Tree *node) {
                 return NULL;
             else
                 temp = temp->parent;
-            return temp;
         }
-
+        return temp;
     }
 }
