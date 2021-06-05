@@ -37,12 +37,18 @@ List *insert(void *item, List *node, char type) {
             default:
                 break;
         }
-        node->item = uni;
+        node->i = uni;
         node->next = NULL;
         return node;
     }
     node->next = insert(item, node->next, type);
     return node;
+}
+void free_list(List *list){
+    while(list!=NULL){
+        free(list);
+        list=list->next;
+    }
 }
 
 List *pop(List *node) {
@@ -72,7 +78,7 @@ char *get_string_from_list(List *list_string) {
     char *ret_string = malloc((n + 1) * sizeof(char));
     List *temp = list_string;
     for (i = 0; i < n; i++) {
-        ret_string[i] = temp->item.character;
+        ret_string[i] = temp->i.character;
         temp = temp->next;
     }
     ret_string[i] = 0;

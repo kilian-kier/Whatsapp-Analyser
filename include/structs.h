@@ -39,6 +39,7 @@ typedef struct Dictionary {
     int amount;
     int length_word;
     int level;
+    int position;
 } Dictionary;
 
 typedef struct Option_tree {
@@ -76,10 +77,6 @@ typedef struct Day_count {
     unsigned int year;
     unsigned int n;
 } Day_count;
-typedef struct Suggestions {
-    char *string;
-    struct Suggestions *next;
-} Suggestions;
 
 typedef struct Settings {
     Color fontcolor;
@@ -96,11 +93,12 @@ union uni {
     int integer;
     char character;
     void *pointer;
+    Dictionary*dict;
 };
 
 typedef struct List {
     struct List *next;
-    union uni item;
+    union uni i;
 } List;
 
 typedef struct Tree {
@@ -129,5 +127,7 @@ char *get_string_from_list(List *list_string);
 Tree *insert_to_tree(word_list *message, Tree *node, Tree *parent);
 Tree *get_min_right(Tree *node);
 Tree *get_next_item(Tree *node);
+
+void free_list(List *list);
 
 #endif //STRUCTS_H

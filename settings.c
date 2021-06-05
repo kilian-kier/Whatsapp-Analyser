@@ -5,7 +5,7 @@ Color *read_color(wchar_t *string) {
     while (1) {
         wprintf(string);
         char *buffer = malloc(20 * sizeof(char));
-        if (get_string(buffer, 20, NULL, 0) == NULL)
+        if (get_string(buffer, 20, NULL) == NULL)
             return NULL;
         if (sscanf(buffer, "%d,%d,%d", &color->r, &color->g, &color->b) != 3) {
             printf("\n  Bitte im g\x81ltigen Format eingeben\n\n");

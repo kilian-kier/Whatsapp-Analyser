@@ -9,6 +9,7 @@ int x_size;
 int y_size;
 #define x_pos 40
 #define y_pos 1
+
 #define buffersize 10000
 #define sync_delay 20
 
@@ -34,9 +35,12 @@ int global_page_count;
 
 short global_arrow_keys;
 char global_send_input;
-char global_input_buffer;
+int global_input_buffer;
 
 void *global_threads[7][2];
+
+
+
 
 /*
 global_threads[0] = read_file_thread;

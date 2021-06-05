@@ -213,9 +213,8 @@ void print_date_message() {
     bool input;
     clear_screen();
     init_picture_buffer();
-    printf("\x1b[%dB", y_pos);
+    print_banner();
     foreground_color(global_settings.menucolor);
-    printf("%s\n", "WhatsApp Analyzer\n");
 
     unsigned int day, month, year;
     do {
@@ -228,7 +227,7 @@ void print_date_message() {
                (int) temp->day,
                (int) temp->month, (int) temp->year);
         char *buffer = malloc(9 * sizeof(char));
-        if (get_string(buffer, 9, NULL, 0) == NULL)
+        if (get_string(buffer, 9, NULL) == NULL)
             return;
         if (sscanf(buffer, "%d.%d.%d", &day, &month, &year) != 3) {
             input = false;
@@ -304,15 +303,14 @@ void print_user_message() {
     }
     draw_picture_buffer();
 
-    printf("\x1b[%dB", y_pos);
+    print_banner();
     foreground_color(global_settings.menucolor);
-    printf("%s\n", "WhatsApp Analyzer\n");
 
     char *buf = malloc((max_c + 1) * sizeof(char));
     do {
         input = true;
         printf("  Gib den Namen des Nutzers ein\n  ");
-        if (get_string(buf, max_c + 1, (char *) name_array, STRING_ARRAY) == NULL)
+        if (get_string(buf, max_c + 1, (char *) name_array) == NULL)
             return;
         temp = user_exists(buf);
         if (temp == NULL) {
@@ -336,8 +334,8 @@ void print_word_message() {
     pthread_join(*(pthread_t *) global_threads[6][0], NULL);
     clear_screen();
     init_picture_buffer();
-    draw_picture_buffer();
-    printf("\x1b[%dB", y_pos);
+draw_picture_buffer();
+    print_banner();
     foreground_color(global_settings.menucolor);
     printf("%s\n", "WhatsApp Analyzer\n");
     Message *temp = global_first_message;
@@ -371,7 +369,7 @@ void print_word_message() {
                         tmp_found = found;
                     else
                         tmp_found = tmp_found->next;
-                    global_current_pos = ((Dictionary *) tmp_found->item.pointer)->words->number_message * (global_settings.empty_lines + 1);
+                    global_current_pos = ((Dictionary *) tmp_found->i.pointer)->words->number_message * (global_settings.empty_lines + 1);
                     draw_picture_buffer();
                     global_send_input = false;
                     break;
@@ -396,7 +394,7 @@ void print_word_message() {
                     int len = get_list_length(found);
                     m_tree->words = input;
                     m_tree->messages = NULL;
-                    word_list *tmp_word_list = ((Dictionary *) tmp_found->item.pointer)->words;
+                    word_list *tmp_word_list = ((Dictionary *) tmp_found->i.pointer)->words;
                     while (tmp_found != NULL) {
                         while (tmp_word_list != NULL) {
                             m_tree->messages = insert_to_tree(tmp_word_list, m_tree->messages, NULL);
@@ -419,14 +417,14 @@ void print_word_message() {
                     global_current_pos = 0;
                     for (int j = 0; j < len; j++) {
                         sprintf(output, "%.*s", get_list_length(input),
-                                ((Dictionary *) tmp->item.pointer)->words->current_message->message +
-                                ((Dictionary *) tmp->item.pointer)->words->offset);
-                        int user_len = (int) strlen(((Dictionary *) tmp->item.pointer)->words->current_message->user);
-                        print_to_buffer(output, ((Dictionary *) tmp->item.pointer)->words->offset + 20 + user_len,
-                                        ((Dictionary *) tmp->item.pointer)->words->number_message, global_settings.highlight_font,
+                                ((Dictionary *) tmp->i.pointer)->words->current_message->message +
+                                ((Dictionary *) tmp->i.pointer)->words->offset);
+                        int user_len = (int) strlen(((Dictionary *) tmp->i.pointer)->words->current_message->user);
+                        print_to_buffer(output, ((Dictionary *) tmp->i.pointer)->words->offset + 20 + user_len,
+                                        ((Dictionary *) tmp->i.pointer)->words->number_message, global_settings.highlight_font,
                                         global_settings.highlight_back);
                         if (global_current_pos == 0)
-                            global_current_pos = ((Dictionary *) tmp->item.pointer)->words->number_message *
+                            global_current_pos = ((Dictionary *) tmp->i.pointer)->words->number_message *
                                                  (global_settings.empty_lines + 1);
                         tmp = tmp->next;
                     }
