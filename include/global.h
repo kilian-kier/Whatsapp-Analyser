@@ -12,6 +12,10 @@ int y_size;
 
 #define buffersize 10000
 #define sync_delay 20
+#define key_right 80
+#define key_left 72
+#define key_up 75
+#define key_down 77
 
 Settings global_settings;
 #define DICT_TREE 1

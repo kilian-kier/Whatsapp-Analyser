@@ -105,7 +105,7 @@ char *get_string_tree(char *string, int size, char *pointer) {
     bool changed_string = true;
 
     printf("   ");
-
+    string[0]=0;
     while (global_input_buffer != 13 && global_input_buffer != '\n') {
         if (j % 66 < 33) {
             cursor_blink(true, i);
@@ -126,41 +126,41 @@ char *get_string_tree(char *string, int size, char *pointer) {
                             delete_n_char(2);
                             i--;
                             string[i] = 0;
-                            changed_string = true;
                         }
                         break;
                     case '':
                         return NULL;
                     case 9:
-                        if (pointer != NULL) {
-                            if (changed_string) {
-                                free_list(suggestions);
-
-                                List tmp;
-                                tmp.next = NULL;
-                                get_suggestions_from_dict_tree(global_first_word, &tmp, string);
-                                suggestions = tmp.next;
-                                temp_suggestions = suggestions;
-                                changed_string = false;
-                            }
-                            if (suggestions != NULL) {
-                                if (temp_suggestions == NULL) {
+                        if(string[0]!=0) {
+                            if (pointer != NULL) {
+                                if (changed_string) {
+                                    free_list(suggestions);
+                                    List tmp;
+                                    tmp.next = NULL;
+                                    get_suggestions_from_dict_tree(global_first_word, &tmp, string);
+                                    suggestions = tmp.next;
                                     temp_suggestions = suggestions;
+                                    changed_string = false;
                                 }
-                                strncpy(string, temp_suggestions->i.dict->words->current_message->message +
-                                                temp_suggestions->i.dict->words->offset,
-                                        temp_suggestions->i.dict->length_word);
-                                string[temp_suggestions->i.dict->length_word] = 0;
-                                global_current_pos = temp_suggestions->i.dict->position;
-                                draw_picture_buffer();
-                                foreground_color(global_settings.menucolor);
-                                printf(" ");
-                                delete_n_char(i + 1);
-                                i = strlen(string);
-                                printf("%s", string);
-                                temp_suggestions = temp_suggestions->next;
+                                if (suggestions != NULL) {
+                                    if (temp_suggestions == NULL) {
+                                        temp_suggestions = suggestions;
+                                    }
+                                    strncpy(string, temp_suggestions->i.dict->words->current_message->message +
+                                                    temp_suggestions->i.dict->words->offset,
+                                            temp_suggestions->i.dict->length_word);
+                                    string[temp_suggestions->i.dict->length_word] = 0;
+                                    global_current_pos = temp_suggestions->i.dict->position;
+                                    draw_picture_buffer();
+                                    foreground_color(global_settings.menucolor);
+                                    printf(" ");
+                                    delete_n_char(i + 1);
+                                    i = strlen(string);
+                                    printf("%s", string);
+                                    temp_suggestions = temp_suggestions->next;
+                                }
+                                global_send_input = false;
                             }
-                            global_send_input = false;
                         }
                         break;
                     default:
@@ -176,37 +176,48 @@ char *get_string_tree(char *string, int size, char *pointer) {
                         changed_string = true;
                         break;
                 }
-                Dictionary *suggestion = find_in_tree(global_first_word, string);
-                if (suggestion != NULL && suggestion != last_suggestion) {
-                    strncpy(string, suggestion->words->current_message->message + suggestion->words->offset,
-                            suggestion->length_word);
-                    string[suggestion->length_word] = 0;
-                    global_current_pos = suggestion->position;
-                    draw_picture_buffer();
-                    last_suggestion = suggestion;
-                    foreground_color(global_settings.menucolor);
+                if(string[0]!=0) {
+                    Dictionary *suggestion = find_in_tree(global_first_word, string);
+                    if (suggestion != NULL && suggestion != last_suggestion) {
+                        global_current_pos = suggestion->position;
+                        if (last_suggestion != NULL) {
+                            change_color(last_suggestion->length_word,1,0,last_suggestion->position,global_settings.fontcolor, global_settings.background);
+                        }
+                        change_color(suggestion->length_word,1,0,suggestion->position,global_settings.highlight_font, global_settings.highlight_back);
+                        draw_picture_buffer();
+                        last_suggestion = suggestion;
+                        foreground_color(global_settings.menucolor);
+                    }
+                }else{
+                    global_current_pos = 0;
+                    if (last_suggestion != NULL) {
+                        change_color(last_suggestion->length_word,1,0,last_suggestion->position,global_settings.fontcolor, global_settings.background);
+                        draw_picture_buffer();
+                        foreground_color(global_settings.menucolor);
+                    }
                 }
             }else {
                 global_input_buffer-=256;
                 switch(global_input_buffer){
-                    case 80:
+                    case key_right:
                             if (global_current_pos < global_page_count * y_size - y_size) {
                                 global_current_pos++;
                                 draw_picture_buffer();
                             }
                         break;
-                    case 72:
+                    case key_left:
                             if (global_current_pos > 0) {
                                 global_current_pos--;
                                 draw_picture_buffer();
                             }
-                    case 75:
+                            break;
+                    case key_up:
                             if (global_current_pos - y_size > 0) {
                                 global_current_pos -= y_size;
                                 draw_picture_buffer();
                             }
                         break;
-                    case 77:
+                    case key_down:
                             if (global_current_pos + y_size < global_page_count * y_size - y_size + 1) {
                                 global_current_pos += y_size;
                                 draw_picture_buffer();
@@ -214,6 +225,7 @@ char *get_string_tree(char *string, int size, char *pointer) {
                         break;
                 }
                 foreground_color(global_settings.menucolor);
+                global_input_buffer=0;
                 global_send_input=false;
             }
         }

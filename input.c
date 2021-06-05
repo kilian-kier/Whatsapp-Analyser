@@ -101,13 +101,13 @@ void *input_thread() {
                 case 0:
                 case 224:
                     c = _getch();
-                    if((char)global_arrow_keys=='s'){
+                    if(global_arrow_keys=='s'){
                         global_input_buffer=c+256;
                         global_send_input=true;
                         break;
                     }
                     switch (c) {
-                        case 80:
+                        case key_right:
                             if (global_arrow_keys == 0) {
                                 if (global_current_pos < global_page_count * y_size - y_size) {
                                     global_current_pos++;
@@ -121,7 +121,7 @@ void *input_thread() {
                                     global_settings.top_n--;
                             }
                             break;
-                        case 72:
+                        case key_left:
                             if (global_arrow_keys == 0) {
                                 if (global_current_pos > 0) {
                                     global_current_pos--;
@@ -132,7 +132,7 @@ void *input_thread() {
                             else if (global_arrow_keys == 2)
                                 global_settings.top_n++;
                             break;
-                        case 75:
+                        case key_up:
                             if (global_arrow_keys == 0) {
                                 if (global_current_pos - y_size > 0) {
                                     global_current_pos -= y_size;
@@ -146,7 +146,7 @@ void *input_thread() {
                                     global_settings.top_n -= 10;
                             }
                             break;
-                        case 77:
+                        case key_down:
                             if (global_arrow_keys == 0) {
                                 if (global_current_pos + y_size < global_page_count * y_size - y_size + 1) {
                                     global_current_pos += y_size;
@@ -161,7 +161,6 @@ void *input_thread() {
 
                             break;
                     }
-                    global_input_buffer=1;
                     break;
                 default:
                     global_input_buffer = c;
@@ -212,20 +211,20 @@ List* get_suggestions_from_dict_tree(Dictionary*ptr, List*suggestions, char*sear
     if(ptr==NULL) return suggestions;
 
     comparison=strncmp(search,ptr->words->current_message->message+ptr->words->offset,strlen(search));
-        suggestions = get_suggestions_from_dict_tree(ptr->left, suggestions, search);
+
+    suggestions = get_suggestions_from_dict_tree(ptr->left, suggestions, search);
+
     if(comparison==0) {
         suggestions->next = malloc(sizeof(List));
         if (suggestions->next == NULL) {
             perror("malloc");
             return suggestions;
         }
-
         suggestions->next->next = NULL;
         suggestions->next->i.dict = ptr;
         suggestions = suggestions->next;
     }
-        suggestions = get_suggestions_from_dict_tree(ptr->right, suggestions, search);
-    return suggestions;
+      return get_suggestions_from_dict_tree(ptr->right, suggestions, search);
 }
 List *get_suggestions_from_array(char **array, int size, char *search) {
     if (search[0] == 0) {

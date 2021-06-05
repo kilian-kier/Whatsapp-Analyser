@@ -23,6 +23,7 @@ Console_buffer *create_console_buffer();
 int print_point(int x,int y,wchar_t c, Color *foreground, Color *background);
 void init_console_buffer( Console_buffer *buffer);
 void print_banner();
+void change_color(int xsize, int ysize,int xpos,int ypos,Color foreground, Color background);
 
 
 

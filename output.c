@@ -42,7 +42,9 @@ int print_point(int x,int y, wchar_t c, Color *foreground, Color *background){
    if(background!=NULL){
        current->buffer[newy][x].background=*background;
    }
-   current->buffer[newy][x].character=c;
+   if(c!=0){
+       current->buffer[newy][x].character=c;
+   }
    return 0;
 }
 Console_buffer *create_console_buffer(){
@@ -96,7 +98,14 @@ void init_console_buffer( Console_buffer *buffer){
         }
     }
 }
-
+void change_color(int xsize, int ysize,int xpos,int ypos,Color foreground, Color background){
+    for(int y=0;y<ysize;y++){
+        for(int x=0;x<xsize;x++){
+            print_point(xpos+x,ypos+y,0,&foreground,&background);
+        }
+    }
+    return;
+}
 int print_to_buffer(char string[], int xpos, int ypos, Color foreground, Color background) {
     ypos = ypos * (global_settings.empty_lines + 1);
     static int y = 0;
@@ -120,7 +129,7 @@ int print_to_buffer(char string[], int xpos, int ypos, Color foreground, Color b
             }
             continue;
         }
-        print_point(x,y,string[i],&foreground,&background);
+            print_point(x,y,string[i],&foreground,&background);
         x++;
     }
     return y_temp;
