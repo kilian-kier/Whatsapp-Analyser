@@ -225,6 +225,9 @@ void draw_picture(char *pointer1, char*pointer2, int xpos, int ypos, int xsize, 
 }
 
 void draw_picture_buffer() {
+    HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
+    GetConsoleScreenBufferInfo(hStdout, &bufferInfo);
     int r;
     int br;
     int g;
@@ -289,6 +292,7 @@ void draw_picture_buffer() {
     printf("\x1b[2E            \x1b[12DP[%d | %d]",page+1, global_page_count);
     printf("\x1b[H");
     setvbuf(stdout, NULL, _IONBF, 0);
+    SetConsoleCursorPosition(hStdout,bufferInfo.dwCursorPosition);
 }
 
 void clear_screen() {

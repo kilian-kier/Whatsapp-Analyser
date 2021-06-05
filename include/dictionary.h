@@ -7,7 +7,7 @@
 
 void *create_dictionary();
 int check_char(char c);
-Dictionary *insert_word(char *ptr, int offset, int length, Dictionary *temp, int message_number);
+Dictionary *insert_word(Message *ptr, int offset, int length, Dictionary *temp, int message_number);
 int height(Dictionary *temp);
 Dictionary *right_rotate(Dictionary *temp);
 Dictionary *left_rotate(Dictionary *temp);
@@ -20,7 +20,8 @@ void dictionary_main(char sort);
 int relative_word_count(Dictionary *ptr);
 int find_longest_word(int longest,Dictionary*ptr);
 void dictionary_select();
-Dictionary *find_word(const char *word, Dictionary *tree_node);
+List * find_word(Dictionary *tree_node, const char *string, List *ret);
+bool check_word(Dictionary *tree_node, const char *string, List *ret);
 int find_most_word(int most,Dictionary*ptr);
 
 Dictionary *rearange_word(Dictionary*new_dict,Dictionary *dict,char type);

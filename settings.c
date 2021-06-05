@@ -147,6 +147,8 @@ void default_settings() {
     global_settings.menucolor = (Color) {255, 255, 0};
     global_settings.barcolor = (Color) {255, 255, 255};
     global_settings.background = (Color) {0, 0, 0};
+    global_settings.highlight_font = (Color) {0, 0, 0};
+    global_settings.highlight_back = (Color) {0, 255, 255};
     global_settings.top_n = 40;
     global_settings.empty_lines = 1;
 }

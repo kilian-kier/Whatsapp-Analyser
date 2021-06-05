@@ -290,16 +290,16 @@ void print_user_message() {
     }
 
     //Create Array with Names
-    temp=global_first_user;
-    char*name_array[i+1];
-    for(int j=0;j<i;j++){
-        name_array[j]=temp->name;
-        temp=temp->next;
+    temp = global_first_user;
+    char *name_array[i + 1];
+    for (int j = 0; j < i; j++) {
+        name_array[j] = temp->name;
+        temp = temp->next;
     }
-    name_array[i]=NULL;
-    merge_sort(name_array,i,0,'n');
+    name_array[i] = NULL;
+    merge_sort(name_array, i, 0, 'n');
 
-    for(int j=0;j<i;j++){
+    for (int j = 0; j < i; j++) {
         print_to_buffer(name_array[j], 0, j, global_settings.fontcolor, global_settings.background);
     }
     draw_picture_buffer();
@@ -312,7 +312,7 @@ void print_user_message() {
     do {
         input = true;
         printf("  Gib den Namen des Nutzers ein\n  ");
-        if (get_string(buf,max_c+1,(char*)name_array,STRING_ARRAY) == NULL)
+        if (get_string(buf, max_c + 1, (char *) name_array, STRING_ARRAY) == NULL)
             return;
         temp = user_exists(buf);
         if (temp == NULL) {
@@ -333,80 +333,114 @@ void print_user_message() {
 }
 
 void print_word_message() {
+    pthread_join(*(pthread_t *) global_threads[6][0], NULL);
     clear_screen();
     init_picture_buffer();
-
+    draw_picture_buffer();
     printf("\x1b[%dB", y_pos);
     foreground_color(global_settings.menucolor);
     printf("%s\n", "WhatsApp Analyzer\n");
-    char *input = malloc(buffersize);
-    if (get_string(input, buffersize, NULL, 0) == NULL)
-        return;
-    /*fflush(stdin);
-    fgets(input, buffersize, stdin);
-    fflush(stdin);*/
-    Dictionary *word = find_word(input, global_first_word);
-    List *found = NULL;
-    if (word != NULL) {
-        Message *temp = global_first_message;
-        int output_size = 1000;
-        char *output = malloc(output_size * sizeof(char));
-        int i = 0;
-        word_list *words = word->words;
-        while (temp->next != NULL) {
-            if (((temp->user != NULL ? strlen(temp->user) : 1) + (temp->message != NULL ? strlen(temp->message) : 1)) <
-                output_size - 15) {
-                if (strcmp(temp->message, words->begin_message) == 0) {
-                    int x = 0;
-                    sprintf(output, "%d.%d.%d, %02d:%02d - %s: ", (int) temp->day, (int) temp->month,
-                            (int) temp->year,
-                            (int) temp->hour, (int) temp->minute, temp->user);
-                    print_to_buffer(output, x, i, global_settings.fontcolor, global_settings.background);
-                    x += (int)strlen(output);
-                    if (words->offset != 0) {
-                        strncpy(output, temp->message, words->offset);
-                        output[words->offset] = 0;
-                        print_to_buffer(output, x, i, global_settings.fontcolor, global_settings.background);
-                        x += (int)strlen(output);
-                    }
-                    strncpy(output, temp->message + words->offset, word->length_word);
-                    output[word->length_word] = 0;
-                    print_to_buffer(output, x, i, (Color){0, 0, 0}, (Color){0, 255, 255});
-                    x += (int)strlen(output);
-                    strcpy(output, temp->message + words->offset + word->length_word);
-                    print_to_buffer(output, x, i, global_settings.fontcolor, global_settings.background);
-                    found = insert_to_list(&i, found, 'i');
-                    if (words->next != NULL)
-                        words = words->next;
-                } else {
-                    sprintf(output, "%d.%d.%d, %02d:%02d - %s: %s", (int) temp->day, (int) temp->month,
-                            (int) temp->year,
-                            (int) temp->hour, (int) temp->minute, temp->user,
-                            temp->message);
-                    print_to_buffer(output, 0, i, global_settings.fontcolor, global_settings.background);
-                }
-                i++;
-            }
-            temp = temp->next;
-        }
-        draw_picture_buffer();
-        List *list = found;
-        if (list != NULL) {
-            global_current_pos = list->item.integer * (global_settings.empty_lines + 1);
-        }
-        draw_picture_buffer();
-        while (global_input_buffer != '') {
-            if (global_input_buffer == 9) {
-                list = list->next;
-                if (list == NULL)
-                    list = found;
-                global_current_pos = list->item.integer * (global_settings.empty_lines + 1);
-                draw_picture_buffer();
-                global_input_buffer = 0;
-            }
-            Sleep(sync_delay);
-        }
+    Message *temp = global_first_message;
+    int i = 0;
+    char *output = malloc(x_size);
+    while (temp->next != NULL) {
+        sprintf(output, "%d.%d.%d, %02d:%02d - %s: %.*s", (int) temp->day, (int) temp->month,
+                (int) temp->year,
+                (int) temp->hour, (int) temp->minute, temp->user, x_size - 15,
+                temp->message);
+        print_to_buffer(output, 0, i, global_settings.fontcolor, global_settings.background);
+        i++;
+        temp = temp->next;
     }
+    draw_picture_buffer();
+    List *input = NULL;
+    List *found = NULL;
+    List *tmp_found = found;
+    Message_tree *m_tree = malloc(sizeof(Message_tree));
+    global_input_buffer = 0;
+    while (global_input_buffer != '') {
+        if (global_send_input == true) {
+            switch (global_input_buffer) {
+                case 0:
+                    global_send_input = false;
+                    break;
+                case 9:
+                    if (tmp_found == NULL)
+                        break;
+                    else if (tmp_found->next == NULL)
+                        tmp_found = found;
+                    else
+                        tmp_found = tmp_found->next;
+                    global_current_pos = ((Dictionary *) tmp_found->item.pointer)->words->number_message * (global_settings.empty_lines + 1);
+                    draw_picture_buffer();
+                    global_send_input = false;
+                    break;
+                case 8:
+                    if (input != NULL) {
+                        global_send_input = false;
+                        printf(" ");
+                        delete_n_char(2);
+                        input = pop(input);
+                    }
+                    global_send_input = false;
+                default:
+                    if (global_send_input != false) {
+                        input = insert(&global_input_buffer, input, 'c');
+                        foreground_color(global_settings.menucolor);
+                        printf("%c", global_input_buffer);
+                    }
+                    char *string = get_string_from_list(input);
+                    found = NULL;
+                    found = find_word(global_first_word, string, found);
+                    tmp_found = found;
+                    int len = get_list_length(found);
+                    m_tree->words = input;
+                    m_tree->messages = NULL;
+                    word_list *tmp_word_list = ((Dictionary *) tmp_found->item.pointer)->words;
+                    while (tmp_found != NULL) {
+                        while (tmp_word_list != NULL) {
+                            m_tree->messages = insert_to_tree(tmp_word_list, m_tree->messages, NULL);
+                            tmp_word_list = tmp_word_list->next;
+                        }
+                        tmp_found = tmp_found->next;
+                    }
+                    temp = global_first_message;
+                    i = 0;
+                    while (temp->next != NULL) {
+                        sprintf(output, "%02d.%02d.%02d, %02d:%02d - %s: %.*s", (int) temp->day, (int) temp->month,
+                                (int) temp->year,
+                                (int) temp->hour, (int) temp->minute, temp->user, x_size - 15,
+                                temp->message);
+                        print_to_buffer(output, 0, i, global_settings.fontcolor, global_settings.background);
+                        i++;
+                        temp = temp->next;
+                    }
+                    List *tmp = found;
+                    global_current_pos = 0;
+                    for (int j = 0; j < len; j++) {
+                        sprintf(output, "%.*s", get_list_length(input),
+                                ((Dictionary *) tmp->item.pointer)->words->current_message->message +
+                                ((Dictionary *) tmp->item.pointer)->words->offset);
+                        int user_len = (int) strlen(((Dictionary *) tmp->item.pointer)->words->current_message->user);
+                        print_to_buffer(output, ((Dictionary *) tmp->item.pointer)->words->offset + 20 + user_len,
+                                        ((Dictionary *) tmp->item.pointer)->words->number_message, global_settings.highlight_font,
+                                        global_settings.highlight_back);
+                        if (global_current_pos == 0)
+                            global_current_pos = ((Dictionary *) tmp->item.pointer)->words->number_message *
+                                                 (global_settings.empty_lines + 1);
+                        tmp = tmp->next;
+                    }
+                    free(tmp);
+                    tmp_found = found;
+                    draw_picture_buffer();
+                    free(string);
+                    global_send_input = false;
+                    break;
+            }
+        } else
+            Sleep(sync_delay);
+    }
+    free(output);
 }
 
 void print_settings_example() {
@@ -414,8 +448,8 @@ void print_settings_example() {
     print_to_buffer("Max Mustermann", 0, 0, global_settings.fontcolor, global_settings.background);
     print_to_buffer("Erika Musterfrau", 0, 1, global_settings.fontcolor, global_settings.background);
     print_to_buffer("Otto Normalverbraucher", 0, 2, global_settings.fontcolor, global_settings.background);
-    draw_rect(24, 0, (int)(x_size * 0.95 - 26), 1, 1, 0);
-    draw_rect(24, 1, (int)(x_size * 0.55 - 26), 1, 1, 0);
-    draw_rect(24, 2, (int)(x_size * 0.33 - 26), 1, 1, 0);
+    draw_rect(24, 0, (int) (x_size * 0.95 - 26), 1, 1, 0);
+    draw_rect(24, 1, (int) (x_size * 0.55 - 26), 1, 1, 0);
+    draw_rect(24, 2, (int) (x_size * 0.33 - 26), 1, 1, 0);
     draw_picture_buffer();
 }

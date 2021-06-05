@@ -106,10 +106,10 @@ Dictionary *rearange_word(Dictionary *new_dict, Dictionary *dict, char type) {
      } else {
          switch(type) {
              case 'A':
-              if (strncmp(dict->words->begin_message + dict->words->offset, new_dict->words->begin_message + new_dict->words->offset,(dict->length_word < new_dict->length_word) ? dict->length_word: new_dict->length_word) < 0) {
+              if (strncmp(dict->words->current_message->message + dict->words->offset, new_dict->words->current_message->message + new_dict->words->offset,(dict->length_word < new_dict->length_word) ? dict->length_word: new_dict->length_word) < 0) {
                   new_dict->left = rearange_word(new_dict->left,dict,type);
               }
-             else if (strncmp(dict->words->begin_message + dict->words->offset, new_dict->words->begin_message + new_dict->words->offset,(dict->length_word < new_dict->length_word) ? dict->length_word : new_dict->length_word) >0) {
+             else if (strncmp(dict->words->current_message->message + dict->words->offset, new_dict->words->current_message->message + new_dict->words->offset,(dict->length_word < new_dict->length_word) ? dict->length_word : new_dict->length_word) >0) {
                   new_dict->right = rearange_word(new_dict->right,dict,type);
               }
              break;
@@ -136,13 +136,13 @@ Dictionary *rearange_word(Dictionary *new_dict, Dictionary *dict, char type) {
 
      switch(type) {
          case 'A':
-             if (balance > 1 && strncmp(new_dict->words->begin_message + new_dict->words->offset,new_dict->left->words->begin_message + new_dict->left->words->offset,(new_dict->length_word < new_dict->left->length_word)? new_dict->length_word : new_dict->left->length_word) <= 0) return right_rotate(new_dict);
-             if (balance < -1 && strncmp(new_dict->words->begin_message + new_dict->words->offset,new_dict->right->words->begin_message + new_dict->right->words->offset,(new_dict->length_word < new_dict->right->length_word)? new_dict->length_word : new_dict->right->length_word) >= 0) return left_rotate(new_dict);
-             if (balance > 1 && strncmp(new_dict->words->begin_message + new_dict->words->offset,new_dict->left->words->begin_message + new_dict->left->words->offset,(new_dict->length_word < new_dict->left->length_word)? new_dict->length_word : new_dict->left->length_word) >= 0) {
+             if (balance > 1 && strncmp(new_dict->words->current_message->message + new_dict->words->offset,new_dict->left->words->current_message->message + new_dict->left->words->offset,(new_dict->length_word < new_dict->left->length_word)? new_dict->length_word : new_dict->left->length_word) <= 0) return right_rotate(new_dict);
+             if (balance < -1 && strncmp(new_dict->words->current_message->message + new_dict->words->offset,new_dict->right->words->current_message->message + new_dict->right->words->offset,(new_dict->length_word < new_dict->right->length_word)? new_dict->length_word : new_dict->right->length_word) >= 0) return left_rotate(new_dict);
+             if (balance > 1 && strncmp(new_dict->words->current_message->message + new_dict->words->offset,new_dict->left->words->current_message->message + new_dict->left->words->offset,(new_dict->length_word < new_dict->left->length_word)? new_dict->length_word : new_dict->left->length_word) >= 0) {
                  new_dict->left = left_rotate(new_dict->left);
                  return right_rotate(new_dict);
              }
-             if (balance < -1 &&  strncmp(new_dict->words->begin_message + new_dict->words->offset,new_dict->right->words->begin_message + new_dict->right->words->offset,(new_dict->length_word < new_dict->right->length_word)? new_dict->length_word : new_dict->right->length_word) <= 0) {
+             if (balance < -1 &&  strncmp(new_dict->words->current_message->message + new_dict->words->offset,new_dict->right->words->current_message->message + new_dict->right->words->offset,(new_dict->length_word < new_dict->right->length_word)? new_dict->length_word : new_dict->right->length_word) <= 0) {
                  new_dict->right = right_rotate(new_dict->right);
                  return left_rotate(new_dict);
              }
@@ -187,6 +187,7 @@ void *create_dictionary() {
     Message *ptr = global_first_message;
     while (ptr->next != NULL) {
         if ((strcmp(ptr->message, "<medien ausgeschlossen>\n")) == 0) {
+            message_count ++;
             ptr = ptr->next;
             continue;
         }
@@ -196,7 +197,7 @@ void *create_dictionary() {
             while ((check_char(*(ptr->message + offset + length))) != 0) length++;
             if (length == 0) offset++;
             else {
-                global_first_word = insert_word(ptr->message, offset, length, global_first_word,message_count);
+                global_first_word = insert_word(ptr, offset, length, global_first_word,message_count);
                 offset += length;
             }
         }
@@ -221,7 +222,7 @@ int check_char(char c) {
     return 1;
 }
 
-Dictionary *insert_word(char *ptr, int offset, int length, Dictionary *temp, int message_number) {
+Dictionary *insert_word(Message *ptr, int offset, int length, Dictionary *temp, int message_number) {
     if (temp == NULL) {
         temp = (Dictionary *) malloc(sizeof(Dictionary));
         word_list *new;
@@ -229,9 +230,10 @@ Dictionary *insert_word(char *ptr, int offset, int length, Dictionary *temp, int
         temp->left = NULL;
         temp->right = NULL;
         temp->amount = 1;
-        new->begin_message = ptr;
+        //new->current_message->message = ptr->message;
         new->offset = offset;
         new->number_message = message_number;
+        new->current_message = ptr;
         new->next = NULL;
         temp->words = new;
         temp->length_word = length;
@@ -239,20 +241,21 @@ Dictionary *insert_word(char *ptr, int offset, int length, Dictionary *temp, int
         return temp;
     } else {
         if (length == temp->length_word &&
-            strncmp(ptr + offset, temp->words->begin_message + temp->words->offset, length) == 0) {
+            strncmp(ptr->message + offset, temp->words->current_message->message + temp->words->offset, length) == 0) {
             word_list *add = temp->words;
             while (add->next != NULL) add = add->next;
             if ((add->next = (word_list *) malloc(sizeof(word_list))) == NULL) perror("Malloc Fail");
             add->next->offset = offset;
             add->next->number_message = message_number;
-            add->next->begin_message = ptr;
+            //add->next->current_message->message = ptr->message;
+            add->next->current_message = ptr;
             add->next->next = NULL;
             temp->amount++;
             return temp;
-        } else if (strncmp(ptr + offset, temp->words->begin_message + temp->words->offset,
+        } else if (strncmp(ptr->message + offset, temp->words->current_message->message + temp->words->offset,
                            (length > temp->length_word) ? length : temp->length_word) < 0)
             temp->left = insert_word(ptr, offset, length, temp->left,message_number);
-        else if (strncmp(ptr + offset, temp->words->begin_message + temp->words->offset,
+        else if (strncmp(ptr->message + offset, temp->words->current_message->message + temp->words->offset,
                          (length > temp->length_word) ? length : temp->length_word) > 0)
             temp->right = insert_word(ptr, offset, length, temp->right,message_number);
     }
@@ -260,28 +263,28 @@ Dictionary *insert_word(char *ptr, int offset, int length, Dictionary *temp, int
     temp->level = max_height(height(temp->left), height(temp->right)) + 1;
     int balance = get_balanced(temp);
 
-    if (balance > 1 && strncmp(temp->words->begin_message + temp->words->offset,
-                               temp->left->words->begin_message + temp->left->words->offset,
+    if (balance > 1 && strncmp(temp->words->current_message->message + temp->words->offset,
+                               temp->left->words->current_message->message + temp->left->words->offset,
                                (temp->length_word < temp->left->length_word) ? temp->length_word
                                                                              : temp->left->length_word) <= 0)
         return right_rotate(temp);
 
-    if (balance < -1 && strncmp(temp->words->begin_message + temp->words->offset,
-                                temp->right->words->begin_message + temp->right->words->offset,
+    if (balance < -1 && strncmp(temp->words->current_message->message + temp->words->offset,
+                                temp->right->words->current_message->message + temp->right->words->offset,
                                 (temp->length_word < temp->right->length_word) ? temp->length_word
                                                                                : temp->right->length_word) >= 0)
         return left_rotate(temp);
 
-    if (balance > 1 && strncmp(temp->words->begin_message + temp->words->offset,
-                               temp->left->words->begin_message + temp->left->words->offset,
+    if (balance > 1 && strncmp(temp->words->current_message->message + temp->words->offset,
+                               temp->left->words->current_message->message + temp->left->words->offset,
                                (temp->length_word < temp->left->length_word) ? temp->length_word
                                                                              : temp->left->length_word) >= 0) {
         temp->left = left_rotate(temp->left);
         return right_rotate(temp);
     }
 
-    if (balance < -1 && strncmp(temp->words->begin_message + temp->words->offset,
-                                temp->right->words->begin_message + temp->right->words->offset,
+    if (balance < -1 && strncmp(temp->words->current_message->message + temp->words->offset,
+                                temp->right->words->current_message->message + temp->right->words->offset,
                                 (temp->length_word < temp->right->length_word) ? temp->length_word
                                                                                : temp->right->length_word) <= 0) {
         temp->right = right_rotate(temp->right);
@@ -300,11 +303,11 @@ void print_dictionary(Dictionary *ptr, bool reverse) {
         print_dictionary(ptr->left,reverse);
     }
     if(ptr->length_word>x_size-10){
-        strncpy(buffer, ptr->words->begin_message + ptr->words->offset, x_size-10);
+        strncpy(buffer, ptr->words->current_message->message + ptr->words->offset, x_size-10);
         strcpy(&buffer[x_size-10],"..");
         buffer[x_size-8]=0;
     }else{
-        strncpy(buffer, ptr->words->begin_message + ptr->words->offset, ptr->length_word);
+        strncpy(buffer, ptr->words->current_message->message + ptr->words->offset, ptr->length_word);
         buffer[ptr->length_word] = '\0';
     }
     sprintf(buffer2,"%s %d\n",buffer,ptr->amount);
@@ -348,14 +351,27 @@ Dictionary *right_rotate(Dictionary *temp) {
     return x;
 }
 
-Dictionary *find_word(const char *word, Dictionary *tree_node) {
+List *find_word(Dictionary *tree_node, const char *string, List *ret) {
     if (tree_node == NULL)
-        return NULL;
-    int x = strncmp(word, tree_node->words->begin_message + tree_node->words->offset, tree_node->length_word);
+        return ret;
+    ret = find_word(tree_node->left, string, ret);
+    if (string[0] == tree_node->words->current_message->message[tree_node->words->offset])
+        if (check_word(tree_node, string, ret) == true)
+            ret = insert(tree_node, ret, 'p');
+    ret = find_word(tree_node->right, string, ret);
+    return ret;
+}
+
+bool check_word(Dictionary *tree_node, const char *string, List *ret) {
+    int x;
+    if (tree_node->length_word >= strlen(string)) {
+        char *word = malloc(tree_node->length_word);
+        strncpy(word, tree_node->words->current_message->message + tree_node->words->offset, tree_node->length_word);
+        x = strncmp(string, tree_node->words->current_message->message + tree_node->words->offset, strlen(string));
+    } else
+        x = 1;
     if (x == 0)
-        return tree_node;
-    else if (x < 0)
-        find_word(word, tree_node->left);
+        return true;
     else
-        find_word(word, tree_node->right);
+        return false;
 }
