@@ -97,7 +97,7 @@ void init_console_buffer( Console_buffer *buffer){
     }
 }
 
-void print_to_buffer(char string[], int xpos, int ypos, Color foreground, Color background) {
+void print_to_buffer(const char *string, int xpos, int ypos, Color foreground, Color background) {
     ypos = ypos * (global_settings.empty_lines + 1);
     static int y = 0;
     static int x = 0;

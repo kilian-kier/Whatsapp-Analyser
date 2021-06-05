@@ -336,9 +336,10 @@ void print_tree(Tree *node) {
     if (node == NULL)
         return;
     print_tree(node->left);
-    printf("%d.%d.%d, %02d:%02d\n", node->message->current_message->day, node->message->current_message->month,
+    /*printf("%d.%d.%d, %02d:%02d\n", node->message->current_message->day, node->message->current_message->month,
            node->message->current_message->year, node->message->current_message->hour,
-           node->message->current_message->minute);
+           node->message->current_message->minute);*/
+    printf("\n%d", node->message->number_message);
     print_tree(node->right);
 }
 
@@ -370,9 +371,15 @@ void print_word_message() {
     while (global_input_buffer != '') {
         //global_send_input = true;
         if (global_send_input == true) {
-            //fflush(stdin);
-            //global_input_buffer = getchar();
-            //fflush(stdin);
+            /*if (global_input_buffer == 0)
+                global_input_buffer = 'q';
+            else
+                global_input_buffer = 9;*/
+            /*fflush(stdin);
+            do {
+                global_input_buffer = getchar();
+            } while (global_input_buffer == '\n');
+            fflush(stdin);*/
             switch (global_input_buffer) {
                 case 0:
                     global_send_input = false;
@@ -398,15 +405,21 @@ void print_word_message() {
                     global_send_input = false;
                 default:
                     if (global_send_input != false) {
+                        printf("%c", global_input_buffer);
+                        if (global_input_buffer >= 65 && global_input_buffer <= 90)
+                            global_input_buffer += 32;
                         input = insert(&global_input_buffer, input, 'c');
                         foreground_color(global_settings.menucolor);
-                        printf("%c", global_input_buffer);
                     }
                     char *string = get_string_from_list(input);
                     m_tree->words = NULL;
                     m_tree->words = insert(string, m_tree->words, 'p');
                     m_tree->messages = NULL;
-                    m_tree->messages = find_word(global_first_word, string, m_tree->messages);
+                    char *token = strtok(string, " ");
+                    m_tree->messages = find_word(global_first_word, token, m_tree->messages);
+                    while ((token = strtok(NULL, " ")) != NULL) {
+                        //function
+                    }
                     temp = global_first_message;
                     i = 0;
                     while (temp->next != NULL) {
@@ -418,6 +431,7 @@ void print_word_message() {
                         i++;
                         temp = temp->next;
                     }
+                    global_current_pos = 0;
                     highlight_words(m_tree->messages, string);
                     draw_picture_buffer();
                     free(string);
@@ -435,12 +449,10 @@ void highlight_words(Tree *node, const char *input) {
         return;
     highlight_words(node->left, input);
 
-    char output[x_size];
-    int len = (int) strlen(input);
-    sprintf(output, "%.*s", len, node->message->current_message->message + node->message->offset);
-    output[len] = 0;
-    int user_len = (int) strlen(node->message->current_message->user);
-    print_to_buffer(output, node->message->offset + 20 + user_len, node->message->number_message,
+    int user_len = 0;
+    if (node->message->current_message->user != NULL)
+        user_len = (int) strlen(node->message->current_message->user);
+    print_to_buffer(input, node->message->offset + 20 + user_len, node->message->number_message,
                     global_settings.highlight_font, global_settings.highlight_back);
     if (global_current_pos == 0)
         global_current_pos = node->message->number_message * (global_settings.empty_lines + 1);

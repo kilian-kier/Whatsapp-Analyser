@@ -41,3 +41,35 @@ void free_memory() {
         global_first_message = NULL;
     }
 }
+
+void free_tree(Tree *node) {
+    if (node == NULL)
+        return;
+    free_tree(node->left);
+    free_tree(node->right);
+    free(node);
+}
+
+void run_memory_thread() {
+    pthread_t pth;
+    pthread_create(&pth, NULL, memory_thread, NULL);
+}
+
+void *memory_thread() {
+    Sleep(500);
+    while (1) {
+        DWORD processID = GetCurrentProcessId();
+        HANDLE hProcess;
+        PROCESS_MEMORY_COUNTERS pmc;
+        hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processID);
+        GetProcessMemoryInfo(hProcess, &pmc, sizeof(pmc));
+        HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+        CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
+        GetConsoleScreenBufferInfo(hStdout, &bufferInfo);
+        SetConsoleCursorPosition(hStdout, (COORD){0, 20});
+        foreground_color(global_settings.menucolor);
+        printf("RAM Nutzung:\n%.2lf MB\n", (double)pmc.WorkingSetSize / 1048576);
+        SetConsoleCursorPosition(hStdout, bufferInfo.dwCursorPosition);
+        Sleep(500);
+    }
+}

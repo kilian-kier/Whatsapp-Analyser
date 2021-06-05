@@ -16,7 +16,7 @@ void clear_screen();
 void draw_picture_buffer();
 void init_picture_buffer();
 void draw_picture(char *pointer1,char*pointer2 ,int xpos, int ypos,int xsize,int ysize);
-void print_to_buffer(char string[], int xpos, int ypos, Color foreground, Color background);
+void print_to_buffer(const char *string, int xpos, int ypos, Color foreground, Color background);
 void draw_rect(int xpos, int ypos, int xsize, int ysize, bool fill, bool layer);
 void free_console_buffer(Console_buffer *buffer);
 Console_buffer *create_console_buffer();
