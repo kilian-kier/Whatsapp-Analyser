@@ -5,7 +5,7 @@ Color *read_color(wchar_t *string) {
     while (1) {
         wprintf(string);
         char *buffer = malloc(20 * sizeof(char));
-        if (get_string(buffer, 20, NULL, 0) == NULL)
+        if (get_string(buffer, 20, NULL) == NULL)
             return NULL;
         if (sscanf(buffer, "%d,%d,%d", &color->r, &color->g, &color->b) != 3) {
             printf("\n  Bitte im g\x81ltigen Format eingeben\n\n");
@@ -147,8 +147,11 @@ void default_settings() {
     global_settings.menucolor = (Color) {255, 255, 0};
     global_settings.barcolor = (Color) {255, 255, 255};
     global_settings.background = (Color) {0, 0, 0};
+    global_settings.highlight_font = (Color) {0, 0, 0};
+    global_settings.highlight_back = (Color) {0, 255, 255};
     global_settings.top_n = 40;
     global_settings.empty_lines = 1;
+    global_settings.ram_delay = 1000;
 }
 
 void read_config() {

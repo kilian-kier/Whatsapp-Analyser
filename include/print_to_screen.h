@@ -19,5 +19,6 @@ void print_date_message();
 void print_user_message();
 void print_word_message();
 void print_settings_example();
+void highlight_words(Tree *node, const char *input);
 
 #endif //PRINT_TO_SCREEN_H

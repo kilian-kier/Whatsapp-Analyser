@@ -21,26 +21,128 @@ Day_count *create_day_count(unsigned int day, unsigned int month, unsigned int y
     return ret;
 }
 
-List *insert_to_list(void *item, List *node, char type) {
+List *insert(void *item, List *node, char type) {
     if (node == NULL) {
         node = malloc(sizeof(List));
         union uni uni;
         switch (type) {
             case 'i':
-                uni.integer = *(int *)item;
+                uni.integer = *(int *) item;
                 break;
             case 'c':
-                uni.character = *(char *)item;
+                uni.character = *(char *) item;
                 break;;
             case 'p':
                 uni.pointer = item;
             default:
                 break;
         }
-        node->item = uni;
+        node->i = uni;
         node->next = NULL;
         return node;
     }
-    node->next = insert_to_list(item, node->next, type);
+    node->next = insert(item, node->next, type);
     return node;
+}
+void free_list(List *list){
+    while(list!=NULL){
+        free(list);
+        list=list->next;
+    }
+}
+
+List *pop(List *node) {
+    if (node->next == NULL) {
+        free(node);
+        return NULL;
+    } else if (node->next->next == NULL) {
+        free(node->next);
+        node->next = NULL;
+        return node;
+    }
+    node->next = pop(node->next);
+    return node;
+}
+
+int get_list_length(List *list) {
+    int ret = 0;
+    List *temp = list;
+    for (ret = 0; temp != NULL; ret++)
+        temp = temp->next;
+    return ret;
+}
+
+char *get_string_from_list(List *list_string) {
+    int i, n = get_list_length(list_string);
+    char *ret_string = malloc((n + 1) * sizeof(char));
+    List *temp = list_string;
+    for (i = 0; i < n; i++) {
+        ret_string[i] = temp->i.character;
+        temp = temp->next;
+    }
+    ret_string[i] = 0;
+    return ret_string;
+}
+
+Tree *insert_to_tree(word_list *message, Tree *node, Tree *parent) {
+    if (node == NULL) {
+        node = malloc(sizeof(Tree));
+        node->message = message;
+        node->parent = parent;
+        node->left = NULL;
+        node->right = NULL;
+        return node;
+    }
+    if (message->number_message == node->message->number_message) {
+        if (message->offset < node->message->offset)
+            node->left = insert_to_tree(message, node->left, node);
+        else
+            node->right = insert_to_tree(message, node->right, node);
+    } else if (message->number_message < node->message->number_message)
+        node->left = insert_to_tree(message, node->left, node);
+    else
+        node->right = insert_to_tree(message, node->right, node);
+    return node;
+}
+
+Tree *get_min_right(Tree *node) {
+    if (node->left == NULL)
+        return node;
+    return get_min_right(node->left);
+}
+
+Tree *get_next_item(Tree *node) {
+    if (node->right != NULL) {
+        Tree *temp = get_min_right(node->right);
+        if (node->message->current_message == temp->message->current_message) {
+            if (temp->message->offset > node->message->offset)
+                return get_next_item(temp);
+            else {
+                return get_next_item(node->right);
+            }
+        } else
+            return temp;
+    } else {
+        Tree *temp = node->parent;
+        if (node->message->current_message == temp->message->current_message) {
+            while (node->message->current_message >= temp->message->current_message) {
+                if (temp->right != NULL)
+                    temp = get_min_right(temp->right);
+                else {
+                    while (node->message->current_message >= temp->message->current_message)
+                        temp = temp->parent;
+                }
+            }
+            return temp;
+        } else {
+            while (temp->message->number_message < node->message->number_message) {
+                if (temp->parent == NULL)
+                    return NULL;
+                else
+                    temp = temp->parent;
+                return temp;
+            }
+        }
+
+    }
 }

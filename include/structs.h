@@ -27,8 +27,9 @@ typedef struct User {
 
 typedef struct word_list{
     struct word_list *next;
-    char *begin_message;
+    Message *current_message;
     int offset;
+    int number_message;
 } word_list;
 
 typedef struct Dictionary {
@@ -38,6 +39,7 @@ typedef struct Dictionary {
     int amount;
     int length_word;
     int level;
+    int position;
 } Dictionary;
 
 typedef struct Option_tree {
@@ -75,37 +77,58 @@ typedef struct Day_count {
     unsigned int year;
     unsigned int n;
 } Day_count;
-typedef struct Suggestions {
-    char *string;
-    struct Suggestions *next;
-} Suggestions;
 
 typedef struct Settings {
     Color fontcolor;
     Color barcolor;
     Color menucolor;
     Color background;
+    Color highlight_font;
+    Color highlight_back;
     int top_n;
     int empty_lines;
+    int ram_delay;
 } Settings;
 
 union uni {
     int integer;
     char character;
     void *pointer;
+    Dictionary*dict;
 };
 
 typedef struct List {
     struct List *next;
-    union uni item;
+    union uni i;
 } List;
 
+typedef struct Tree {
+    struct Tree *left;
+    struct Tree *right;
+    struct Tree *parent;
+    struct word_list *message;
+} Tree;
+
+typedef struct Message_tree {
+    List *words;
+    Tree *messages;
+} Message_tree;
+
 #include "global.h"
+#include "analyser.h"
 
 Option_tree *create_option(wchar_t *opt, void (*function)(), Option_tree *parent, int n_child, int index);
 
 Day_count *create_day_count(unsigned int day, unsigned int month, unsigned int year, unsigned int n);
 
-List *insert_to_list(void *item, List *node, char type);
+List *insert(void *item, List *node, char type);
+List *pop(List *node);
+int get_list_length(List *list);
+char *get_string_from_list(List *list_string);
+Tree *insert_to_tree(word_list *message, Tree *node, Tree *parent);
+Tree *get_min_right(Tree *node);
+Tree *get_next_item(Tree *node);
+
+void free_list(List *list);
 
 #endif //STRUCTS_H

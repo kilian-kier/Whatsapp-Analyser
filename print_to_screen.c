@@ -213,9 +213,8 @@ void print_date_message() {
     bool input;
     clear_screen();
     init_picture_buffer();
-    printf("\x1b[%dB", y_pos);
+    print_banner();
     foreground_color(global_settings.menucolor);
-    printf("%s\n", "WhatsApp Analyzer\n");
 
     unsigned int day, month, year;
     do {
@@ -228,7 +227,7 @@ void print_date_message() {
                (int) temp->day,
                (int) temp->month, (int) temp->year);
         char *buffer = malloc(9 * sizeof(char));
-        if (get_string(buffer, 9, NULL, 0) == NULL)
+        if (get_string(buffer, 9, NULL) == NULL)
             return;
         if (sscanf(buffer, "%d.%d.%d", &day, &month, &year) != 3) {
             input = false;
@@ -290,29 +289,28 @@ void print_user_message() {
     }
 
     //Create Array with Names
-    temp=global_first_user;
-    char*name_array[i+1];
-    for(int j=0;j<i;j++){
-        name_array[j]=temp->name;
-        temp=temp->next;
+    temp = global_first_user;
+    char *name_array[i + 1];
+    for (int j = 0; j < i; j++) {
+        name_array[j] = temp->name;
+        temp = temp->next;
     }
-    name_array[i]=NULL;
-    merge_sort(name_array,i,0,'n');
+    name_array[i] = NULL;
+    merge_sort(name_array, i, 0, 'n');
 
-    for(int j=0;j<i;j++){
+    for (int j = 0; j < i; j++) {
         print_to_buffer(name_array[j], 0, j, global_settings.fontcolor, global_settings.background);
     }
     draw_picture_buffer();
 
-    printf("\x1b[%dB", y_pos);
+    print_banner();
     foreground_color(global_settings.menucolor);
-    printf("%s\n", "WhatsApp Analyzer\n");
 
     char *buf = malloc((max_c + 1) * sizeof(char));
     do {
         input = true;
         printf("  Gib den Namen des Nutzers ein\n  ");
-        if (get_string(buf,max_c+1,(char*)name_array,STRING_ARRAY) == NULL)
+        if (get_string(buf, max_c + 1, (char *) name_array) == NULL)
             return;
         temp = user_exists(buf);
         if (temp == NULL) {
@@ -332,81 +330,131 @@ void print_user_message() {
     }
 }
 
+void print_tree(Tree *node) {
+    if (node == NULL)
+        return;
+    print_tree(node->left);
+    /*printf("%d.%d.%d, %02d:%02d\n", node->message->current_message->day, node->message->current_message->month,
+           node->message->current_message->year, node->message->current_message->hour,
+           node->message->current_message->minute);*/
+    printf("\n%d", node->message->number_message);
+    print_tree(node->right);
+}
+
 void print_word_message() {
+    pthread_join(*(pthread_t *) global_threads[6][0], NULL);
     clear_screen();
     init_picture_buffer();
-
-    printf("\x1b[%dB", y_pos);
+draw_picture_buffer();
+    print_banner();
     foreground_color(global_settings.menucolor);
-    printf("%s\n", "WhatsApp Analyzer\n");
-    char *input = malloc(buffersize);
-    if (get_string(input, buffersize, NULL, 0) == NULL)
-        return;
-    /*fflush(stdin);
-    fgets(input, buffersize, stdin);
-    fflush(stdin);*/
-    Dictionary *word = find_word(input, global_first_word);
-    List *found = NULL;
-    if (word != NULL) {
-        Message *temp = global_first_message;
-        int output_size = 1000;
-        char *output = malloc(output_size * sizeof(char));
-        int i = 0;
-        word_list *words = word->words;
-        while (temp->next != NULL) {
-            if (((temp->user != NULL ? strlen(temp->user) : 1) + (temp->message != NULL ? strlen(temp->message) : 1)) <
-                output_size - 15) {
-                if (strcmp(temp->message, words->begin_message) == 0) {
-                    int x = 0;
-                    sprintf(output, "%d.%d.%d, %02d:%02d - %s: ", (int) temp->day, (int) temp->month,
-                            (int) temp->year,
-                            (int) temp->hour, (int) temp->minute, temp->user);
-                    print_to_buffer(output, x, i, global_settings.fontcolor, global_settings.background);
-                    x += (int)strlen(output);
-                    if (words->offset != 0) {
-                        strncpy(output, temp->message, words->offset);
-                        output[words->offset] = 0;
-                        print_to_buffer(output, x, i, global_settings.fontcolor, global_settings.background);
-                        x += (int)strlen(output);
-                    }
-                    strncpy(output, temp->message + words->offset, word->length_word);
-                    output[word->length_word] = 0;
-                    print_to_buffer(output, x, i, (Color){0, 0, 0}, (Color){0, 255, 255});
-                    x += (int)strlen(output);
-                    strcpy(output, temp->message + words->offset + word->length_word);
-                    print_to_buffer(output, x, i, global_settings.fontcolor, global_settings.background);
-                    found = insert_to_list(&i, found, 'i');
-                    if (words->next != NULL)
-                        words = words->next;
-                } else {
-                    sprintf(output, "%d.%d.%d, %02d:%02d - %s: %s", (int) temp->day, (int) temp->month,
-                            (int) temp->year,
-                            (int) temp->hour, (int) temp->minute, temp->user,
-                            temp->message);
-                    print_to_buffer(output, 0, i, global_settings.fontcolor, global_settings.background);
-                }
-                i++;
-            }
-            temp = temp->next;
-        }
-        draw_picture_buffer();
-        List *list = found;
-        if (list != NULL) {
-            global_current_pos = list->item.integer * (global_settings.empty_lines + 1);
-        }
-        draw_picture_buffer();
-        while (global_input_buffer != '') {
-            if (global_input_buffer == 9) {
-                list = list->next;
-                if (list == NULL)
-                    list = found;
-                global_current_pos = list->item.integer * (global_settings.empty_lines + 1);
-                draw_picture_buffer();
-                global_input_buffer = 0;
-            }
-            Sleep(sync_delay);
-        }
+    Message *temp = global_first_message;
+    int i = 0;
+    char *output = malloc(x_size);
+    while (temp->next != NULL) {
+        sprintf(output, "%d.%d.%d, %02d:%02d - %s: %.*s", (int) temp->day, (int) temp->month,
+                (int) temp->year,
+                (int) temp->hour, (int) temp->minute, temp->user, x_size - 15,
+                temp->message);
+        print_to_buffer(output, 0, i, global_settings.fontcolor, global_settings.background);
+        i++;
+        temp = temp->next;
     }
+    draw_picture_buffer();
+    List *input = NULL;
+    Message_tree *m_tree = malloc(sizeof(Message_tree));
+    Tree *tab = NULL;
+    global_input_buffer = 0;
+    while (global_input_buffer != '') {
+        //global_send_input = true;
+        if (global_send_input == true) {
+            /*if (global_input_buffer == 0)
+                global_input_buffer = 'q';
+            else
+                global_input_buffer = 9;*/
+            /*fflush(stdin);
+            do {
+                global_input_buffer = getchar();
+            } while (global_input_buffer == '\n');
+            fflush(stdin);*/
+            switch (global_input_buffer) {
+                case 0:
+                    global_send_input = false;
+                    break;
+                case 9:
+                    if (tab != NULL)
+                        tab = get_next_item(tab);
+                    if (tab == NULL)
+                        tab = get_min_right(m_tree->messages);
+                    printf("\n\n\n%d", tab->message->number_message);
+                    global_current_pos = tab->message->number_message *
+                                         (global_settings.empty_lines + 1);
+                    draw_picture_buffer();
+                    global_send_input = false;
+                    break;
+                case 8:
+                    if (input != NULL) {
+                        global_send_input = false;
+                        printf(" ");
+                        delete_n_char(2);
+                        input = pop(input);
+                    }
+                    global_send_input = false;
+                default:
+                    if (global_send_input != false) {
+                        printf("%c", global_input_buffer);
+                        if (global_input_buffer >= 65 && global_input_buffer <= 90)
+                            global_input_buffer += 32;
+                        input = insert(&global_input_buffer, input, 'c');
+                        foreground_color(global_settings.menucolor);
+                    }
+                    char *string = get_string_from_list(input);
+                    m_tree->words = NULL;
+                    m_tree->words = insert(string, m_tree->words, 'p');
+                    m_tree->messages = NULL;
+                    char *token = strtok(string, " ");
+                    m_tree->messages = find_word(global_first_word, token, m_tree->messages);
+                    while ((token = strtok(NULL, " ")) != NULL) {
+                        //function
+                    }
+                    temp = global_first_message;
+                    i = 0;
+                    while (temp->next != NULL) {
+                        sprintf(output, "%02d.%02d.%02d, %02d:%02d - %s: %.*s", (int) temp->day, (int) temp->month,
+                                (int) temp->year,
+                                (int) temp->hour, (int) temp->minute, temp->user, x_size - 15,
+                                temp->message);
+                        print_to_buffer(output, 0, i, global_settings.fontcolor, global_settings.background);
+                        i++;
+                        temp = temp->next;
+                    }
+                    global_current_pos = 0;
+                    highlight_words(m_tree->messages, string);
+                    draw_picture_buffer();
+                    free(string);
+                    global_send_input = false;
+                    break;
+            }
+        } else
+            Sleep(sync_delay);
+    }
+    free(output);
+}
+
+void highlight_words(Tree *node, const char *input) {
+    if (node == NULL)
+        return;
+    highlight_words(node->left, input);
+
+    int user_len = 0;
+    if (node->message->current_message->user != NULL)
+        user_len = (int) strlen(node->message->current_message->user);
+    print_to_buffer(input, node->message->offset + 20 + user_len, node->message->number_message,
+                    global_settings.highlight_font, global_settings.highlight_back);
+    if (global_current_pos == 0)
+        global_current_pos = node->message->number_message * (global_settings.empty_lines + 1);
+
+    highlight_words(node->right, input);
 }
 
 void print_settings_example() {
@@ -414,8 +462,8 @@ void print_settings_example() {
     print_to_buffer("Max Mustermann", 0, 0, global_settings.fontcolor, global_settings.background);
     print_to_buffer("Erika Musterfrau", 0, 1, global_settings.fontcolor, global_settings.background);
     print_to_buffer("Otto Normalverbraucher", 0, 2, global_settings.fontcolor, global_settings.background);
-    draw_rect(24, 0, (int)(x_size * 0.95 - 26), 1, 1, 0);
-    draw_rect(24, 1, (int)(x_size * 0.55 - 26), 1, 1, 0);
-    draw_rect(24, 2, (int)(x_size * 0.33 - 26), 1, 1, 0);
+    draw_rect(24, 0, (int) (x_size * 0.95 - 26), 1, 1, 0);
+    draw_rect(24, 1, (int) (x_size * 0.55 - 26), 1, 1, 0);
+    draw_rect(24, 2, (int) (x_size * 0.33 - 26), 1, 1, 0);
     draw_picture_buffer();
 }

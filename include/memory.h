@@ -7,6 +7,10 @@
 void free_messages(Message *ptr);
 void free_users(User *ptr);
 void free_dictionary(Dictionary *ptr);
+void free_tree(Tree *node);
 void free_memory();
+
+void run_memory_thread();
+void *memory_thread();
 
 #endif //INFORMATIK_PROJEKT_MEMORY_H
