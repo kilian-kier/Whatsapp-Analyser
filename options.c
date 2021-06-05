@@ -10,8 +10,8 @@ void opt0() {
 }
 
 void opt1() {
-    file = fopen(get_file_name(), "rb");
-    //file = fopen("E:\\Desktop\\Schule\\Informatik\\Whatsapp-Analyser - Kopie\\chats\\WhatsApp Chat mit 3BT.txt", "rb");
+    //file = fopen(get_file_name(), "rb");
+    file = fopen("E:\\Desktop\\Schule\\Informatik\\Whatsapp-Analyser - Kopie\\chats\\WhatsApp Chat mit 3BT.txt", "rb");
     if (file != NULL)
         pthread_create((pthread_t *)global_threads[0][0], NULL, (void *)global_threads[0][1], NULL);
 }

@@ -343,9 +343,10 @@ void print_tree(Tree *node) {
 
 void print_word_message() {
     pthread_join(*(pthread_t *) global_threads[6][0], NULL);
+    pthread_join(*(pthread_t *) global_threads[0][0], NULL);
     clear_screen();
     init_picture_buffer();
-draw_picture_buffer();
+    draw_picture_buffer();
     print_banner();
     foreground_color(global_settings.menucolor);
     Message *temp = global_first_message;
@@ -363,11 +364,14 @@ draw_picture_buffer();
     draw_picture_buffer();
     List *input = NULL;
     Message_tree *m_tree = malloc(sizeof(Message_tree));
+    m_tree->words = NULL;
+    m_tree->messages = NULL;
     Tree *tab = NULL;
     global_input_buffer = 0;
     while (global_input_buffer != '') {
         //global_send_input = true;
         if (global_send_input == true) {
+            //global_input_buffer = 'd';
             /*if (global_input_buffer == 0)
                 global_input_buffer = 'q';
             else
@@ -386,7 +390,6 @@ draw_picture_buffer();
                         tab = get_next_item(tab);
                     if (tab == NULL)
                         tab = get_min_right(m_tree->messages);
-                    printf("\n\n\n%d", tab->message->number_message);
                     global_current_pos = tab->message->number_message *
                                          (global_settings.empty_lines + 1);
                     draw_picture_buffer();
@@ -401,22 +404,6 @@ draw_picture_buffer();
                     }
                     global_send_input = false;
                 default:
-                    if (global_send_input != false) {
-                        printf("%c", global_input_buffer);
-                        if (global_input_buffer >= 65 && global_input_buffer <= 90)
-                            global_input_buffer += 32;
-                        input = insert(&global_input_buffer, input, 'c');
-                        foreground_color(global_settings.menucolor);
-                    }
-                    char *string = get_string_from_list(input);
-                    m_tree->words = NULL;
-                    m_tree->words = insert(string, m_tree->words, 'p');
-                    m_tree->messages = NULL;
-                    char *token = strtok(string, " ");
-                    m_tree->messages = find_word(global_first_word, token, m_tree->messages);
-                    while ((token = strtok(NULL, " ")) != NULL) {
-                        //function
-                    }
                     temp = global_first_message;
                     i = 0;
                     while (temp->next != NULL) {
@@ -428,8 +415,32 @@ draw_picture_buffer();
                         i++;
                         temp = temp->next;
                     }
+                    if (global_send_input != false) {
+                        printf("%c", global_input_buffer);
+                        if (global_input_buffer >= 65 && global_input_buffer <= 90)
+                            global_input_buffer += 32;
+                        input = insert(&global_input_buffer, input, 'c');
+                        foreground_color(global_settings.menucolor);
+                    }
+                    if (input == NULL) {
+                        draw_picture_buffer();
+                        continue;
+                    }
+                    char *string = get_string_from_list(input);
+                    free_tree(m_tree->messages);
+                    m_tree->words = NULL;
+                    m_tree->words = insert(string, m_tree->words, 'p');
+                    m_tree->messages = NULL;
+                    char *token = strtok(string, " ");
+                    m_tree->messages = find_word(global_first_word, token, m_tree->messages);
+                    while ((token = strtok(NULL, " ")) != NULL) {
+                        //function
+                    }
                     global_current_pos = 0;
-                    highlight_words(m_tree->messages, string);
+                    highlight_words(m_tree->messages, m_tree->words);
+                    tab = m_tree->messages;
+                    while (tab->left != NULL)
+                        tab = tab->left;
                     draw_picture_buffer();
                     free(string);
                     global_send_input = false;
@@ -441,16 +452,32 @@ draw_picture_buffer();
     free(output);
 }
 
-void highlight_words(Tree *node, const char *input) {
+void highlight_words(Tree *node, List *input) {
     if (node == NULL)
         return;
     highlight_words(node->left, input);
 
-    int user_len = 0;
+    int user_len = 0, offset;
     if (node->message->current_message->user != NULL)
         user_len = (int) strlen(node->message->current_message->user);
-    print_to_buffer(input, node->message->offset + 20 + user_len, node->message->number_message,
-                    global_settings.highlight_font, global_settings.highlight_back);
+    List *temp_input = input;
+    List *temp_offset;
+    while (temp_input != NULL) {
+        char *string = (char *) temp_input->i.pointer;
+        int string_len = (int) strlen(string);
+        temp_offset = (List *) node->offsets->i.pointer;
+        while (temp_offset != NULL) {
+            offset = temp_offset->i.integer;
+            if (offset < x_size - 20 - user_len && true_highlight(node->message->current_message->message, offset) == true)
+                change_color(string_len, 1, offset + 20 + user_len, node->message->number_message,
+                             global_settings.highlight_font, global_settings.highlight_back);
+            temp_offset = temp_offset->next;
+        }
+        temp_input = temp_input->next;
+        if (node->offsets->next != NULL)
+            temp_offset = (List *) node->offsets->next->i.pointer;
+    }
+
     if (global_current_pos == 0)
         global_current_pos = node->message->number_message * (global_settings.empty_lines + 1);
 

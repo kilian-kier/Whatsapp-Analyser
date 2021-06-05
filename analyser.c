@@ -157,3 +157,11 @@ int check_date(unsigned int day1, unsigned int month1, unsigned int year1, unsig
     else
         return 1;
 }
+
+bool true_highlight(const char *string, int offset) {
+    for (int i = 0; i < offset; i++) {
+        if (string[i] == '\n' || string[i] == '\r' || string[i] == '\0')
+            return false;
+    }
+    return true;
+}
