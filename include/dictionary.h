@@ -25,7 +25,10 @@ Tree * find_word(Dictionary *tree_node, const char *string, Tree *ret);
 
 bool check_word(Dictionary *tree_node, const char *string);
 int find_most_word(int most,Dictionary*ptr);
-char*get_string_tree(char *string, int size, char *pointer);
+Dictionary*get_string_tree(char *string, int size, char *pointer);
+List* get_suggestions_from_dict_tree(Dictionary*ptr , List*suggestions, char*search);
+Dictionary* find_similar_in_tree(Dictionary*ptr, char*search);
+Dictionary* find_in_tree(Dictionary*ptr, char*search);
 
 Dictionary *rearange_word(Dictionary*new_dict,Dictionary *dict,char type);
 Dictionary *rearange_tree(Dictionary*new_dict,Dictionary*dict,char type);

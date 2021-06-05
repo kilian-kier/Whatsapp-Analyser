@@ -50,6 +50,7 @@ typedef struct Option_tree {
     struct Option_tree *parent;
     int n_child;
     struct Option_tree **children;
+    int settings;
 } Option_tree;
 
 typedef struct Color {
@@ -117,9 +118,9 @@ typedef struct Message_tree {
 #include "global.h"
 #include "analyser.h"
 
-Option_tree *create_option(wchar_t *opt, void (*function)(), Option_tree *parent, int n_child, int index);
+Option_tree *create_option(wchar_t *opt, void (*function)(), Option_tree *parent, int n_child, int index,int settings);
 
-Day_count *create_day_count(unsigned int day, unsigned int month, unsigned int year, unsigned int n);
+        Day_count *create_day_count(unsigned int day, unsigned int month, unsigned int year, unsigned int n);
 
 List *insert(void *item, List *node, char type);
 List *pop(List *node);
@@ -129,6 +130,6 @@ Tree *insert_to_tree(word_list *message, Tree *node, Tree *parent);
 Tree *get_min_right(Tree *node);
 Tree *get_next_item(Tree *node);
 
-void free_list(List *list);
+List* free_list(List *list);
 
 #endif //STRUCTS_H
