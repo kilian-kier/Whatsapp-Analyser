@@ -17,7 +17,7 @@ void print_month();
 void print_day();
 void print_date_message();
 void print_user_message();
-void print_word_message();
+void print_word_message(const char *input_string);
 void print_settings_example();
 void highlight_words(Tree *node, List *input);
 
