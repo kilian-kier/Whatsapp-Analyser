@@ -80,7 +80,7 @@ void main_menu() {
 
     temp = option_root;
     temp->function();
-    int x;
+    int x = 0;
 
     run_input_thread();
     //run_memory_thread();
@@ -88,8 +88,12 @@ void main_menu() {
 
         printf("\x1b[%dB", y_pos);
         x = menu(1, temp);
-        //scanf("%d", &x);
-        //fflush(stdin);
+        /*scanf("%d", &x);
+        fflush(stdin);*/
+        /*if (x == 0)
+            x = 1;
+        else
+            x = 3;*/
         if (x == 0) {
             Option_tree *temp2=temp;
             if(!(temp2->settings & DONT_INIT_BUFFER)){

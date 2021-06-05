@@ -34,5 +34,7 @@ User *user_exists(char *username);
 
 int check_date(unsigned int day1, unsigned int month1, unsigned int year1, unsigned int day2, unsigned int month2, unsigned int year2);
 
+bool true_highlight(const char *string, int offset);
+
 #endif //ANALYSER_H
 
