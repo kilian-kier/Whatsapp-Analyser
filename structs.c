@@ -81,6 +81,10 @@ char *get_string_from_list(List *list_string) {
 Tree *insert_to_tree(word_list *message, Tree *node, Tree *parent) {
     if (node == NULL) {
         node = malloc(sizeof(Tree));
+        List *offsets = NULL;
+        offsets = insert(&message->offset, offsets, 'i');
+        node->offsets = NULL;
+        node->offsets = insert(offsets, node->offsets, 'p');
         node->message = message;
         node->parent = parent;
         node->left = NULL;
@@ -88,10 +92,10 @@ Tree *insert_to_tree(word_list *message, Tree *node, Tree *parent) {
         return node;
     }
     if (message->number_message == node->message->number_message) {
-        if (message->offset < node->message->offset)
-            node->left = insert_to_tree(message, node->left, node);
-        else
-            node->right = insert_to_tree(message, node->right, node);
+        List *temp = (List *) node->offsets->item.pointer;
+        temp = insert(&message->offset, temp, 'i');
+        node->offsets->item.pointer = temp;
+        return node;
     } else if (message->number_message < node->message->number_message)
         node->left = insert_to_tree(message, node->left, node);
     else
@@ -107,35 +111,15 @@ Tree *get_min_right(Tree *node) {
 
 Tree *get_next_item(Tree *node) {
     if (node->right != NULL) {
-        Tree *temp = get_min_right(node->right);
-        if (node->message->current_message == temp->message->current_message) {
-            if (temp->message->offset > node->message->offset)
-                return get_next_item(temp);
-            else {
-                return get_next_item(node->right);
-            }
-        } else
-            return temp;
+        return get_min_right(node->right);
     } else {
         Tree *temp = node->parent;
-        if (node->message->current_message == temp->message->current_message) {
-            while (node->message->current_message >= temp->message->current_message) {
-                if (temp->right != NULL)
-                    temp = get_min_right(temp->right);
-                else {
-                    while (node->message->current_message >= temp->message->current_message)
-                        temp = temp->parent;
-                }
-            }
+        while (temp->message->number_message < node->message->number_message) {
+            if (temp->parent == NULL)
+                return NULL;
+            else
+                temp = temp->parent;
             return temp;
-        } else {
-            while (temp->message->number_message < node->message->number_message) {
-                if (temp->parent == NULL)
-                    return NULL;
-                else
-                    temp = temp->parent;
-                return temp;
-            }
         }
 
     }

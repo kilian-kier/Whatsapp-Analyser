@@ -104,11 +104,17 @@ typedef struct List {
     union uni item;
 } List;
 
+typedef struct Message_list {
+    word_list *message;
+    List *offsets;
+} Message_list;
+
 typedef struct Tree {
     struct Tree *left;
     struct Tree *right;
     struct Tree *parent;
-    struct word_list *message;
+    word_list *message;
+    List *offsets;
 } Tree;
 
 typedef struct Message_tree {

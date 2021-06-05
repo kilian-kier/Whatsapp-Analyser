@@ -366,11 +366,14 @@ void print_word_message() {
     draw_picture_buffer();
     List *input = NULL;
     Message_tree *m_tree = malloc(sizeof(Message_tree));
+    m_tree->words = NULL;
+    m_tree->messages = NULL;
     Tree *tab = NULL;
     global_input_buffer = 0;
     while (global_input_buffer != '') {
         //global_send_input = true;
         if (global_send_input == true) {
+            //global_input_buffer = 'd';
             /*if (global_input_buffer == 0)
                 global_input_buffer = 'q';
             else
@@ -404,22 +407,6 @@ void print_word_message() {
                     }
                     global_send_input = false;
                 default:
-                    if (global_send_input != false) {
-                        printf("%c", global_input_buffer);
-                        if (global_input_buffer >= 65 && global_input_buffer <= 90)
-                            global_input_buffer += 32;
-                        input = insert(&global_input_buffer, input, 'c');
-                        foreground_color(global_settings.menucolor);
-                    }
-                    char *string = get_string_from_list(input);
-                    m_tree->words = NULL;
-                    m_tree->words = insert(string, m_tree->words, 'p');
-                    m_tree->messages = NULL;
-                    char *token = strtok(string, " ");
-                    m_tree->messages = find_word(global_first_word, token, m_tree->messages);
-                    while ((token = strtok(NULL, " ")) != NULL) {
-                        //function
-                    }
                     temp = global_first_message;
                     i = 0;
                     while (temp->next != NULL) {
@@ -431,8 +418,29 @@ void print_word_message() {
                         i++;
                         temp = temp->next;
                     }
+                    if (global_send_input != false) {
+                        printf("%c", global_input_buffer);
+                        if (global_input_buffer >= 65 && global_input_buffer <= 90)
+                            global_input_buffer += 32;
+                        input = insert(&global_input_buffer, input, 'c');
+                        foreground_color(global_settings.menucolor);
+                    }
+                    if (input == NULL) {
+                        draw_picture_buffer();
+                        continue;
+                    }
+                    char *string = get_string_from_list(input);
+                    free_tree(m_tree->messages);
+                    m_tree->words = NULL;
+                    m_tree->words = insert(string, m_tree->words, 'p');
+                    m_tree->messages = NULL;
+                    char *token = strtok(string, " ");
+                    m_tree->messages = find_word(global_first_word, token, m_tree->messages);
+                    while ((token = strtok(NULL, " ")) != NULL) {
+                        //function
+                    }
                     global_current_pos = 0;
-                    highlight_words(m_tree->messages, string);
+                    highlight_words(m_tree->messages, m_tree->words);
                     draw_picture_buffer();
                     free(string);
                     global_send_input = false;
@@ -444,16 +452,30 @@ void print_word_message() {
     free(output);
 }
 
-void highlight_words(Tree *node, const char *input) {
+void highlight_words(Tree *node, List *input) {
     if (node == NULL)
         return;
-    highlight_words(node->left, input);
+    highlight_words(node->left, NULL);
 
-    int user_len = 0;
+    int user_len = 0, offset = 0;
     if (node->message->current_message->user != NULL)
         user_len = (int) strlen(node->message->current_message->user);
-    print_to_buffer(input, node->message->offset + 20 + user_len, node->message->number_message,
-                    global_settings.highlight_font, global_settings.highlight_back);
+    List *temp_input = input;
+    while (temp_input != NULL) {
+        char *string = (char *) temp_input->item.pointer;
+        List *temp_offset = (List *) node->offsets->item.pointer;
+        while (temp_offset != NULL) {
+            offset = temp_offset->item.integer;
+            if (offset < x_size - 20 - user_len)
+                print_to_buffer(string, offset + 20 + user_len, node->message->number_message,
+                                global_settings.highlight_font, global_settings.highlight_back);
+            temp_offset = temp_offset->next;
+        }
+        temp_input = temp_input->next;
+        if (node->offsets->next != NULL)
+            temp_offset = (List *) node->offsets->next->item.pointer;
+    }
+
     if (global_current_pos == 0)
         global_current_pos = node->message->number_message * (global_settings.empty_lines + 1);
 
