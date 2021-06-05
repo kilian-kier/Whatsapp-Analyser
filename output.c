@@ -42,7 +42,9 @@ int print_point(int x,int y, wchar_t c, Color *foreground, Color *background){
    if(background!=NULL){
        current->buffer[newy][x].background=*background;
    }
-   current->buffer[newy][x].character=c;
+   if(c!=0){
+       current->buffer[newy][x].character=c;
+   }
    return 0;
 }
 Console_buffer *create_console_buffer(){
@@ -96,8 +98,15 @@ void init_console_buffer( Console_buffer *buffer){
         }
     }
 }
-
-void print_to_buffer(const char *string, int xpos, int ypos, Color foreground, Color background) {
+void change_color(int xsize, int ysize,int xpos,int ypos,Color foreground, Color background){
+    for(int y=0;y<ysize;y++){
+        for(int x=0;x<xsize;x++){
+            print_point(xpos+x,ypos+y,0,&foreground,&background);
+        }
+    }
+    return;
+}
+int print_to_buffer(const char *string, int xpos, int ypos, Color foreground, Color background) {
     ypos = ypos * (global_settings.empty_lines + 1);
     static int y = 0;
     static int x = 0;
@@ -107,10 +116,12 @@ void print_to_buffer(const char *string, int xpos, int ypos, Color foreground, C
     if (ypos >= 0) {
         y = ypos;
     }
+    int y_temp=y;
+
     int to_print = (int)strlen(string);
     for (int i = 0; i < to_print; i++) {
         if (string[i] == '\n') {
-            y++;
+            y+=global_settings.empty_lines+1;
             if (xpos > 0) {
                 x = xpos;
             } else {
@@ -118,9 +129,10 @@ void print_to_buffer(const char *string, int xpos, int ypos, Color foreground, C
             }
             continue;
         }
-        print_point(x,y,string[i],&foreground,&background);
+            print_point(x,y,string[i],&foreground,&background);
         x++;
     }
+    return y_temp;
 }
 
 void draw_rect(int xpos, int ypos, int xsize, int ysize, bool fill, bool layer) {
@@ -236,6 +248,7 @@ void draw_picture_buffer() {
     int bb;
     char c;
 
+    printf("\x1b[s");
     int page= global_current_pos / y_size;
     int offset= global_current_pos % y_size;
     int newy;
@@ -258,10 +271,12 @@ void draw_picture_buffer() {
                 br = temp->buffer[newy][x].background.r;
                 bg = temp->buffer[newy][x].background.g;
                 bb = temp->buffer[newy][x].background.b;
-                if (br == 0 && bg == 0 && bb == 0)
+                if (br == 0 && bg == 0 && bb == 0) {
                     background_color(global_settings.background);
-                else
+                }
+                else {
                     background_color((Color){br, bg, bb});
+                }
             }
             if (temp->buffer[newy][x].foreground.r != br || temp->buffer[newy][x].foreground.g != bg ||
                 temp->buffer[newy][x].foreground.b != bb) {
@@ -290,7 +305,7 @@ void draw_picture_buffer() {
     fflush(stdout);
     foreground_color(global_settings.fontcolor);
     printf("\x1b[2E            \x1b[12DP[%d | %d]",page+1, global_page_count);
-    printf("\x1b[H");
+    printf("\x1b[u");
     setvbuf(stdout, NULL, _IONBF, 0);
     SetConsoleCursorPosition(hStdout,bufferInfo.dwCursorPosition);
 }
@@ -305,4 +320,12 @@ void foreground_color(Color color) {
 
 void background_color(Color color) {
     printf("\x1b[48;2;%d;%d;%dm", color.r, color.g, color.b);
+}
+
+void print_banner(){
+    printf("\x1b[%dB", y_pos);
+        foreground_color(global_settings.menucolor);
+        printf("%s\n", "WhatsApp Analyzer\n");
+        foreground_color(white);
+        return;
 }

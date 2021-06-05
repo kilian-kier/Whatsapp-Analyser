@@ -4,6 +4,7 @@
 #include "main.h"
 #include "global.h"
 #include "structs.h"
+#include "input.h"
 
 void *create_dictionary();
 int check_char(char c);
@@ -24,6 +25,7 @@ Tree * find_word(Dictionary *tree_node, const char *string, Tree *ret);
 
 bool check_word(Dictionary *tree_node, const char *string);
 int find_most_word(int most,Dictionary*ptr);
+char*get_string_tree(char *string, int size, char *pointer);
 
 Dictionary *rearange_word(Dictionary*new_dict,Dictionary *dict,char type);
 Dictionary *rearange_tree(Dictionary*new_dict,Dictionary*dict,char type);

@@ -36,13 +36,17 @@ void dictionary_main(char sort) {
         print_dictionary(global_first_word, stat_reverse);
     }
 }
+void dictionary_select(){
 
-void dictionary_select() {
-    global_arrow_keys = 's';
     clear_screen();
     draw_picture_buffer();
 
-    global_arrow_keys = 0;
+    char buffer[100];
+    print_banner();
+    foreground_color(global_settings.menucolor);
+
+    get_string_tree(buffer,100,(char*)global_first_word);
+
 }
 
 int relative_word_count(Dictionary *ptr) {
@@ -88,6 +92,153 @@ int find_most_word(int most, Dictionary *ptr) {
     return most;
 }
 
+char *get_string_tree(char *string, int size, char *pointer) {
+    global_arrow_keys = 's';
+
+    int i = 0, j = 0;
+    global_input_buffer = 0;
+    global_send_input = false;
+
+    List *suggestions = NULL;
+    List *temp_suggestions = NULL;
+    Dictionary *last_suggestion = NULL;
+    bool changed_string = true;
+
+    printf("   ");
+    string[0]=0;
+    while (global_input_buffer != 13 && global_input_buffer != '\n') {
+        if (j % 66 < 33) {
+            cursor_blink(true, i);
+        } else {
+            cursor_blink(false, i);
+        }
+
+        if (global_send_input == true) {
+            if (global_input_buffer < 256) {
+                switch (global_input_buffer) {
+                    case 10:
+                    case 13:
+                        break;
+                    case 8:
+                        if (i > 0) {
+                            global_send_input = false;
+                            printf(" ");
+                            delete_n_char(2);
+                            i--;
+                            string[i] = 0;
+                        }
+                        break;
+                    case '':
+                        return NULL;
+                    case 9:
+                        if(string[0]!=0) {
+                            if (pointer != NULL) {
+                                if (changed_string) {
+                                    free_list(suggestions);
+                                    List tmp;
+                                    tmp.next = NULL;
+                                    get_suggestions_from_dict_tree(global_first_word, &tmp, string);
+                                    suggestions = tmp.next;
+                                    temp_suggestions = suggestions;
+                                    changed_string = false;
+                                }
+                                if (suggestions != NULL) {
+                                    if (temp_suggestions == NULL) {
+                                        temp_suggestions = suggestions;
+                                    }
+                                    strncpy(string, temp_suggestions->i.dict->words->current_message->message +
+                                                    temp_suggestions->i.dict->words->offset,
+                                            temp_suggestions->i.dict->length_word);
+                                    string[temp_suggestions->i.dict->length_word] = 0;
+                                    global_current_pos = temp_suggestions->i.dict->position;
+                                    draw_picture_buffer();
+                                    foreground_color(global_settings.menucolor);
+                                    printf(" ");
+                                    delete_n_char(i + 1);
+                                    i = strlen(string);
+                                    printf("%s", string);
+                                    temp_suggestions = temp_suggestions->next;
+                                }
+                                global_send_input = false;
+                            }
+                        }
+                        break;
+                    default:
+                        string[i] = global_input_buffer;
+                        printf("%c", string[i]);
+                        global_send_input = false;
+                        if (i < size) {
+                            i++;
+                            string[i] = 0;
+                        } else {
+                            break;
+                        }
+                        changed_string = true;
+                        break;
+                }
+                if(string[0]!=0) {
+                    Dictionary *suggestion = find_in_tree(global_first_word, string);
+                    if (suggestion != NULL && suggestion != last_suggestion) {
+                        global_current_pos = suggestion->position;
+                        if (last_suggestion != NULL) {
+                            change_color(last_suggestion->length_word,1,0,last_suggestion->position,global_settings.fontcolor, global_settings.background);
+                        }
+                        change_color(suggestion->length_word,1,0,suggestion->position,global_settings.highlight_font, global_settings.highlight_back);
+                        draw_picture_buffer();
+                        last_suggestion = suggestion;
+                        foreground_color(global_settings.menucolor);
+                    }
+                }else{
+                    global_current_pos = 0;
+                    if (last_suggestion != NULL) {
+                        change_color(last_suggestion->length_word,1,0,last_suggestion->position,global_settings.fontcolor, global_settings.background);
+                        draw_picture_buffer();
+                        foreground_color(global_settings.menucolor);
+                    }
+                }
+            }else {
+                global_input_buffer-=256;
+                switch(global_input_buffer){
+                    case key_right:
+                            if (global_current_pos < global_page_count * y_size - y_size) {
+                                global_current_pos++;
+                                draw_picture_buffer();
+                            }
+                        break;
+                    case key_left:
+                            if (global_current_pos > 0) {
+                                global_current_pos--;
+                                draw_picture_buffer();
+                            }
+                            break;
+                    case key_up:
+                            if (global_current_pos - y_size > 0) {
+                                global_current_pos -= y_size;
+                                draw_picture_buffer();
+                            }
+                        break;
+                    case key_down:
+                            if (global_current_pos + y_size < global_page_count * y_size - y_size + 1) {
+                                global_current_pos += y_size;
+                                draw_picture_buffer();
+                            }
+                        break;
+                }
+                foreground_color(global_settings.menucolor);
+                global_input_buffer=0;
+                global_send_input=false;
+            }
+        }
+        j++;
+        Sleep(sync_delay / 2);
+    }
+    free_list(suggestions);
+    string[i] = 0;
+    global_arrow_keys = 0;
+    return string;
+}
+
+
 Dictionary *rearange_tree(Dictionary *new_dict, Dictionary *dict, char type) {
     if (dict == NULL)return new_dict;
     new_dict = rearange_tree(new_dict, dict->left, type);
@@ -106,10 +257,10 @@ Dictionary *rearange_word(Dictionary *new_dict, Dictionary *dict, char type) {
      } else {
          switch(type) {
              case 'A':
-              if (strncmp(dict->words->current_message->message + dict->words->offset, new_dict->words->current_message->message + new_dict->words->offset,(dict->length_word < new_dict->length_word) ? dict->length_word: new_dict->length_word) < 0) {
+              if (strncmp(dict->words->current_message->message + dict->words->offset, new_dict->words->current_message->message + new_dict->words->offset,(dict->length_word < new_dict->length_word) ? dict->length_word: new_dict->length_word) > 0) {
                   new_dict->left = rearange_word(new_dict->left,dict,type);
               }
-             else if (strncmp(dict->words->current_message->message + dict->words->offset, new_dict->words->current_message->message + new_dict->words->offset,(dict->length_word < new_dict->length_word) ? dict->length_word : new_dict->length_word) >0) {
+             else {
                   new_dict->right = rearange_word(new_dict->right,dict,type);
               }
              break;
@@ -148,25 +299,25 @@ Dictionary *rearange_word(Dictionary *new_dict, Dictionary *dict, char type) {
              }
              break;
          case 'l':
-             if (balance > 1 && new_dict->length_word < new_dict->left->length_word) return right_rotate(new_dict);
-             if (balance < -1 && new_dict->length_word > new_dict->right->length_word) return left_rotate(new_dict);
-             if (balance > 1 && new_dict->length_word > new_dict->left->length_word) {
+             if (balance > 1 && new_dict->length_word <= new_dict->left->length_word) return right_rotate(new_dict);
+             if (balance < -1 && new_dict->length_word >= new_dict->right->length_word) return left_rotate(new_dict);
+             if (balance > 1 && new_dict->length_word >= new_dict->left->length_word) {
                  new_dict->left = left_rotate(new_dict->left);
                  return right_rotate(new_dict);
              }
-             if (balance < -1 &&  new_dict->length_word < new_dict->right->length_word) {
+             if (balance < -1 &&  new_dict->length_word <= new_dict->right->length_word) {
                  new_dict->right = right_rotate(new_dict->right);
                  return left_rotate(new_dict);
              }
              break;
          case 'a':
-             if (balance > 1 && new_dict->amount < new_dict->left->amount) return right_rotate(new_dict);
-             if (balance < -1 && new_dict->amount>new_dict->right->amount) return left_rotate(new_dict);
-             if (balance > 1 && new_dict->amount > new_dict->left->amount) {
+             if (balance > 1 && new_dict->amount <= new_dict->left->amount) return right_rotate(new_dict);
+             if (balance < -1 && new_dict->amount>=new_dict->right->amount) return left_rotate(new_dict);
+             if (balance > 1 && new_dict->amount >= new_dict->left->amount) {
                  new_dict->left = left_rotate(new_dict->left);
                  return right_rotate(new_dict);
              }
-             if (balance < -1 &&  new_dict->amount<new_dict->right->amount) {
+             if (balance < -1 &&  new_dict->amount<=new_dict->right->amount) {
                  new_dict->right = right_rotate(new_dict->right);
                  return left_rotate(new_dict);
              }
@@ -304,6 +455,7 @@ void print_dictionary(Dictionary *ptr, bool reverse) {
     }
     if(ptr->length_word>x_size-10){
         strncpy(buffer, ptr->words->current_message->message + ptr->words->offset, x_size-10);
+        strncpy(buffer, ptr->words->current_message->message + ptr->words->offset, x_size-10);
         strcpy(&buffer[x_size-10],"..");
         buffer[x_size-8]=0;
     }else{
@@ -311,7 +463,7 @@ void print_dictionary(Dictionary *ptr, bool reverse) {
         buffer[ptr->length_word] = '\0';
     }
     sprintf(buffer2,"%s %d\n",buffer,ptr->amount);
-    print_to_buffer(buffer2, -1, -1, global_settings.fontcolor, global_settings.background);
+    ptr->position = print_to_buffer(buffer2, -1, -1, global_settings.fontcolor, global_settings.background);
     if(reverse){
         print_dictionary(ptr->left,reverse);
     }else{

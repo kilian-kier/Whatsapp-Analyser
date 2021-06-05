@@ -213,9 +213,8 @@ void print_date_message() {
     bool input;
     clear_screen();
     init_picture_buffer();
-    printf("\x1b[%dB", y_pos);
+    print_banner();
     foreground_color(global_settings.menucolor);
-    printf("%s\n", "WhatsApp Analyzer\n");
 
     unsigned int day, month, year;
     do {
@@ -228,7 +227,7 @@ void print_date_message() {
                (int) temp->day,
                (int) temp->month, (int) temp->year);
         char *buffer = malloc(9 * sizeof(char));
-        if (get_string(buffer, 9, NULL, 0) == NULL)
+        if (get_string(buffer, 9, NULL) == NULL)
             return;
         if (sscanf(buffer, "%d.%d.%d", &day, &month, &year) != 3) {
             input = false;
@@ -304,15 +303,14 @@ void print_user_message() {
     }
     draw_picture_buffer();
 
-    printf("\x1b[%dB", y_pos);
+    print_banner();
     foreground_color(global_settings.menucolor);
-    printf("%s\n", "WhatsApp Analyzer\n");
 
     char *buf = malloc((max_c + 1) * sizeof(char));
     do {
         input = true;
         printf("  Gib den Namen des Nutzers ein\n  ");
-        if (get_string(buf, max_c + 1, (char *) name_array, STRING_ARRAY) == NULL)
+        if (get_string(buf, max_c + 1, (char *) name_array) == NULL)
             return;
         temp = user_exists(buf);
         if (temp == NULL) {
@@ -347,10 +345,9 @@ void print_word_message() {
     pthread_join(*(pthread_t *) global_threads[6][0], NULL);
     clear_screen();
     init_picture_buffer();
-    draw_picture_buffer();
-    printf("\x1b[%dB", y_pos);
+draw_picture_buffer();
+    print_banner();
     foreground_color(global_settings.menucolor);
-    printf("%s\n", "WhatsApp Analyzer\n");
     Message *temp = global_first_message;
     int i = 0;
     char *output = malloc(x_size);
