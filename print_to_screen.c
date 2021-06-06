@@ -285,7 +285,6 @@ void print_date_message() {
     printf("%p", output);
     free(output);
     draw_picture_buffer();
-    //TODO Suchalgorithmus fos Datum
 }
 
 void print_user_message() {
@@ -362,10 +361,12 @@ void print_all_messages() {
         }
         temp = temp->next;
     }
+    free(output);
     draw_picture_buffer();
 }
 
 void print_word_message(const char *input_string) {
+    global_arrow_keys='s';
     pthread_join(*(pthread_t *) global_threads[0][0], NULL);
     pthread_join(*(pthread_t *) global_threads[6][0], NULL);
     clear_screen();
@@ -485,11 +486,44 @@ void print_word_message(const char *input_string) {
                     global_send_input = false;
                     break;
             }
+            }else {
+            global_input_buffer -= 256;
+            switch (global_input_buffer) {
+                case key_right:
+                    if (global_current_pos < global_page_count * y_size - y_size) {
+                        global_current_pos++;
+                        draw_picture_buffer();
+                    }
+                    break;
+                case key_left:
+                    if (global_current_pos > 0) {
+                        global_current_pos--;
+                        draw_picture_buffer();
+                    }
+                    break;
+                case key_up:
+                    if (global_current_pos - y_size > 0) {
+                        global_current_pos -= y_size;
+                        draw_picture_buffer();
+                    }
+                    break;
+                case key_down:
+                    if (global_current_pos + y_size < global_page_count * y_size - y_size + 1) {
+                        global_current_pos += y_size;
+                        draw_picture_buffer();
+                    }
+                    break;
+            }
+            foreground_color(global_settings.menu_color);
+            global_input_buffer = 0;
+            global_send_input = false;
+        }
         } else {
             wait++;
             Sleep(sync_delay / 2);
         }
     }
+    global_arrow_keys=0;
 }
 
 void highlight_words(Tree *node, List *input) {

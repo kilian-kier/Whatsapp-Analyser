@@ -15,14 +15,12 @@ char *get_string(char *string, int size, char *pointer) {
     bool changed_string = true;
 
     printf("   ");
-
-
-    while (global_input_buffer != 13 && global_input_buffer != '\n') {
-        if (j % 66 < 33) {
-            cursor_blink(true, i);
-        } else {
-            cursor_blink(false, i);
-        }
+        while (global_input_buffer != 13 && global_input_buffer != '\n') {
+            if (j % 66 < 33) {
+                cursor_blink(true,i);
+            } else {
+                cursor_blink(false,i);
+            }
 
         if (global_send_input == true) {
             switch (global_input_buffer) {
@@ -77,7 +75,6 @@ char *get_string(char *string, int size, char *pointer) {
                     changed_string = true;
                     break;
             }
-
         }
         j++;
         Sleep(sync_delay / 2);
@@ -200,7 +197,7 @@ List *get_suggestions_from_array(char **array, int size, char *search) {
         perror("malloc");
         return NULL;
     }
-
+    suggestions->next->next=NULL;
     suggestions->next->i.pointer = array[index];
 
     int temp_index = index;
