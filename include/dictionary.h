@@ -4,11 +4,10 @@
 #include "main.h"
 #include "global.h"
 #include "structs.h"
-#include "input.h"
 
 void *create_dictionary();
 int check_char(char c);
-Dictionary *insert_word(Message *ptr, int offset, int length, Dictionary *temp, int message_number);
+Dictionary *insert_word(char *ptr, int offset, int length, Dictionary *temp);
 int height(Dictionary *temp);
 Dictionary *right_rotate(Dictionary *temp);
 Dictionary *left_rotate(Dictionary *temp);
@@ -21,15 +20,10 @@ void dictionary_main(char sort);
 int relative_word_count(Dictionary *ptr);
 int find_longest_word(int longest,Dictionary*ptr);
 void dictionary_select();
-Tree *find_word(Dictionary *tree_node, const char *string, Tree *ret, int n_word);
-Tree *find_other_word(Dictionary *tree_node, const char *string, Tree *ret, int n_word);
-
-bool check_word(Dictionary *tree_node, const char *string);
+Dictionary *find_word(Dictionary *tree_node, List *input);
 int find_most_word(int most,Dictionary*ptr);
-char*get_string_tree(char *string, int size, char *pointer);
 
 Dictionary *rearange_word(Dictionary*new_dict,Dictionary *dict,char type);
 Dictionary *rearange_tree(Dictionary*new_dict,Dictionary*dict,char type);
-
 
 #endif //INFORMATIK_PROJEKT_DICTIONARY_H

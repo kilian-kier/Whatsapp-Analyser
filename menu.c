@@ -54,7 +54,7 @@ void main_menu() {
     temp = create_option(L"Nachrichten", NULL, temp->parent, 3, 2);
     create_option(L"Suchen nach Datum", &opt1_3_1, temp, 1, 0);
     create_option(L"Suchen nach Nutzer", &opt1_3_2, temp, 1, 1);
-    create_option(L"Suchen nach W\x94rter", &opt1_3_3, temp, 1, 2);
+    create_option(L"Suchen nach W\x94rter", &print_word_message, temp, 1, 2);
     for (int i = 0; i < 3; i++)
         create_option(NULL, NULL, temp->children[i], 0, 0);
     temp = create_option(L"Einstellungen", &print_settings_example, temp->parent->parent, 4, 1);
@@ -80,20 +80,15 @@ void main_menu() {
 
     temp = option_root;
     temp->function();
-    int x = 0;
+    int x;
 
     run_input_thread();
-    //run_memory_thread();
     do {
 
         printf("\x1b[%dB", y_pos);
         x = menu(1, temp);
-        /*scanf("%d", &x);
-        fflush(stdin);*/
-        /*if (x == 0)
-            x = 1;
-        else
-            x = 3;*/
+        //scanf("%d", &x);
+        //fflush(stdin);
         if (x == 0) {
             init_picture_buffer();
             draw_picture_buffer();
@@ -108,13 +103,11 @@ void main_menu() {
         }
         if (temp->children[x - 1]->function != NULL) {
             temp->children[x - 1]->function();
-            // TODO: Einstellungen
             if (temp->opt == NULL && file == NULL)
-                continue;
+                continue;;
         }
-        if (temp->children[x - 1]->n_child != 0) {
+        if (temp->children[x - 1]->n_child != 0)
             temp = temp->children[x - 1];
-        }
     } while (1);
 }
 
