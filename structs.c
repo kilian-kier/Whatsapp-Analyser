@@ -44,10 +44,11 @@ List *insert(void *item, List *node, char type) {
     node->next = insert(item, node->next, type);
     return node;
 }
-void free_list(List *list){
-    while(list!=NULL){
+
+void free_list(List *list) {
+    while (list != NULL) {
         free(list);
-        list=list->next;
+        list = list->next;
     }
 }
 
@@ -65,7 +66,7 @@ List *pop(List *node) {
 }
 
 int get_list_length(List *list) {
-    int ret = 0;
+    int ret;
     List *temp = list;
     for (ret = 0; temp != NULL; ret++)
         temp = temp->next;
@@ -84,28 +85,45 @@ char *get_string_from_list(List *list_string) {
     return ret_string;
 }
 
-Tree *insert_to_tree(word_list *message, Tree *node, Tree *parent) {
+List *insert_offset(int *offset, List *node, int word, int max_word) {
     if (node == NULL) {
-        node = malloc(sizeof(Tree));
-        List *offsets = NULL;
-        offsets = insert(&message->offset, offsets, 'i');
-        node->offsets = NULL;
-        node->offsets = insert(offsets, node->offsets, 'p');
-        node->message = message;
-        node->parent = parent;
-        node->left = NULL;
-        node->right = NULL;
+        node = malloc(sizeof(List));
+        node->next = NULL;
+        node->i.pointer = NULL;
+    }
+    if (word == max_word) {
+        List *temp = (List *) node->i.pointer;
+        temp = insert(offset, temp, 'i');
+        node->i.pointer = temp;
         return node;
     }
+    node->next = insert_offset(offset, node->next, word + 1, max_word);
+    return node;
+}
+
+Tree *insert_to_tree(word_list *message, Tree *node, Tree *parent, int n_word) {
+    if (node == NULL) {
+        if (n_word == 0) {
+            node = malloc(sizeof(Tree));
+            List *offsets = NULL;
+            offsets = insert(&message->offset, offsets, 'i');
+            node->offsets = NULL;
+            node->offsets = insert(offsets, node->offsets, 'p');
+            node->message = message;
+            node->parent = parent;
+            node->left = NULL;
+            node->right = NULL;
+            return node;
+        } else
+            return NULL;
+    }
     if (message->number_message == node->message->number_message) {
-        List *temp = (List *) node->offsets->i.pointer;
-        temp = insert(&message->offset, temp, 'i');
-        node->offsets->i.pointer = temp;
+        node->offsets = insert_offset(&message->offset, node->offsets, 0, n_word);
         return node;
     } else if (message->number_message < node->message->number_message)
-        node->left = insert_to_tree(message, node->left, node);
+        node->left = insert_to_tree(message, node->left, node, n_word);
     else
-        node->right = insert_to_tree(message, node->right, node);
+        node->right = insert_to_tree(message, node->right, node, n_word);
     return node;
 }
 
@@ -128,4 +146,58 @@ Tree *get_next_item(Tree *node) {
         }
         return temp;
     }
+}
+
+Tree *get_max_left(Tree *node) {
+    if (node->right == NULL)
+        return node;
+    return get_max_left(node->right);
+}
+
+Tree *get_previous_item(Tree *node) {
+    if (node->left != NULL) {
+        return get_max_left(node->left);
+    } else {
+        Tree *temp = node->parent;
+        while (temp->message->number_message > node->message->number_message) {
+            if (temp->parent == NULL)
+                return NULL;
+            else
+                temp = temp->parent;
+        }
+        return temp;
+    }
+}
+
+Tree *delete_node(Tree *node) {
+    if (node == NULL)
+        return NULL;
+    Tree *temp;
+    if (node->left == NULL) {
+        temp = node->right;
+        free(node);
+        return temp;
+    }
+    else if (node->right == NULL) {
+        temp =  node->left;
+        free(node);
+        return temp;
+    }
+    else {
+        temp = get_min_right(node->right);
+        node->offsets = temp->offsets;
+        node->message = temp->message;
+        node->right = delete_node(temp);
+    }
+    return node;
+}
+
+Tree *update_tree(Tree *node, int words) {
+    if (node == NULL)
+        return node;
+    node->left = update_tree(node->left, words);
+    node->right = update_tree(node->right, words);
+    while (node != NULL && check_offsets(words, node->offsets) == false)
+        node = delete_node(node);
+    return node;
 }

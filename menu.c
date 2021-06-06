@@ -54,7 +54,7 @@ void main_menu() {
     temp = create_option(L"Nachrichten", NULL, temp->parent, 3, 2);
     create_option(L"Suchen nach Datum", &opt1_3_1, temp, 1, 0);
     create_option(L"Suchen nach Nutzer", &opt1_3_2, temp, 1, 1);
-    create_option(L"Suchen nach W\x94rter", &print_word_message, temp, 1, 2);
+    create_option(L"Suchen nach W\x94rter", &opt1_3_3, temp, 1, 2);
     for (int i = 0; i < 3; i++)
         create_option(NULL, NULL, temp->children[i], 0, 0);
     temp = create_option(L"Einstellungen", &print_settings_example, temp->parent->parent, 4, 1);
