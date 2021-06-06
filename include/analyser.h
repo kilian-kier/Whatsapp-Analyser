@@ -36,5 +36,7 @@ int check_date(unsigned int day1, unsigned int month1, unsigned int year1, unsig
 
 bool true_highlight(const char *string, int offset);
 
+bool check_offsets(int n_words, List *offsets);
+
 #endif //ANALYSER_H
 
