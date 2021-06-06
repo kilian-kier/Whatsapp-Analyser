@@ -47,9 +47,9 @@ List *insert(void *item, List *node, char type) {
     return node;
 }
 List* free_list(List *list){
-    while(list!=NULL){
+    if(list!=NULL){
+        free_list(list->next);
         free(list);
-        list=list->next;
     }
     return NULL;
 }

@@ -15,9 +15,9 @@ int print_point(int x, int y, wchar_t c, Color *foreground, Color *background) {
         global_picture_buffer->n = 0;
         global_picture_buffer->next = NULL;
         global_picture_buffer->previous = NULL;
-        current = global_picture_buffer;
         global_page_count = 1;
     }
+    if(global_picture_buffer->next==NULL) current=global_picture_buffer;
     while (buffer_index != current->n) {
         if (buffer_index > current->n) {
             if (current->next == NULL) {
@@ -46,7 +46,7 @@ Console_buffer *create_console_buffer() {
         perror("malloc");
         return NULL;
     }
-    buffer->buffer = ( Console_buffer_node*) malloc(y_size * sizeof(Console_buffer_node));
+    buffer->buffer =malloc(y_size*sizeof(Console_buffer_node));
     if (buffer->buffer == NULL) {
         perror("malloc");
         return NULL;
@@ -60,12 +60,14 @@ Console_buffer *create_console_buffer() {
 void free_console_buffer(Console_buffer *buffer) {
     if (buffer != NULL) {
         for(int i=0;i<y_size;i++){
-            List *temp=buffer->buffer[i].pixel_list;
-            while(temp!=NULL){
-                free(temp->i.dot);
-                temp=temp->next;
-            }
-            free_list(buffer->buffer[i].pixel_list);
+                List *temp = buffer->buffer[i].pixel_list;
+                while (temp != NULL) {
+                    if (temp->i.dot != NULL) {
+                        free(temp->i.dot);
+                    }
+                    temp = temp->next;
+                }
+                free_list(buffer->buffer[i].pixel_list);
         }
         if (buffer->buffer != NULL) {
             free(buffer->buffer);
@@ -78,16 +80,25 @@ void init_picture_buffer() {
     Console_buffer *temp = global_picture_buffer->next;
     Console_buffer *temp2 = temp;
 
-    int zaehler = 0;
     while (temp != NULL) {
         temp2 = temp->next;
         free_console_buffer(temp);
         temp = temp2;
-        zaehler++;
     }
     global_page_count = 1;
     global_current_pos = 0;
     global_picture_buffer->next = NULL;
+    for(int i=0;i<y_size;i++){
+        List *list = global_picture_buffer->buffer[i].pixel_list;
+        while (list != NULL) {
+            if (list->i.dot != NULL) {
+                free(list->i.dot);
+            }
+            list = list->next;
+        }
+        free_list(global_picture_buffer->buffer[i].pixel_list);
+        global_picture_buffer->buffer[i].pixel_list=NULL;
+    }
 }
 
 
@@ -325,19 +336,22 @@ void insert_in_buffer(Console_buffer_node*buffer,int xpos,int ypos,wchar_t c,Col
                     perror("malloc");
                     return;
                 }
-                pixel->next->i.dot=malloc(sizeof(Pixel));
-                if(pixel->next->i.dot==NULL){
-                    perror("malloc");
-                    return;
-                }
+                pixel->next->i.dot=NULL;
                 pixel->next->next=NULL;
-                pixel->next->i.dot->character=' ';
-                pixel->next->i.dot->foreground=global_settings.fontcolor;
-                pixel->next->i.dot->background=global_settings.background;
             }
             pixel=pixel->next;
         }
         buffer[ypos].pixel_list=temp_list.next;
+        if(pixel->i.dot==NULL){
+            pixel->i.dot=malloc(sizeof(Pixel));
+            pixel->i.dot->character=' ';
+            pixel->i.dot->foreground=global_settings.fontcolor;
+            pixel->i.dot->background=global_settings.background;
+            if(pixel->i.dot==NULL) {
+                perror("malloc");
+                return;
+            }
+        }
         if(c!=0){
             pixel->i.dot->character=c;
         }

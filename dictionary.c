@@ -80,7 +80,7 @@ void print_word_stats(Dictionary*dict){
     print_to_buffer(string,-1,-1,global_settings.menucolor,global_settings.background);
     sprintf(string,"Anzahl der Vorkommnisse: %d\n",dict->amount);
     print_to_buffer(string,-1,-1,global_settings.menucolor,global_settings.background);
-    print_to_buffer("\nDas Wort kommt in folgenden Nachrichten vor (""n"" zeigt Nachrichten im Kontext):\n\n",-1,-1,global_settings.highlight_font,global_settings.background);
+    print_to_buffer("\nDas Wort kommt in folgenden Nachrichten vor (""n"" zeigt Nachrichten im Kontext):\n\n",-1,-1,global_settings.menucolor,global_settings.background);
 
     word_list* words=dict->words;
     do{
