@@ -18,6 +18,8 @@ int print_point(int x, int y, wchar_t c, Color *foreground, Color *background) {
         current = global_picture_buffer;
         global_page_count = 1;
     }
+    if (global_picture_buffer->next == NULL)
+        current = global_picture_buffer;
     while (buffer_index != current->n) {
         if (buffer_index > current->n) {
             if (current->next == NULL) {

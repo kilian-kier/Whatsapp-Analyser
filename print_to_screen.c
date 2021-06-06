@@ -381,18 +381,14 @@ void print_word_message(const char *input_string) {
         } else {
             cursor_blink(false, x);
         }
-        global_send_input = true;
+        //global_send_input = true;
         if (global_send_input == true) {
             //global_input_buffer = 'd';
             /*if (global_input_buffer == 0)
                 global_input_buffer = 'q';
             else
                 global_input_buffer = 9;*/
-            fflush(stdin);
-            do {
-                global_input_buffer = getchar();
-            } while (global_input_buffer == '\n');
-            fflush(stdin);
+            //fflush(stdin); do { global_input_buffer = getchar();} while (global_input_buffer == '\n'); fflush(stdin);
             switch (global_input_buffer) {
                 case 0:
                     global_send_input = false;
@@ -429,7 +425,6 @@ void print_word_message(const char *input_string) {
                     }
                     global_send_input = false;
                 default:
-                    print_all_messages();
                     if (string != NULL)
                         printf("%s", string);
                     else {
@@ -471,6 +466,7 @@ void print_word_message(const char *input_string) {
                         continue;
                     }
                     global_current_pos = 0;
+                    print_all_messages();
                     highlight_words(m_tree->messages, m_tree->words);
                     tab = m_tree->messages;
                     while (tab->left != NULL)

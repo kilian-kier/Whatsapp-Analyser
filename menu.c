@@ -1,18 +1,6 @@
 #include "include/menu.h"
 
 void main_menu() {
-    for (int i = 0; i < 7; i++)
-        global_threads[i][0] = malloc(sizeof(pthread_t));
-    global_threads[0][1] = read_file;
-    global_threads[1][1] = read_user;
-    global_threads[2][1] = count_weekday;
-    global_threads[3][1] = count_hours;
-    global_threads[4][1] = count_month;
-    global_threads[5][1] = count_days;
-    global_threads[6][1] = create_dictionary;
-    read_config();
-    global_arrow_keys = 0;
-
     ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
 
     struct _CONSOLE_SCREEN_BUFFER_INFO screenBufferInfo;
@@ -75,25 +63,22 @@ void main_menu() {
     create_option(NULL, NULL, temp, 0, 0);
 
     // ZUM DEBUGGEN
-    x_size = 169; y_size = 65;
+    //x_size = 169; y_size = 65;
 
 
     temp = option_root;
     temp->function();
     int x = 0;
 
-    //run_input_thread();
+    run_input_thread();
     //run_memory_thread();
     do {
 
         printf("\x1b[%dB", y_pos);
-        //x = menu(1, temp);
+        x = menu(1, temp);
         /*scanf("%d", &x);
         fflush(stdin);*/
-        if (x == 0)
-            x = 1;
-        else
-            x = 3;
+        //if (x == 0) x = 1; else x = 3;
         if (x == 0) {
             init_picture_buffer();
             draw_picture_buffer();
@@ -112,7 +97,7 @@ void main_menu() {
             if (temp->opt == NULL && file == NULL)
                 continue;
         }
-        if (temp->children[x - 1]->n_child != 0) {
+        if (temp->children[x - 1]->n_childs != 0) {
             temp = temp->children[x - 1];
         }
     } while (1);
@@ -131,11 +116,11 @@ int menu(int select, Option_tree *option) {
     HANDLE hStdout;
     hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO cursor;
-    COORD line[option->n_child];
+    COORD line[option->n_childs];
     foreground_color(global_settings.menucolor);
     printf("%s\n", "WhatsApp Analyzer\n");
     if (option->children[0]->opt != NULL) {
-        for (int i = 1; i <= option->n_child; i++) {
+        for (int i = 1; i <= option->n_childs; i++) {
             GetConsoleScreenBufferInfo(hStdout, &cursor);
             line[i - 1] = cursor.dwCursorPosition;
             if (select == i) {
@@ -156,10 +141,10 @@ int menu(int select, Option_tree *option) {
             jumpto = line[select - 1];
             switch (input) {
                 case 'w':
-                    select = select > 1 ? select - 1 : option->n_child;
+                    select = select > 1 ? select - 1 : option->n_childs;
                     break;
                 case 's':
-                    select = select < option->n_child ? select + 1 : 1;
+                    select = select < option->n_childs ? select + 1 : 1;
                     break;
                 case '':
                     return 0;

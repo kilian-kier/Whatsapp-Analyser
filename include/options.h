@@ -2,12 +2,13 @@
 #define OPTIONS_H
 
 #include "std_include.h"
-#include "main.h"
 #include "read.h"
 #include "global.h"
 #include "print_to_screen.h"
 #include "dictionary.h"
 #include "memory.h"
+
+char *get_file_name();
 
 void opt0();
 

@@ -44,11 +44,9 @@ typedef struct Dictionary {
 
 typedef struct Option_tree {
     wchar_t *opt;
-
     void (*function)();
-
     struct Option_tree *parent;
-    int n_child;
+    int n_childs;
     struct Option_tree **children;
 } Option_tree;
 
