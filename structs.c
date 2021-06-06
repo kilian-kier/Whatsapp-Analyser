@@ -68,7 +68,7 @@ List *pop(List *node) {
 }
 
 int get_list_length(List *list) {
-    int ret = 0;
+    int ret;
     List *temp = list;
     for (ret = 0; temp != NULL; ret++)
         temp = temp->next;
@@ -198,9 +198,8 @@ Tree *update_tree(Tree *node, int words) {
     if (node == NULL)
         return node;
     node->left = update_tree(node->left, words);
-    while (node != NULL && get_list_length(node->offsets) < words)
+    node->right = update_tree(node->right, words);
+    while (node != NULL && check_offsets(words, node->offsets) == false)
         node = delete_node(node);
-    if (node != NULL)
-        node->right = update_tree(node->right, words);
     return node;
 }

@@ -165,3 +165,18 @@ bool true_highlight(const char *string, int offset) {
     }
     return true;
 }
+
+bool check_offsets(int n_words, List *offsets) {
+    List *temp = offsets;
+    int count = 0;
+    while (temp != NULL) {
+        if (temp->i.pointer == NULL)
+            return false;
+        count++;
+        temp = temp->next;
+    }
+    if (count >= n_words)
+        return true;
+    else
+        return false;
+}
