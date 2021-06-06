@@ -1,6 +1,7 @@
 #include "include/structs.h"
 
-Option_tree *create_option(wchar_t *opt, void (*function)(), Option_tree *parent, int n_child, int index) {
+
+Option_tree *create_option(wchar_t *opt, void (*function)(), Option_tree *parent, int n_child, int index,int settings) {
     Option_tree *temp = malloc(sizeof(Option_tree));
     temp->opt = opt;
     temp->n_childs = n_child;
@@ -43,13 +44,6 @@ List *insert(void *item, List *node, char type) {
     }
     node->next = insert(item, node->next, type);
     return node;
-}
-
-void free_list(List *list) {
-    while (list != NULL) {
-        free(list);
-        list = list->next;
-    }
 }
 
 List *pop(List *node) {

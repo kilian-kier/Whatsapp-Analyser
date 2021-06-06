@@ -7,6 +7,7 @@
 
 int x_size;
 int y_size;
+
 #define x_pos 40
 #define y_pos 1
 
@@ -16,6 +17,9 @@ int y_size;
 #define key_left 72
 #define key_up 75
 #define key_down 77
+
+#define DONT_INIT_BUFFER 1
+#define EXECUTE_PARENT 2
 
 Settings global_settings;
 #define DICT_TREE 1

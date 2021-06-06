@@ -4,6 +4,7 @@
 #include "structs.h"
 #include "std_include.h"
 #include "global.h"
+#include "memory.h"
 
 #define white (Color){255,255,255}
 #define black (Color){0,0,0}
@@ -24,6 +25,8 @@ int print_point(int x,int y,wchar_t c, Color *foreground, Color *background);
 void init_console_buffer( Console_buffer *buffer);
 void print_banner();
 void change_color(int xsize, int ysize,int xpos,int ypos,Color foreground, Color background);
+void insert_in_buffer(Console_buffer_node*buffer,int xpos,int ypos,wchar_t c,Color *foreground,Color *background);
+Pixel* get_from_buffer(Console_buffer_node*buffer,int xpos,int ypos);
 
 
 

@@ -446,7 +446,7 @@ void print_word_message(const char *input_string) {
                     }
                     //string = malloc(10 * sizeof(char)); strcpy(string, "killi hexe dc");
                     free_tree(m_tree->messages);
-                    m_tree->words = NULL;
+                    m_tree->words = free_list(m_tree->words);
                     m_tree->words = insert(string, m_tree->words, 'p');
                     m_tree->messages = NULL;
                     char *token = strtok(string, " \n\0");

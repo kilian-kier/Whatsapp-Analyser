@@ -42,13 +42,13 @@ char *get_string(char *string, int size, char *pointer) {
                         }
                         break;
                     case '':
+                        free_list(suggestions);
                         return NULL;
                     case 9:
                         if (pointer != NULL) {
                             if (changed_string) {
                                 free_list(suggestions);
-                                    suggestions = get_suggestions_from_array((char **) pointer, array_size, string);
-
+                                suggestions = get_suggestions_from_array((char **) pointer, array_size, string);
                                 temp_suggestions = suggestions;
                                 changed_string = false;
                             }
@@ -57,7 +57,6 @@ char *get_string(char *string, int size, char *pointer) {
                                     temp_suggestions = suggestions;
                                 }
                                 strcpy(string, temp_suggestions->i.pointer);
-
                                 printf(" ");
                                 delete_n_char(i+1);
                                 i = strlen(string);
@@ -181,51 +180,7 @@ int run_input_thread() {
     }
     return 0;
 }
-Dictionary* find_in_tree(Dictionary*ptr,char*search){
 
-    if(ptr==NULL) return NULL;
-
-    int comparison=comparison=strncmp(search,ptr->words->current_message->message+ptr->words->offset,strlen(search));
-    if(comparison==0){
-        if(ptr->left!=NULL){
-            comparison=strncmp(search,ptr->left->words->current_message->message+ptr->left->words->offset,strlen(search));
-        }
-        if(ptr->left!=NULL && comparison==0){
-            return find_in_tree(ptr->left,search);
-        }else{
-            return ptr;
-        }
-
-    }else if(comparison<0){
-        return find_in_tree(ptr->left,search);
-    }else{
-        return find_in_tree(ptr->right,search);
-    }
-
-
-    return ptr;
-}
-List* get_suggestions_from_dict_tree(Dictionary*ptr, List*suggestions, char*search){
-    int comparison;
-
-    if(ptr==NULL) return suggestions;
-
-    comparison=strncmp(search,ptr->words->current_message->message+ptr->words->offset,strlen(search));
-
-    suggestions = get_suggestions_from_dict_tree(ptr->left, suggestions, search);
-
-    if(comparison==0) {
-        suggestions->next = malloc(sizeof(List));
-        if (suggestions->next == NULL) {
-            perror("malloc");
-            return suggestions;
-        }
-        suggestions->next->next = NULL;
-        suggestions->next->i.dict = ptr;
-        suggestions = suggestions->next;
-    }
-      return get_suggestions_from_dict_tree(ptr->right, suggestions, search);
-}
 List *get_suggestions_from_array(char **array, int size, char *search) {
     if (search[0] == 0) {
         return NULL;

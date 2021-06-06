@@ -22,17 +22,15 @@ char *get_file_name() {
 }
 
 void opt0() {
-    extern char *_binary_icon_ppm_start;
-    extern char *_binary_icon_ppm_end;
     int xsize=x_size/2<y_size?x_size:y_size*2;
     int ysize=x_size/2<y_size?x_size/2:y_size;
-    draw_picture((char *) &_binary_icon_ppm_start, (char *) &_binary_icon_ppm_end, 0, 0, x_size,y_size - 1);
+    draw_picture("..\\grafics\\icon.ppm",NULL,0, 0, xsize,ysize);
     free_memory();
 }
 
 void opt1() {
-    //file = fopen(get_file_name(), "rb");
-    file = fopen("E:\\Desktop\\Schule\\Informatik\\Whatsapp-Analyser - Kopie\\chats\\WhatsApp Chat mit 3BT.txt", "rb");
+    file = fopen(get_file_name(), "rb");
+    //file = fopen("E:\\Desktop\\Schule\\Informatik\\Whatsapp-Analyser - Kopie\\chats\\WhatsApp Chat mit 3BT.txt", "rb");
     if (file != NULL)
         pthread_create((pthread_t *)global_threads[0][0], NULL, (void *)global_threads[0][1], NULL);
 }
