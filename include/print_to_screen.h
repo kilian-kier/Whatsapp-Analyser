@@ -21,5 +21,6 @@ void print_all_messages();
 void print_word_message(const char *input_string);
 void print_settings_example();
 void highlight_words(Tree *node, List *input);
+void print_overview();
 
 #endif //PRINT_TO_SCREEN_H

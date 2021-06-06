@@ -1,17 +1,19 @@
 #include "include/options.h"
 
 void opt0() {
-    int xsize=x_size/2<y_size?x_size:y_size*2;
-    int ysize=x_size/2<y_size?x_size/2:y_size;
-    draw_picture("..\\grafics\\icon.ppm",NULL,0, 0, xsize,ysize);
+    int xsize = x_size / 2 < y_size ? x_size : y_size * 2;
+    int ysize = x_size / 2 < y_size ? x_size / 2 : y_size;
+    draw_picture("..\\grafics\\icon.ppm", NULL, 0, 0, xsize, ysize);
     free_memory();
 }
 
 void opt1() {
-    file = fopen(get_file_name(), "rb");
+    filename=get_file_name();
+    file = fopen(filename, "rb");
     //file = fopen("E:\\Desktop\\Schule\\Informatik\\Whatsapp-Analyser - Kopie\\chats\\WhatsApp Chat mit 3BT.txt", "rb");
     if (file != NULL)
-        pthread_create((pthread_t *)global_threads[0][0], NULL, (void *)global_threads[0][1], NULL);
+        pthread_create((pthread_t *) global_threads[0][0], NULL, (void *) global_threads[0][1], NULL);
+
 }
 
 void opt3() {
@@ -28,8 +30,8 @@ void opt4() {
     printf("\x1b[%dB", y_pos);
     foreground_color(global_settings.menucolor);
     printf("%s\n", "WhatsApp Analyzer\n");
-    printf("Max RAM: %lf MB\n", (double)pmc.PeakWorkingSetSize / 1048576);
-    printf("Current RAM: %lf MB\n", (double)pmc.WorkingSetSize / 1048576);
+    printf("Max RAM: %lf MB\n", (double) pmc.PeakWorkingSetSize / 1048576);
+    printf("Current RAM: %lf MB\n", (double) pmc.WorkingSetSize / 1048576);
     while (global_input_buffer != '')
         Sleep(sync_delay);
     global_input_buffer = 0;
@@ -38,17 +40,17 @@ void opt4() {
 
 void opt1_1() {
     for (int i = 0; i < 2; i++) {
-        pthread_join(*(pthread_t *)global_threads[i][0], NULL);
+        pthread_join(*(pthread_t *) global_threads[i][0], NULL);
     }
 }
 
 void opt1_2() {
     for (int i = 2; i < 6; i++)
-        pthread_join(*(pthread_t *)global_threads[i][0], NULL);
+        pthread_join(*(pthread_t *) global_threads[i][0], NULL);
 }
 
 void opt1_4() {
-    pthread_join(*(pthread_t *)global_threads[6][0], NULL);
+    pthread_join(*(pthread_t *) global_threads[6][0], NULL);
     dictionary_main(0);
 }
 
