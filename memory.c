@@ -56,8 +56,6 @@ void run_memory_thread() {
 }
 
 void *memory_thread() {
-    Sleep(500);
-    while (1) {
         DWORD processID = GetCurrentProcessId();
         HANDLE hProcess;
         PROCESS_MEMORY_COUNTERS pmc;
@@ -66,10 +64,8 @@ void *memory_thread() {
         HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
         CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
         GetConsoleScreenBufferInfo(hStdout, &bufferInfo);
-        SetConsoleCursorPosition(hStdout, (COORD){0, 20});
+        SetConsoleCursorPosition(hStdout, (COORD){0, y_size});
         foreground_color(global_settings.menucolor);
         printf("RAM Nutzung:\n%.2lf MB\n", (double)pmc.WorkingSetSize / 1048576);
         SetConsoleCursorPosition(hStdout, bufferInfo.dwCursorPosition);
-        Sleep(500);
-    }
 }

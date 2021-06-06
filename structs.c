@@ -1,11 +1,13 @@
 #include "include/structs.h"
 
-Option_tree *create_option(wchar_t *opt, void (*function)(), Option_tree *parent, int n_child, int index) {
+
+Option_tree *create_option(wchar_t *opt, void (*function)(), Option_tree *parent, int n_child, int index,int settings) {
     Option_tree *temp = malloc(sizeof(Option_tree));
     temp->opt = opt;
     temp->n_child = n_child;
     temp->parent = parent;
     temp->function = function;
+    temp->settings=settings;
     temp->children = malloc(temp->n_child * sizeof(Option_tree));
     if (temp->parent != NULL)
         temp->parent->children[index] = temp;
@@ -44,12 +46,12 @@ List *insert(void *item, List *node, char type) {
     node->next = insert(item, node->next, type);
     return node;
 }
-
-void free_list(List *list) {
-    while (list != NULL) {
+List* free_list(List *list){
+    if(list!=NULL){
+        free_list(list->next);
         free(list);
-        list = list->next;
     }
+    return NULL;
 }
 
 List *pop(List *node) {

@@ -15,9 +15,9 @@ int print_point(int x, int y, wchar_t c, Color *foreground, Color *background) {
         global_picture_buffer->n = 0;
         global_picture_buffer->next = NULL;
         global_picture_buffer->previous = NULL;
-        current = global_picture_buffer;
         global_page_count = 1;
     }
+    if(global_picture_buffer->next==NULL) current=global_picture_buffer;
     while (buffer_index != current->n) {
         if (buffer_index > current->n) {
             if (current->next == NULL) {
@@ -36,37 +36,39 @@ int print_point(int x, int y, wchar_t c, Color *foreground, Color *background) {
         }
     }
     int newy = y % (y_size);
-    if (foreground != NULL) {
-        current->buffer[newy][x].foreground = *foreground;
-    }
-    if (background != NULL) {
-        current->buffer[newy][x].background = *background;
-    }
-    if (c != 0) {
-        current->buffer[newy][x].character = c;
-    }
+    insert_in_buffer(current->buffer,x,newy,c,foreground,background);
     return 0;
 }
 
 Console_buffer *create_console_buffer() {
     Console_buffer *buffer = malloc(sizeof(Console_buffer));
     if (buffer == NULL) {
+        perror("malloc");
         return NULL;
     }
-    buffer->buffer = (Pixel **) malloc(y_size * sizeof(Pixel *) + (x_size * y_size * sizeof(Pixel)));
+    buffer->buffer =malloc(y_size*sizeof(Console_buffer_node));
     if (buffer->buffer == NULL) {
+        perror("malloc");
         return NULL;
     }
-    Pixel *buf = (Pixel *) (buffer->buffer + y_size);
     for (int i = 0; i < y_size; i++) {
-        buffer->buffer[i] = buf + (i * x_size);
+        buffer->buffer[i].pixel_list=NULL;
     }
-    init_console_buffer(buffer);
     return buffer;
 }
 
 void free_console_buffer(Console_buffer *buffer) {
     if (buffer != NULL) {
+        for(int i=0;i<y_size;i++){
+                List *temp = buffer->buffer[i].pixel_list;
+                while (temp != NULL) {
+                    if (temp->i.dot != NULL) {
+                        free(temp->i.dot);
+                    }
+                    temp = temp->next;
+                }
+                free_list(buffer->buffer[i].pixel_list);
+        }
         if (buffer->buffer != NULL) {
             free(buffer->buffer);
         }
@@ -78,30 +80,27 @@ void init_picture_buffer() {
     Console_buffer *temp = global_picture_buffer->next;
     Console_buffer *temp2 = temp;
 
-    int zaehler = 0;
     while (temp != NULL) {
         temp2 = temp->next;
         free_console_buffer(temp);
         temp = temp2;
-        zaehler++;
     }
     global_page_count = 1;
     global_current_pos = 0;
     global_picture_buffer->next = NULL;
-    init_console_buffer(global_picture_buffer);
-}
-
-void init_console_buffer(Console_buffer *buffer) {
-    for (int y = 0; y < y_size; y++) {
-        for (int x = 0; x < x_size; x++) {
-            buffer->buffer[y][x].character = ' ';
-            buffer->buffer[y][x].character = ' ';
-            buffer->buffer[y][x].character = ' ';
-            buffer->buffer[y][x].foreground = white;
-            buffer->buffer[y][x].background = black;
+    for(int i=0;i<y_size;i++){
+        List *list = global_picture_buffer->buffer[i].pixel_list;
+        while (list != NULL) {
+            if (list->i.dot != NULL) {
+                free(list->i.dot);
+            }
+            list = list->next;
         }
+        free_list(global_picture_buffer->buffer[i].pixel_list);
+        global_picture_buffer->buffer[i].pixel_list=NULL;
     }
 }
+
 
 void change_color(int xsize, int ysize, int xpos, int ypos, Color foreground, Color background) {
     ypos = ypos * (global_settings.empty_lines + 1);
@@ -246,13 +245,13 @@ void draw_picture_buffer() {
     HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
     GetConsoleScreenBufferInfo(hStdout, &bufferInfo);
-    int r;
-    int br;
-    int g;
-    int bg;
-    int b;
-    int bb;
-    char c;
+    int r=0;
+    int br=0;
+    int g=0;
+    int bg=0;
+    int b=0;
+    int bb=0;
+    char c=0;
 
     printf("\x1b[s");
     int page = global_current_pos / y_size;
@@ -266,34 +265,40 @@ void draw_picture_buffer() {
             return;
         }
     }
-
+    Pixel empty_pixel={' ',global_settings.fontcolor,global_settings.background};
     setvbuf(stdout, NULL, _IOFBF, (x_pos + x_size) * (y_pos + y_size) * 25);
     printf("\x1b[%d;%dH", y_pos + 1, x_pos + 1);
     for (int y = 0; y < y_size; y += 1) {
         newy = y + offset;
         for (int x = 0; x < x_size; x++) {
-            if (temp->buffer[newy][x].background.r != br || temp->buffer[newy][x].background.g != bg ||
-                temp->buffer[newy][x].background.b != bb) {
-                br = temp->buffer[newy][x].background.r;
-                bg = temp->buffer[newy][x].background.g;
-                bb = temp->buffer[newy][x].background.b;
+            Pixel*pixel=get_from_buffer(temp->buffer,x,newy);
+            if(pixel==NULL){
+                pixel=&empty_pixel;
+            }
+            if (pixel->background.r != br ||pixel->background.g != bg ||
+            pixel->background.b != bb) {
+                br =pixel->background.r;
+                bg =pixel->background.g;
+                bb =pixel->background.b;
                 if (br == 0 && bg == 0 && bb == 0) {
                     background_color(global_settings.background);
                 } else {
                     background_color((Color) {br, bg, bb});
                 }
             }
-            if (temp->buffer[newy][x].foreground.r != br || temp->buffer[newy][x].foreground.g != bg ||
-                temp->buffer[newy][x].foreground.b != bb) {
-                r = temp->buffer[newy][x].foreground.r;
-                g = temp->buffer[newy][x].foreground.g;
-                b = temp->buffer[newy][x].foreground.b;
+            if (pixel->foreground.r != br ||
+            pixel->foreground.g != bg ||
+
+            pixel->foreground.b != bb) {
+                r =pixel->foreground.r;
+                g =pixel->foreground.g;
+                b =pixel->foreground.b;
                 foreground_color((Color) {r, g, b});
             }
-            if (temp->buffer[newy][x].character == 9) {
+            if (pixel->character == 9) {
                 c = ' ';
             } else {
-                c = temp->buffer[newy][x].character;
+                c =pixel->character;
             }
             printf("%c", c);
         }
@@ -308,11 +313,72 @@ void draw_picture_buffer() {
         printf("\x1b[%dD\x1b[1B", x_size);
     }
     fflush(stdout);
-    foreground_color(global_settings.fontcolor);
+    foreground_color(global_settings.menucolor );
     printf("\x1b[2E            \x1b[12DP[%d | %d]", page + 1, global_page_count);
     printf("\x1b[u");
     setvbuf(stdout, NULL, _IONBF, 0);
     SetConsoleCursorPosition(hStdout, bufferInfo.dwCursorPosition);
+    memory_thread();
+}
+void insert_in_buffer(Console_buffer_node*buffer,int xpos,int ypos,wchar_t c,Color *foreground,Color *background){
+    if(xpos>=x_size) return;
+    if(ypos>=y_size) return;
+
+    if(buffer!=NULL){
+        List temp_list;
+        temp_list.next=buffer[ypos].pixel_list;
+        List*pixel=&temp_list;
+
+        for(int i=0;i<=xpos;i++){
+            if(pixel->next==NULL){
+                pixel->next=malloc(sizeof(List));
+                if(pixel->next==NULL){
+                    perror("malloc");
+                    return;
+                }
+                pixel->next->i.dot=NULL;
+                pixel->next->next=NULL;
+            }
+            pixel=pixel->next;
+        }
+        buffer[ypos].pixel_list=temp_list.next;
+        if(pixel->i.dot==NULL){
+            pixel->i.dot=malloc(sizeof(Pixel));
+            pixel->i.dot->character=' ';
+            pixel->i.dot->foreground=global_settings.fontcolor;
+            pixel->i.dot->background=global_settings.background;
+            if(pixel->i.dot==NULL) {
+                perror("malloc");
+                return;
+            }
+        }
+        if(c!=0){
+            pixel->i.dot->character=c;
+        }
+        if(foreground!=NULL){
+            pixel->i.dot->foreground=*foreground;
+        }
+        if(background!=NULL){
+            pixel->i.dot->background=*background;
+        }
+    }
+}
+Pixel* get_from_buffer(Console_buffer_node*buffer,int xpos,int ypos){
+    if(xpos>=x_size) return NULL;
+    if(ypos>=y_size) return NULL;
+    if(buffer!=NULL) {
+        List temp_list;
+        temp_list.next = buffer[ypos].pixel_list;
+        List *pixel = &temp_list;
+
+        for (int i = 0; i <=xpos; i++) {
+            if (pixel->next == NULL) {
+                return NULL;
+            }
+            pixel = pixel->next;
+        }
+        return pixel->i.dot;
+    }
 }
 
 void clear_screen() {

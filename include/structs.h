@@ -50,6 +50,7 @@ typedef struct Option_tree {
     struct Option_tree *parent;
     int n_child;
     struct Option_tree **children;
+    int settings;
 } Option_tree;
 
 typedef struct Color {
@@ -63,13 +64,33 @@ typedef struct Pixel {
     Color foreground;
     Color background;
 } Pixel;
+union uni {
+    int integer;
+    char character;
+    void *pointer;
+    Dictionary*dict;
+    Pixel*dot;
+};
+
+typedef struct List {
+    struct List *next;
+    union uni i;
+} List;
+
+
+typedef struct Console_buffer_node{
+    List *pixel_list;
+}Console_buffer_node;
 
 typedef struct Console_buffer {
     unsigned int n;
-    Pixel **buffer;
+    Console_buffer_node *buffer;
     struct Console_buffer *next;
     struct Console_buffer *previous;
 } Console_buffer;
+
+
+
 
 typedef struct Day_count {
     unsigned int day;
@@ -90,17 +111,9 @@ typedef struct Settings {
     int ram_delay;
 } Settings;
 
-union uni {
-    int integer;
-    char character;
-    void *pointer;
-    Dictionary*dict;
-};
 
-typedef struct List {
-    struct List *next;
-    union uni i;
-} List;
+
+
 
 typedef struct Message_list {
     word_list *message;
@@ -123,9 +136,9 @@ typedef struct Message_tree {
 #include "global.h"
 #include "analyser.h"
 
-Option_tree *create_option(wchar_t *opt, void (*function)(), Option_tree *parent, int n_child, int index);
+Option_tree *create_option(wchar_t *opt, void (*function)(), Option_tree *parent, int n_child, int index,int settings);
 
-Day_count *create_day_count(unsigned int day, unsigned int month, unsigned int year, unsigned int n);
+        Day_count *create_day_count(unsigned int day, unsigned int month, unsigned int year, unsigned int n);
 
 List *insert(void *item, List *node, char type);
 List *pop(List *node);
@@ -140,6 +153,6 @@ Tree *get_previous_item(Tree *node);
 Tree *delete_node(Tree *node);
 Tree *update_tree(Tree *node, int words);
 
-void free_list(List *list);
+List* free_list(List *list);
 
 #endif //STRUCTS_H
