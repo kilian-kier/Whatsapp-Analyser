@@ -1,7 +1,6 @@
 #include "include/input.h"
 
 char *get_string(char *string, int size, char *pointer) {
-
     int i = 0, j = 0;
     int array_size = 0;
     if (pointer != NULL) {
@@ -11,85 +10,84 @@ char *get_string(char *string, int size, char *pointer) {
     global_input_buffer = 0;
     global_send_input = false;
 
-    List*suggestions=NULL;
+    List *suggestions = NULL;
     List *temp_suggestions = NULL;
-    Dictionary*last_suggestion=NULL;
     bool changed_string = true;
 
     printf("   ");
 
 
-        while (global_input_buffer != 13 && global_input_buffer != '\n') {
-            if (j % 66 < 33) {
-                cursor_blink(true,i);
-            } else {
-                cursor_blink(false,i);
-            }
-
-            if (global_send_input == true) {
-                switch (global_input_buffer) {
-                    case 10:
-                    case 13:
-                        break;
-                    case 8:
-                        if (i > 0) {
-                            global_send_input = false;
-                            printf(" ");
-                            delete_n_char(2);
-                            i--;
-                            string[i] = 0;
-                            changed_string = true;
-                        }
-                        break;
-                    case '':
-                        free_list(suggestions);
-                        return NULL;
-                    case 9:
-                        if (pointer != NULL) {
-                            if (changed_string) {
-                                free_list(suggestions);
-                                suggestions = get_suggestions_from_array((char **) pointer, array_size, string);
-                                temp_suggestions = suggestions;
-                                changed_string = false;
-                            }
-                            if (suggestions != NULL) {
-                                if (temp_suggestions == NULL) {
-                                    temp_suggestions = suggestions;
-                                }
-                                strcpy(string, temp_suggestions->i.pointer);
-                                printf(" ");
-                                delete_n_char(i+1);
-                                i = strlen(string);
-                                printf("%s", string);
-                                temp_suggestions = temp_suggestions->next;
-                            }
-                            global_send_input = false;
-                        }
-                        break;
-                    default:
-                        string[i] = global_input_buffer;
-                        printf("%c", string[i]);
-                        global_send_input = false;
-                        if (i < size) {
-                            i++;
-                            string[i] = 0;
-                        } else {
-                            break;
-                        }
-                        changed_string = true;
-                        break;
-                }
-
-            }
-            j++;
-            Sleep(sync_delay / 2);
+    while (global_input_buffer != 13 && global_input_buffer != '\n') {
+        if (j % 66 < 33) {
+            cursor_blink(true, i);
+        } else {
+            cursor_blink(false, i);
         }
+
+        if (global_send_input == true) {
+            switch (global_input_buffer) {
+                case 10:
+                case 13:
+                    break;
+                case 8:
+                    if (i > 0) {
+                        global_send_input = false;
+                        printf(" ");
+                        delete_n_char(2);
+                        i--;
+                        string[i] = 0;
+                        changed_string = true;
+                    }
+                    break;
+                case '':
+                    free_list(suggestions);
+                    return NULL;
+                case 9:
+                    if (pointer != NULL) {
+                        if (changed_string) {
+                            free_list(suggestions);
+                            suggestions = get_suggestions_from_array((char **) pointer, array_size, string);
+                            temp_suggestions = suggestions;
+                            changed_string = false;
+                        }
+                        if (suggestions != NULL) {
+                            if (temp_suggestions == NULL) {
+                                temp_suggestions = suggestions;
+                            }
+                            strcpy(string, temp_suggestions->i.pointer);
+                            printf(" ");
+                            delete_n_char(i + 1);
+                            i = (int)strlen(string);
+                            printf("%s", string);
+                            temp_suggestions = temp_suggestions->next;
+                        }
+                        global_send_input = false;
+                    }
+                    break;
+                default:
+                    string[i] = (char)global_input_buffer;
+                    printf("%c", string[i]);
+                    global_send_input = false;
+                    if (i < size) {
+                        i++;
+                        string[i] = 0;
+                    } else {
+                        break;
+                    }
+                    changed_string = true;
+                    break;
+            }
+
+        }
+        j++;
+        Sleep(sync_delay / 2);
+    }
     free_list(suggestions);
     string[i] = 0;
     return string;
 }
 
-void *input_thread() {
+_Noreturn void *input_thread() {
     global_input_buffer = 0;
 
     int c;
@@ -100,9 +98,9 @@ void *input_thread() {
                 case 0:
                 case 224:
                     c = _getch();
-                    if(global_arrow_keys=='s'){
-                        global_input_buffer=c+256;
-                        global_send_input=true;
+                    if (global_arrow_keys == 's') {
+                        global_input_buffer = c + 256;
+                        global_send_input = true;
                         break;
                     }
                     switch (c) {
@@ -158,6 +156,8 @@ void *input_thread() {
                                 global_settings.top_n += 10;
                             }
 
+                            break;
+                        default:
                             break;
                     }
                     break;
@@ -232,30 +232,31 @@ List *get_suggestions_from_array(char **array, int size, char *search) {
 }
 
 
-void delete_n_char(int n){
+void delete_n_char(int n) {
     HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
     GetConsoleScreenBufferInfo(hStdout, &bufferInfo);
-    bufferInfo.dwCursorPosition.X-=n;
-    SetConsoleCursorPosition(hStdout,bufferInfo.dwCursorPosition);
-    for(int i=0;i<n;i++){
+    bufferInfo.dwCursorPosition.X -= n; // NOLINT(cppcoreguidelines-narrowing-conversions)
+    SetConsoleCursorPosition(hStdout, bufferInfo.dwCursorPosition);
+    for (int i = 0; i < n; i++) {
         printf(" ");
     }
-    SetConsoleCursorPosition(hStdout,bufferInfo.dwCursorPosition);
+    SetConsoleCursorPosition(hStdout, bufferInfo.dwCursorPosition);
 }
-void cursor_blink(bool on,int offset){
+
+void cursor_blink(bool on, int offset) {
     HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
     GetConsoleScreenBufferInfo(hStdout, &bufferInfo);
-    bufferInfo.dwCursorPosition.X-=(offset+3);
-    SetConsoleCursorPosition(hStdout,bufferInfo.dwCursorPosition);
+    bufferInfo.dwCursorPosition.X -= (offset + 3); // NOLINT(cppcoreguidelines-narrowing-conversions)
+    SetConsoleCursorPosition(hStdout, bufferInfo.dwCursorPosition);
     printf("-> ");
-    bufferInfo.dwCursorPosition.X+=(offset+3);
-    SetConsoleCursorPosition(hStdout,bufferInfo.dwCursorPosition);
-    if(on){
-        printf("%c",179);
-    }else{
+    bufferInfo.dwCursorPosition.X += (offset + 3); // NOLINT(cppcoreguidelines-narrowing-conversions)
+    SetConsoleCursorPosition(hStdout, bufferInfo.dwCursorPosition);
+    if (on) {
+        printf("%c", 179);
+    } else {
         printf(" ");
     }
-    SetConsoleCursorPosition(hStdout,bufferInfo.dwCursorPosition);
+    SetConsoleCursorPosition(hStdout, bufferInfo.dwCursorPosition);
 }

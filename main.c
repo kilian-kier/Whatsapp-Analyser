@@ -1,4 +1,5 @@
 #include "include/main.h"
+#include "include/menu.h"
 
 int main() {
     for (int i = 0; i < 7; i++)

@@ -9,5 +9,7 @@
 #include "settings.h"
 
 void main_menu();
+
 int menu(int select, struct Option_tree *option);
+
 #endif //MENU_H

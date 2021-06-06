@@ -1,7 +1,8 @@
 #include "include/dictionary.h"
 
-
 void dictionary_main(char sort) {
+    pthread_join(*(pthread_t *) global_threads[0][0], NULL);
+    pthread_join(*(pthread_t *) global_threads[6][0], NULL);
     static bool stat_reverse = 0;
     static char sort_1 = 'A';
     char buffer[50];
@@ -26,74 +27,85 @@ void dictionary_main(char sort) {
             sprintf(buffer, "Nach Laenge Sortiert - Richtung: %s\n\n",
                     stat_reverse == 0 ? "aufsteigend" : "absteigend");
             break;
+        default:
+            break;
     }
 
-    int max_amount=floor(log10(find_most_word(0,global_first_word)))+1;
+    int max_amount = (int)floor(log10(find_most_word(0, global_first_word))) + 1;
 
-    print_to_buffer(buffer, 0, 0, global_settings.menucolor, global_settings.background);
-    print_to_buffer("Anzahl: Wort\n", -1, -1, global_settings.menucolor, global_settings.background);
+    print_to_buffer(buffer, 0, 0, global_settings.menu_color, global_settings.background);
+    print_to_buffer("Anzahl: Wort\n", -1, -1, global_settings.menu_color, global_settings.background);
     if (sort_1 == 'a' || sort_1 == 'l') {
-        global_first_word = rearange_tree(NULL, global_first_word, sort_1);
-        print_dictionary(global_first_word, stat_reverse,max_amount);
-        global_first_word = rearange_tree(NULL, global_first_word, 'A');
+        global_first_word = rearrange_tree(NULL, global_first_word, sort_1);
+        print_dictionary(global_first_word, stat_reverse, max_amount);
+        global_first_word = rearrange_tree(NULL, global_first_word, 'A');
     } else {
-        print_dictionary(global_first_word, stat_reverse,max_amount);
+        print_dictionary(global_first_word, stat_reverse, max_amount);
     }
 }
-void dictionary_select(){
+
+void dictionary_select() {
     char buffer[100];
-    char input=0;
-    Dictionary*ret=NULL;
-    do{
+    char input;
+    Dictionary *ret = NULL;
+    do {
         clear_screen();
         init_picture_buffer();
         dictionary_main(0);
         draw_picture_buffer();
         print_banner();
-        foreground_color(global_settings.menucolor);
+        foreground_color(global_settings.menu_color);
 
-        ret=get_string_tree(buffer,100,(char*)global_first_word);
-        if(ret==NULL){
-            global_input_buffer='';
+        ret = get_string_tree(buffer, 100, (char *) global_first_word);
+        if (ret == NULL) {
+            global_input_buffer = '';
             return;
         }
         print_word_stats(ret);
         do {
-            input = (char)global_input_buffer;
-            Sleep(sync_delay/2);
-        } while (input!='' && input !=10 && input !=13 && input!='n');
-        if(input=='n'){
-            //deinefunktion
+            input = (char) global_input_buffer;
+            Sleep(sync_delay / 2);
+        } while (input != '' && input != 10 && input != 13 && input != 'n');
+        if (input == 'n') {
+            char *string = malloc((ret->length_word + 1) * sizeof(char));
+            sprintf(string, "%.*s", ret->length_word, ret->words->current_message->message+ret->words->offset);
+            string[ret->length_word] = 0;
+            print_word_message(string);
         }
-    }while(true);
+    } while (true);
 }
-void print_word_stats(Dictionary*dict){
+
+void print_word_stats(Dictionary *dict) {
     clear_screen();
     init_picture_buffer();
     print_banner();
     char string[x_size];
     char temp[x_size];
 
-    sprintf(string,"Wort: %.*s\n",dict->length_word<x_size-7?dict->length_word:x_size-7,dict->words->current_message->message+dict->words->offset);
-    print_to_buffer(string,0,0,global_settings.menucolor,global_settings.background);
-    sprintf(string,"Laenge: %d\n",dict->length_word);
-    print_to_buffer(string,-1,-1,global_settings.menucolor,global_settings.background);
-    sprintf(string,"Anzahl der Vorkommnisse: %d\n",dict->amount);
-    print_to_buffer(string,-1,-1,global_settings.menucolor,global_settings.background);
-    print_to_buffer("\nDas Wort kommt in folgenden Nachrichten vor (""n"" zeigt Nachrichten im Kontext):\n\n",-1,-1,global_settings.highlight_font,global_settings.background);
+    sprintf(string, "Wort: %.*s\n", dict->length_word < x_size - 7 ? dict->length_word : x_size - 7,
+            dict->words->current_message->message + dict->words->offset);
+    print_to_buffer(string, 0, 0, global_settings.menu_color, global_settings.background);
+    sprintf(string, "Laenge: %d\n", dict->length_word);
+    print_to_buffer(string, -1, -1, global_settings.menu_color, global_settings.background);
+    sprintf(string, "Anzahl der Vorkommnisse: %d\n", dict->amount);
+    print_to_buffer(string, -1, -1, global_settings.menu_color, global_settings.background);
+    print_to_buffer("\nDas Wort kommt in folgenden Nachrichten vor (""n"" zeigt Nachrichten im Kontext):\n\n", -1, -1,
+                    global_settings.menu_color, global_settings.background);
 
-    word_list* words=dict->words;
-    do{
-        sprintf(temp, "%d.%d.%d, %02d:%02d - %s: %.*s", (int) words->current_message->day, (int) words->current_message->month,
+    word_list *words = dict->words;
+    do {
+        sprintf(temp, "%d.%d.%d, %02d:%02d - %s: %.*s", (int) words->current_message->day,
+                (int) words->current_message->month,
                 (int) words->current_message->year,
-                (int) words->current_message->hour, (int) words->current_message->minute, words->current_message->user, x_size - 15,
+                (int) words->current_message->hour, (int) words->current_message->minute, words->current_message->user,
+                x_size - 15,
                 words->current_message->message);
-        print_to_buffer(temp,-1,-1,global_settings.fontcolor,global_settings.background);
-        words=words->next;
-    }while(words!=NULL);
+        print_to_buffer(temp, -1, -1, global_settings.fontcolor, global_settings.background);
+        words = words->next;
+    } while (words != NULL);
 
     draw_picture_buffer();
-    global_input_buffer=0;
+    global_input_buffer = 0;
 }
 
 int relative_word_count(Dictionary *ptr) {
@@ -127,9 +139,9 @@ int find_most_word(int most, Dictionary *ptr) {
     return most;
 }
 
-Dictionary *get_string_tree(char *string, int size, char *pointer) {
+Dictionary *get_string_tree(char *string, int size, const char *pointer) {
     global_arrow_keys = 's';
-    int max_amount=floor(log10(find_most_word(0,global_first_word)))+1;
+    int max_amount = (int)floor(log10(find_most_word(0, global_first_word))) + 1;
     int i = 0, j = 0;
     global_input_buffer = 0;
     global_send_input = false;
@@ -140,8 +152,8 @@ Dictionary *get_string_tree(char *string, int size, char *pointer) {
     bool changed_string = true;
 
     printf("   ");
-    string[0]=0;
-    while (global_input_buffer != 13 && global_input_buffer != '\n' || i==0) {
+    string[0] = 0;
+    while (global_input_buffer != 13 && global_input_buffer != '\n' || i == 0) {
         if (j % 66 < 33) {
             cursor_blink(true, i);
         } else {
@@ -161,7 +173,7 @@ Dictionary *get_string_tree(char *string, int size, char *pointer) {
                             i--;
                             string[i] = 0;
                             global_send_input = false;
-                            changed_string=true;
+                            changed_string = true;
                         }
                         break;
                     case '':
@@ -169,10 +181,10 @@ Dictionary *get_string_tree(char *string, int size, char *pointer) {
                         global_arrow_keys = 0;
                         return NULL;
                     case 9:
-                        if(string[0]!=0) {
+                        if (string[0] != 0) {
                             if (pointer != NULL) {
                                 if (changed_string) {
-                                    suggestions=free_list(suggestions);
+                                    suggestions = free_list(suggestions);
                                     List tmp;
                                     tmp.next = NULL;
                                     get_suggestions_from_dict_tree(global_first_word, &tmp, string);
@@ -188,10 +200,10 @@ Dictionary *get_string_tree(char *string, int size, char *pointer) {
                                                     temp_suggestions->i.dict->words->offset,
                                             temp_suggestions->i.dict->length_word);
                                     string[temp_suggestions->i.dict->length_word] = 0;
-                                    foreground_color(global_settings.menucolor);
+                                    foreground_color(global_settings.menu_color);
                                     printf(" ");
                                     delete_n_char(i + 1);
-                                    i = strlen(string);
+                                    i = (int)strlen(string);
                                     printf("%s", string);
                                 }
                                 global_send_input = false;
@@ -199,7 +211,7 @@ Dictionary *get_string_tree(char *string, int size, char *pointer) {
                         }
                         break;
                     default:
-                        string[i] = global_input_buffer;
+                        string[i] = (char)global_input_buffer;
                         printf("%c", string[i]);
                         global_send_input = false;
                         if (i < size) {
@@ -211,83 +223,90 @@ Dictionary *get_string_tree(char *string, int size, char *pointer) {
                         changed_string = true;
                         break;
                 }
-                if(changed_string==true) {
+                if (changed_string == true) {
                     if (string[0] != 0) {
                         Dictionary *suggestion = find_similar_in_tree(global_first_word, string);
                         if (suggestion != NULL && suggestion != last_suggestion) {
                             global_current_pos = suggestion->position;
                             if (last_suggestion != NULL) {
-                                change_color(last_suggestion->length_word+max_amount+2, 1, max_amount+2, last_suggestion->position/(global_settings.empty_lines + 1),
+                                change_color(last_suggestion->length_word + max_amount + 2, 1, max_amount + 2,
+                                             last_suggestion->position / (global_settings.empty_lines + 1),
                                              global_settings.fontcolor, global_settings.background);
                             }
-                            change_color(suggestion->length_word, 1, max_amount+2, suggestion->position/(global_settings.empty_lines + 1),
+                            change_color(suggestion->length_word, 1, max_amount + 2,
+                                         suggestion->position / (global_settings.empty_lines + 1),
                                          global_settings.highlight_font, global_settings.highlight_back);
                             draw_picture_buffer();
                             last_suggestion = suggestion;
-                            foreground_color(global_settings.menucolor);
+                            foreground_color(global_settings.menu_color);
                         }
                     } else {
                         global_current_pos = 0;
                         if (last_suggestion != NULL) {
-                            change_color(last_suggestion->length_word, 1, max_amount+2, last_suggestion->position/(global_settings.empty_lines + 1),
+                            change_color(last_suggestion->length_word, 1, max_amount + 2,
+                                         last_suggestion->position / (global_settings.empty_lines + 1),
                                          global_settings.fontcolor, global_settings.background);
                             draw_picture_buffer();
-                            foreground_color(global_settings.menucolor);
-                            last_suggestion=NULL;
+                            foreground_color(global_settings.menu_color);
+                            last_suggestion = NULL;
                         }
                     }
-                }else if(temp_suggestions!=NULL){
-                        global_current_pos = temp_suggestions->i.dict->position;
+                } else if (temp_suggestions != NULL) {
+                    global_current_pos = temp_suggestions->i.dict->position;
 
-                        if (last_suggestion != NULL) {
-                            change_color(last_suggestion->length_word, 1, max_amount+2, last_suggestion->position/(global_settings.empty_lines + 1),
-                                         global_settings.fontcolor, global_settings.background);
-                        }
-                        change_color(temp_suggestions->i.dict->length_word, 1, max_amount+2, temp_suggestions->i.dict->position/(global_settings.empty_lines + 1),
-                                     global_settings.highlight_font, global_settings.highlight_back);
-                        draw_picture_buffer();
-                        foreground_color(global_settings.menucolor);
-
-                        last_suggestion=temp_suggestions->i.dict;
-                        temp_suggestions = temp_suggestions->next;
+                    if (last_suggestion != NULL) {
+                        change_color(last_suggestion->length_word, 1, max_amount + 2,
+                                     last_suggestion->position / (global_settings.empty_lines + 1),
+                                     global_settings.fontcolor, global_settings.background);
                     }
-            }else {
-                global_input_buffer-=256;
-                switch(global_input_buffer){
+                    change_color(temp_suggestions->i.dict->length_word, 1, max_amount + 2,
+                                 temp_suggestions->i.dict->position / (global_settings.empty_lines + 1),
+                                 global_settings.highlight_font, global_settings.highlight_back);
+                    draw_picture_buffer();
+                    foreground_color(global_settings.menu_color);
+
+                    last_suggestion = temp_suggestions->i.dict;
+                    temp_suggestions = temp_suggestions->next;
+                }
+            } else {
+                global_input_buffer -= 256;
+                switch (global_input_buffer) {
                     case key_right:
-                            if (global_current_pos < global_page_count * y_size - y_size) {
-                                global_current_pos++;
-                                draw_picture_buffer();
-                            }
+                        if (global_current_pos < global_page_count * y_size - y_size) {
+                            global_current_pos++;
+                            draw_picture_buffer();
+                        }
                         break;
                     case key_left:
-                            if (global_current_pos > 0) {
-                                global_current_pos--;
-                                draw_picture_buffer();
-                            }
-                            break;
+                        if (global_current_pos > 0) {
+                            global_current_pos--;
+                            draw_picture_buffer();
+                        }
+                        break;
                     case key_up:
-                            if (global_current_pos - y_size > 0) {
-                                global_current_pos -= y_size;
-                                draw_picture_buffer();
-                            }
+                        if (global_current_pos - y_size > 0) {
+                            global_current_pos -= y_size;
+                            draw_picture_buffer();
+                        }
                         break;
                     case key_down:
-                            if (global_current_pos + y_size < global_page_count * y_size - y_size + 1) {
-                                global_current_pos += y_size;
-                                draw_picture_buffer();
-                            }
+                        if (global_current_pos + y_size < global_page_count * y_size - y_size + 1) {
+                            global_current_pos += y_size;
+                            draw_picture_buffer();
+                        }
+                        break;
+                    default:
                         break;
                 }
-                foreground_color(global_settings.menucolor);
-                global_input_buffer=0;
-                global_send_input=false;
+                foreground_color(global_settings.menu_color);
+                global_input_buffer = 0;
+                global_send_input = false;
             }
         }
         j++;
         Sleep(sync_delay / 2);
     }
-    suggestions=free_list(suggestions);
+    suggestions = free_list(suggestions);
 
     string[i] = 0;
     global_arrow_keys = 0;
@@ -295,90 +314,114 @@ Dictionary *get_string_tree(char *string, int size, char *pointer) {
 }
 
 
-Dictionary *rearange_tree(Dictionary *new_dict, Dictionary *dict, char type) {
+Dictionary *rearrange_tree(Dictionary *new_dict, Dictionary *dict, char type) {
     if (dict == NULL)return new_dict;
-    new_dict = rearange_tree(new_dict, dict->left, type);
-    new_dict = rearange_tree(new_dict, dict->right, type);
-    new_dict = rearange_word(new_dict, dict, type);
+    new_dict = rearrange_tree(new_dict, dict->left, type);
+    new_dict = rearrange_tree(new_dict, dict->right, type);
+    new_dict = rearrange_word(new_dict, dict, type);
     return new_dict;
 }
 
-Dictionary *rearange_word(Dictionary *new_dict, Dictionary *dict, char type) {
+Dictionary *rearrange_word(Dictionary *new_dict, Dictionary *dict, char type) {
     if (new_dict == NULL) {
-         new_dict = dict;
-         new_dict->left = NULL;
-         new_dict->right = NULL;
-         new_dict->level = 1;
-         return new_dict;
-     } else {
-         switch(type) {
-             case 'A':
-              if (strncmp(dict->words->current_message->message + dict->words->offset, new_dict->words->current_message->message + new_dict->words->offset,(dict->length_word < new_dict->length_word) ? dict->length_word: new_dict->length_word) < 0) {
-                  new_dict->left = rearange_word(new_dict->left,dict,type);
-              }
-             else {
-                  new_dict->right = rearange_word(new_dict->right,dict,type);
-              }
-             break;
-             case 'l':
-                 if (dict->length_word<new_dict->length_word) {
-                     new_dict->left = rearange_word(new_dict->left,dict,type);
-                 }
-                 else{
-                     new_dict->right = rearange_word(new_dict->right,dict,type);
-                 }
-                 break;
-             case 'a':
-                 if (dict->amount<new_dict->amount) {
-                     new_dict->left = rearange_word(new_dict->left,dict,type);
-                 }
-                 else{
-                     new_dict->right = rearange_word(new_dict->right,dict,type);
-                 }
-                 break;
-         }
-     }
-     new_dict->level =  max_height(height(new_dict->left), height(new_dict->right)) + 1;
-     int balance = get_balanced(new_dict);
+        new_dict = dict;
+        new_dict->left = NULL;
+        new_dict->right = NULL;
+        new_dict->level = 1;
+        return new_dict;
+    } else {
+        switch (type) {
+            case 'A':
+                if (strncmp(dict->words->current_message->message + dict->words->offset,
+                            new_dict->words->current_message->message + new_dict->words->offset,
+                            (dict->length_word < new_dict->length_word) ? dict->length_word : new_dict->length_word) <
+                    0) {
+                    new_dict->left = rearrange_word(new_dict->left, dict, type);
+                } else {
+                    new_dict->right = rearrange_word(new_dict->right, dict, type);
+                }
+                break;
+            case 'l':
+                if (dict->length_word < new_dict->length_word) {
+                    new_dict->left = rearrange_word(new_dict->left, dict, type);
+                } else {
+                    new_dict->right = rearrange_word(new_dict->right, dict, type);
+                }
+                break;
+            case 'a':
+                if (dict->amount < new_dict->amount) {
+                    new_dict->left = rearrange_word(new_dict->left, dict, type);
+                } else {
+                    new_dict->right = rearrange_word(new_dict->right, dict, type);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+    new_dict->level = max_height(height(new_dict->left), height(new_dict->right)) + 1;
+    int balance = get_balanced(new_dict);
 
-     switch(type) {
-         case 'A':
-             if (balance > 1 && strncmp(new_dict->words->current_message->message + new_dict->words->offset,new_dict->left->words->current_message->message + new_dict->left->words->offset,(new_dict->length_word < new_dict->left->length_word)? new_dict->length_word : new_dict->left->length_word) <= 0) return right_rotate(new_dict);
-             if (balance < -1 && strncmp(new_dict->words->current_message->message + new_dict->words->offset,new_dict->right->words->current_message->message + new_dict->right->words->offset,(new_dict->length_word < new_dict->right->length_word)? new_dict->length_word : new_dict->right->length_word) >= 0) return left_rotate(new_dict);
-             if (balance > 1 && strncmp(new_dict->words->current_message->message + new_dict->words->offset,new_dict->left->words->current_message->message + new_dict->left->words->offset,(new_dict->length_word < new_dict->left->length_word)? new_dict->length_word : new_dict->left->length_word) >= 0) {
-                 new_dict->left = left_rotate(new_dict->left);
-                 return right_rotate(new_dict);
-             }
-             if (balance < -1 &&  strncmp(new_dict->words->current_message->message + new_dict->words->offset,new_dict->right->words->current_message->message + new_dict->right->words->offset,(new_dict->length_word < new_dict->right->length_word)? new_dict->length_word : new_dict->right->length_word) <= 0) {
-                 new_dict->right = right_rotate(new_dict->right);
-                 return left_rotate(new_dict);
-             }
-             break;
-         case 'l':
-             if (balance > 1 && new_dict->length_word <= new_dict->left->length_word) return right_rotate(new_dict);
-             if (balance < -1 && new_dict->length_word >= new_dict->right->length_word) return left_rotate(new_dict);
-             if (balance > 1 && new_dict->length_word >= new_dict->left->length_word) {
-                 new_dict->left = left_rotate(new_dict->left);
-                 return right_rotate(new_dict);
-             }
-             if (balance < -1 &&  new_dict->length_word <= new_dict->right->length_word) {
-                 new_dict->right = right_rotate(new_dict->right);
-                 return left_rotate(new_dict);
-             }
-             break;
-         case 'a':
-             if (balance > 1 && new_dict->amount <= new_dict->left->amount) return right_rotate(new_dict);
-             if (balance < -1 && new_dict->amount>=new_dict->right->amount) return left_rotate(new_dict);
-             if (balance > 1 && new_dict->amount >= new_dict->left->amount) {
-                 new_dict->left = left_rotate(new_dict->left);
-                 return right_rotate(new_dict);
-             }
-             if (balance < -1 &&  new_dict->amount<=new_dict->right->amount) {
-                 new_dict->right = right_rotate(new_dict->right);
-                 return left_rotate(new_dict);
-             }
-             break;
-     }
+    switch (type) {
+        case 'A':
+            if (balance > 1 && strncmp(new_dict->words->current_message->message + new_dict->words->offset,
+                                       new_dict->left->words->current_message->message + new_dict->left->words->offset,
+                                       (new_dict->length_word < new_dict->left->length_word) ? new_dict->length_word
+                                                                                             : new_dict->left->length_word) <=
+                               0)
+                return right_rotate(new_dict);
+            if (balance < -1 && strncmp(new_dict->words->current_message->message + new_dict->words->offset,
+                                        new_dict->right->words->current_message->message +
+                                        new_dict->right->words->offset,
+                                        (new_dict->length_word < new_dict->right->length_word) ? new_dict->length_word
+                                                                                               : new_dict->right->length_word) >=
+                                0)
+                return left_rotate(new_dict);
+            if (balance > 1 && strncmp(new_dict->words->current_message->message + new_dict->words->offset,
+                                       new_dict->left->words->current_message->message + new_dict->left->words->offset,
+                                       (new_dict->length_word < new_dict->left->length_word) ? new_dict->length_word
+                                                                                             : new_dict->left->length_word) >=
+                               0) {
+                new_dict->left = left_rotate(new_dict->left);
+                return right_rotate(new_dict);
+            }
+            if (balance < -1 && strncmp(new_dict->words->current_message->message + new_dict->words->offset,
+                                        new_dict->right->words->current_message->message +
+                                        new_dict->right->words->offset,
+                                        (new_dict->length_word < new_dict->right->length_word) ? new_dict->length_word
+                                                                                               : new_dict->right->length_word) <=
+                                0) {
+                new_dict->right = right_rotate(new_dict->right);
+                return left_rotate(new_dict);
+            }
+            break;
+        case 'l':
+            if (balance > 1 && new_dict->length_word <= new_dict->left->length_word) return right_rotate(new_dict);
+            if (balance < -1 && new_dict->length_word >= new_dict->right->length_word) return left_rotate(new_dict);
+            if (balance > 1 && new_dict->length_word >= new_dict->left->length_word) {
+                new_dict->left = left_rotate(new_dict->left);
+                return right_rotate(new_dict);
+            }
+            if (balance < -1 && new_dict->length_word <= new_dict->right->length_word) {
+                new_dict->right = right_rotate(new_dict->right);
+                return left_rotate(new_dict);
+            }
+            break;
+        case 'a':
+            if (balance > 1 && new_dict->amount <= new_dict->left->amount) return right_rotate(new_dict);
+            if (balance < -1 && new_dict->amount >= new_dict->right->amount) return left_rotate(new_dict);
+            if (balance > 1 && new_dict->amount >= new_dict->left->amount) {
+                new_dict->left = left_rotate(new_dict->left);
+                return right_rotate(new_dict);
+            }
+            if (balance < -1 && new_dict->amount <= new_dict->right->amount) {
+                new_dict->right = right_rotate(new_dict->right);
+                return left_rotate(new_dict);
+            }
+            break;
+        default:
+            break;
+    }
     return new_dict;
 }
 
@@ -394,7 +437,7 @@ void *create_dictionary() {
     Message *ptr = global_first_message;
     while (ptr->next != NULL) {
         if ((strcmp(ptr->message, "<medien ausgeschlossen>\n")) == 0) {
-            message_count ++;
+            message_count++;
             ptr = ptr->next;
             continue;
         }
@@ -404,11 +447,11 @@ void *create_dictionary() {
             while ((check_char(*(ptr->message + offset + length))) != 0) length++;
             if (length == 0) offset++;
             else {
-                global_first_word = insert_word(ptr, offset, length, global_first_word,message_count);
+                global_first_word = insert_word(ptr, offset, length, global_first_word, message_count);
                 offset += length;
             }
         }
-        message_count ++;
+        message_count++;
         ptr = ptr->next;
     }
     update_height(global_first_word, 1);
@@ -422,8 +465,9 @@ void update_height(Dictionary *temp, int level) {
 }
 
 int check_char(char c) {
-    char check[27] = {' ','.',',',':','!','?','\n','\0','<','>','|','/','"',';','(',')','*','=','[',']','^','{','}','\\','`','\t','\1'};
-    for(int i = 0; i < 27; i ++){
+    char check[27] = {' ', '.', ',', ':', '!', '?', '\n', '\0', '<', '>', '|', '/', '"', ';', '(', ')', '*', '=', '[',
+                      ']', '^', '{', '}', '\\', '`', '\t', '\1'};
+    for (int i = 0; i < 27; i++) {
         if (c == check[i]) return 0;
     }
     return 1;
@@ -461,10 +505,10 @@ Dictionary *insert_word(Message *ptr, int offset, int length, Dictionary *temp, 
             return temp;
         } else if (strncmp(ptr->message + offset, temp->words->current_message->message + temp->words->offset,
                            (length > temp->length_word) ? length : temp->length_word) < 0)
-            temp->left = insert_word(ptr, offset, length, temp->left,message_number);
+            temp->left = insert_word(ptr, offset, length, temp->left, message_number);
         else if (strncmp(ptr->message + offset, temp->words->current_message->message + temp->words->offset,
                          (length > temp->length_word) ? length : temp->length_word) > 0)
-            temp->right = insert_word(ptr, offset, length, temp->right,message_number);
+            temp->right = insert_word(ptr, offset, length, temp->right, message_number);
     }
 
     temp->level = max_height(height(temp->left), height(temp->right)) + 1;
@@ -500,42 +544,43 @@ Dictionary *insert_word(Message *ptr, int offset, int length, Dictionary *temp, 
     return temp;
 }
 
-void print_dictionary(Dictionary *ptr, bool reverse,int max_amount) {
-    char buffer[x_size+1];
-    char buffer2[max_amount+1];
+void print_dictionary(Dictionary *ptr, bool reverse, int max_amount) {
+    char buffer[x_size + 1];
+    char buffer2[max_amount + 1];
     if (ptr == NULL) return;
-    if(reverse){
-        print_dictionary(ptr->right,reverse,max_amount);
-    }else{
-        print_dictionary(ptr->left,reverse,max_amount);
+    if (reverse) {
+        print_dictionary(ptr->right, reverse, max_amount);
+    } else {
+        print_dictionary(ptr->left, reverse, max_amount);
     }
-    if(ptr->length_word>x_size-(max_amount+7)){
-        strncpy(buffer+max_amount+7, ptr->words->current_message->message + ptr->words->offset, x_size-(max_amount+7));
-        strcpy(&buffer[x_size-(max_amount+5)],"...");
-        buffer[x_size-1]=0;
-        buffer[x_size-2]='\n';
-    }else{
-        strncpy(buffer+max_amount+2, ptr->words->current_message->message + ptr->words->offset, ptr->length_word);
-        buffer[ptr->length_word+max_amount+3] = '\0';
-        buffer[ptr->length_word+max_amount+2]='\n';
+    if (ptr->length_word > x_size - (max_amount + 7)) {
+        strncpy(buffer + max_amount + 7, ptr->words->current_message->message + ptr->words->offset,
+                x_size - (max_amount + 7));
+        strcpy(&buffer[x_size - (max_amount + 5)], "...");
+        buffer[x_size - 1] = 0;
+        buffer[x_size - 2] = '\n';
+    } else {
+        strncpy(buffer + max_amount + 2, ptr->words->current_message->message + ptr->words->offset, ptr->length_word);
+        buffer[ptr->length_word + max_amount + 3] = '\0';
+        buffer[ptr->length_word + max_amount + 2] = '\n';
     }
-    itoa(ptr->amount,buffer2,10);
-    int len=strlen(buffer2);
-    for(int i=0;i<max_amount;i++){
-        if(i<len){
-            buffer[i]=buffer2[i];
-        }else{
-            buffer[i]=' ';
+    itoa(ptr->amount, buffer2, 10);
+    int len = (int)strlen(buffer2);
+    for (int i = 0; i < max_amount; i++) {
+        if (i < len) {
+            buffer[i] = buffer2[i];
+        } else {
+            buffer[i] = ' ';
         }
     }
-    buffer[max_amount]=':';
-    buffer[max_amount+1]=' ';
+    buffer[max_amount] = ':';
+    buffer[max_amount + 1] = ' ';
 
     ptr->position = print_to_buffer(buffer, -1, -1, global_settings.fontcolor, global_settings.background);
-    if(reverse){
-        print_dictionary(ptr->left,reverse,max_amount);
-    }else{
-        print_dictionary(ptr->right,reverse,max_amount);
+    if (reverse) {
+        print_dictionary(ptr->left, reverse, max_amount);
+    } else {
+        print_dictionary(ptr->right, reverse, max_amount);
     }
 }
 
@@ -600,34 +645,37 @@ bool check_word(Dictionary *tree_node, const char *string) {
     else
         return false;
 }
-Dictionary* find_similar_in_tree(Dictionary*ptr, char*search){
 
-    if(ptr==NULL) return NULL;
+Dictionary *find_similar_in_tree(Dictionary *ptr, char *search) {
 
-    int comparison=comparison=strncmp(search,ptr->words->current_message->message+ptr->words->offset,strlen(search));
-    if(comparison==0){
-        Dictionary *temp= find_similar_in_tree(ptr->left, search);
-        if(temp==NULL){
+    if (ptr == NULL) return NULL;
+
+    int comparison = comparison = strncmp(search, ptr->words->current_message->message + ptr->words->offset,
+                                          strlen(search));
+    if (comparison == 0) {
+        Dictionary *temp = find_similar_in_tree(ptr->left, search);
+        if (temp == NULL) {
             return ptr;
         }
         return temp;
-    }else if(comparison<0){
+    } else if (comparison < 0) {
         return find_similar_in_tree(ptr->left, search);
-    }else{
+    } else {
         return find_similar_in_tree(ptr->right, search);
     }
 
 }
-List* get_suggestions_from_dict_tree(Dictionary*ptr, List*suggestions, char*search){
+
+List *get_suggestions_from_dict_tree(Dictionary *ptr, List *suggestions, char *search) {
     int comparison;
 
-    if(ptr==NULL) return suggestions;
+    if (ptr == NULL) return suggestions;
 
-    comparison=strncmp(search,ptr->words->current_message->message+ptr->words->offset,strlen(search));
+    comparison = strncmp(search, ptr->words->current_message->message + ptr->words->offset, strlen(search));
 
     suggestions = get_suggestions_from_dict_tree(ptr->left, suggestions, search);
 
-    if(comparison==0) {
+    if (comparison == 0) {
         suggestions->next = malloc(sizeof(List));
         if (suggestions->next == NULL) {
             perror("malloc");

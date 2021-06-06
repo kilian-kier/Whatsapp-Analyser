@@ -11,7 +11,7 @@ int y_size;
 #define x_pos 40
 #define y_pos 1
 
-#define buffersize 10000
+#define buffer_size 10000
 #define sync_delay 20
 #define key_right 80
 #define key_left 72
@@ -22,9 +22,6 @@ int y_size;
 #define EXECUTE_PARENT 2
 
 Settings global_settings;
-#define DICT_TREE 1
-#define STRING_ARRAY 0
-
 
 FILE *file;
 
@@ -46,18 +43,5 @@ char global_send_input;
 int global_input_buffer;
 
 void *global_threads[7][2];
-
-
-
-
-/*
-global_threads[0] = read_file_thread;
-global_threads[1] = read_user_thread;
-global_threads[2] = weekday_thread;
-global_threads[3] = hour_thread;
-global_threads[4] = month_thread;
-global_threads[5] = day_thread;
-global_threads[6] = dictionary_thread;
- */
 
 #endif //GLOBAL_H

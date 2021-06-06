@@ -13,14 +13,14 @@ User **sort_user(int n, int offset, char type) {
     return arr;
 }
 
-void merge(char **arr, int size,int offset,char type){
-    char ** arr2[size];
-    int j=0;
-    int middle=size/2;
-    int k=middle;
-    int i=0;
+void merge(char **arr, int size, int offset, char type) {
+    char **arr2[size];
+    int j = 0;
+    int middle = size / 2;
+    int k = middle;
+    int i = 0;
 
-    switch(type){
+    switch (type) {
         case 'u':
             for (i = 0; k < size && j < middle; i++) {
                 if ((*((unsigned int *) (((char *) arr[j]) + offset))) <
@@ -34,24 +34,23 @@ void merge(char **arr, int size,int offset,char type){
             }
             break;
         case 's':
-            for(i=0;k<size && j<middle;i++){
-                if(strcmp((*((char**)(((char*)arr[j])+offset))),(*((char**)(((char*)arr[k])+offset))))>=0){
+            for (i = 0; k < size && j < middle; i++) {
+                if (strcmp((*((char **) (((char *) arr[j]) + offset))), (*((char **) (((char *) arr[k]) + offset)))) >=
+                    0) {
                     arr2[i] = (char **) arr[k];
                     k++;
-                }
-                else{
+                } else {
                     arr2[i] = (char **) arr[j];
                     j++;
                 }
             }
             break;
         case 'n':
-            for(i=0;k<size && j<middle;i++){
-                if(strcmp(arr[j],arr[k])>=0){
+            for (i = 0; k < size && j < middle; i++) {
+                if (strcmp(arr[j], arr[k]) >= 0) {
                     arr2[i] = (char **) arr[k];
                     k++;
-                }
-                else{
+                } else {
                     arr2[i] = (char **) arr[j];
                     j++;
                 }
@@ -73,38 +72,40 @@ void merge(char **arr, int size,int offset,char type){
             printf("Merge: Unbekanntes Format");
             break;
     }
-    if(j<middle){
-        for(i;j<middle;i++){
+    if (j < middle) {
+        for (;j < middle; i++) {
             arr2[i] = (char **) arr[j];
             j++;
         }
-    }
-    else if(k<size){
-        for(i;k<size;i++){
+    } else if (k < size) {
+        for (;k < size; i++) {
             arr2[i] = (char **) arr[k];
             k++;
         }
     }
     arr_cpy(size, (char **) arr2, arr);
 }
-char ** merge_sort(char **arr,int size, int offset,char type){
-    int middle=size/2;
-    if(size>=2){
-        merge_sort(arr,size/2,offset,type);
-        merge_sort(&arr[middle],size-size/2,offset,type);
-        merge(arr,size,offset,type);
+
+char **merge_sort(char **arr, int size, int offset, char type) {
+    int middle = size / 2;
+    if (size >= 2) {
+        merge_sort(arr, size / 2, offset, type);
+        merge_sort(&arr[middle], size - size / 2, offset, type);
+        merge(arr, size, offset, type);
     }
     return arr;
 }
-void arr_cpy(int size, char**arr1,char**arr2){
-    for(int i=0;i<size;i++){
-        arr2[i]=arr1[i];
+
+void arr_cpy(int size, char **arr1, char **arr2) {
+    for (int i = 0; i < size; i++) {
+        arr2[i] = arr1[i];
     }
 }
-char** binary_search(char**array,char*search, int size){
-    int middle=size/2;
+
+char **binary_search(char **array, char *search, int size) {
+    int middle = size / 2;
     int cmp = strncmp(search, array[middle], strlen(search));
-    if(size>1) {
+    if (size > 1) {
         if (cmp == 0) {
             return &array[middle];
         } else if (cmp < 0) {
@@ -112,7 +113,7 @@ char** binary_search(char**array,char*search, int size){
         } else if (cmp > 0) {
             return binary_search(&array[middle], search, size - middle);
         }
-    }else{
+    } else {
         if (cmp == 0) {
             return &array[middle];
         }

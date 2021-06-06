@@ -18,15 +18,7 @@ void opt3();
 
 void opt4();
 
-void opt1_1();
-
-void opt1_2();
-
-void opt1_4();
-
 void opt1_4_1();
-
-void opt1_4_2();
 
 void opt1_4_2_1();
 
@@ -40,35 +32,8 @@ void opt1_1_1();
 
 void opt1_1_2();
 
-void opt1_1_3();
-
-void opt1_2_1();
-
-void opt1_2_2();
-
-void opt1_2_3();
-
-void opt1_2_4();
-
-void opt1_3_1();
-
-void opt1_3_2();
-
 void opt1_3_3();
 
-void opt2();
-
-void opt2_1_1();
-
-void opt2_1_2();
-
-void opt2_1_3();
-
-void opt2_1_4();
-
-void opt2_2();
-
-void opt2_3();
 
 void opt2_4();
 

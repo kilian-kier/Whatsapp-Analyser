@@ -36,7 +36,7 @@ void set_font_color() {
     clear_screen();
     init_picture_buffer();
     printf("\x1b[%dB", y_pos);
-    foreground_color(global_settings.menucolor);
+    foreground_color(global_settings.menu_color);
     printf("%s\n", "WhatsApp Analyzer\n");
 
     Color *color = read_color(L"  Setzte die Schriftfarbe in den Diagrammen [Rot, Gr\x81n, Blau]\n  ");
@@ -45,13 +45,14 @@ void set_font_color() {
     global_settings.fontcolor = *color;
     draw_picture_buffer();
     global_input_buffer = '';
+    write_config();
 }
 
 void set_background_color() {
     clear_screen();
     init_picture_buffer();
     printf("\x1b[%dB", y_pos);
-    foreground_color(global_settings.menucolor);
+    foreground_color(global_settings.menu_color);
     printf("%s\n", "WhatsApp Analyzer\n");
 
     Color *color = read_color(L"  Setzte die Hintergrundfarbe  [Rot, Gr\x81n, Blau]\n  ");
@@ -60,42 +61,45 @@ void set_background_color() {
     global_settings.background = *color;
     draw_picture_buffer();
     global_input_buffer = '';
+    write_config();
 }
 
 void set_menu_color() {
     clear_screen();
     init_picture_buffer();
     printf("\x1b[%dB", y_pos);
-    foreground_color(global_settings.menucolor);
+    foreground_color(global_settings.menu_color);
     printf("%s\n", "WhatsApp Analyzer\n");
 
     Color *color = read_color(L"  Setzte die Men\x81farbe [Rot, Gr\x81n, Blau]\n  ");
     if (color == NULL)
         return;
-    global_settings.menucolor = *color;
+    global_settings.menu_color = *color;
     draw_picture_buffer();
     global_input_buffer = '';
+    write_config();
 }
 
 void set_bar_color() {
     clear_screen();
     init_picture_buffer();
     printf("\x1b[%dB", y_pos);
-    foreground_color(global_settings.menucolor);
+    foreground_color(global_settings.menu_color);
     printf("%s\n", "WhatsApp Analyzer\n");
 
     Color *color = read_color(L"  Setzte die Diagrammfarbe [Rot, Gr\x81n, Blau]\n  ");
     if (color == NULL)
         return;
-    global_settings.barcolor = *color;
+    global_settings.bar_color = *color;
     global_input_buffer = '';
+    write_config();
 }
 
 void set_top_n() {
     clear_screen();
     init_picture_buffer();
     printf("\x1b[%dB", y_pos);
-    foreground_color(global_settings.menucolor);
+    foreground_color(global_settings.menu_color);
     printf("%s\n", "WhatsApp Analyzer\n");
     printf("Wie viele Zeilen sollen z.B. bei den Tagen mit den meisten Nachrichten ausgegeben werden:\n");
     printf("\n  \x84ndere den Wert mit den Pfeiltasten\n  ");
@@ -115,13 +119,14 @@ void set_top_n() {
     }
     global_arrow_keys = 0;
     global_input_buffer = '';
+    write_config();
 }
 
 void set_empty_lines() {
     clear_screen();
     init_picture_buffer();
     printf("\x1b[%dB", y_pos);
-    foreground_color(global_settings.menucolor);
+    foreground_color(global_settings.menu_color);
     printf("%s\n", "WhatsApp Analyzer\n");
     printf("\n  \x84ndere den Wert mit den Pfeiltasten\n  ");
     HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -140,18 +145,18 @@ void set_empty_lines() {
     }
     global_arrow_keys = 0;
     global_input_buffer = '';
+    write_config();
 }
 
 void default_settings() {
     global_settings.fontcolor = (Color) {255, 255, 255};
-    global_settings.menucolor = (Color) {255, 255, 0};
-    global_settings.barcolor = (Color) {255, 255, 255};
+    global_settings.menu_color = (Color) {255, 255, 0};
+    global_settings.bar_color = (Color) {255, 255, 255};
     global_settings.background = (Color) {0, 0, 0};
     global_settings.highlight_font = (Color) {1, 1, 1};
     global_settings.highlight_back = (Color) {0, 255, 255};
     global_settings.top_n = 40;
     global_settings.empty_lines = 1;
-    global_settings.ram_delay = 1000;
 }
 
 void read_config() {
