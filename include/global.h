@@ -13,10 +13,10 @@ int y_size;
 
 #define buffersize 10000
 #define sync_delay 20
-#define key_right 80
-#define key_left 72
-#define key_up 75
-#define key_down 77
+#define key_down 80
+#define key_up 72
+#define key_left 75
+#define key_right 77
 
 #define DONT_INIT_BUFFER 1
 #define EXECUTE_PARENT 2
@@ -27,6 +27,7 @@ Settings global_settings;
 
 
 FILE *file;
+char*filename;
 
 int global_message_n;
 struct Message *global_first_message;
