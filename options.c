@@ -110,6 +110,10 @@ void opt1_3_2() {
     print_user_message();
 }
 
+void opt1_3_3() {
+    print_word_message(NULL);
+}
+
 void opt2_1_1() {
     set_font_color();
     write_config();

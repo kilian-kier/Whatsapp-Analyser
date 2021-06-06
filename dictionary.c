@@ -535,19 +535,19 @@ Dictionary *right_rotate(Dictionary *temp) {
     return x;
 }
 
-Tree * find_word(Dictionary *tree_node, const char *string, Tree *ret) {
+Tree *find_word(Dictionary *tree_node, const char *string, Tree *ret, int n_word) {
     if (tree_node == NULL)
         return ret;
-    ret = find_word(tree_node->left, string, ret);
+    ret = find_word(tree_node->left, string, ret, n_word);
     if (string[0] == tree_node->words->current_message->message[tree_node->words->offset])
         if (check_word(tree_node, string) == true) {
             word_list *temp = tree_node->words;
             while (temp != NULL) {
-                ret = insert_to_tree(temp, ret, NULL);
+                ret = insert_to_tree(temp, ret, NULL, n_word);
                 temp = temp->next;
             }
         }
-    ret = find_word(tree_node->right, string, ret);
+    ret = find_word(tree_node->right, string, ret, n_word);
     return ret;
 }
 

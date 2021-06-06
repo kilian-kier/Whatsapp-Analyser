@@ -132,9 +132,14 @@ List *insert(void *item, List *node, char type);
 List *pop(List *node);
 int get_list_length(List *list);
 char *get_string_from_list(List *list_string);
-Tree *insert_to_tree(word_list *message, Tree *node, Tree *parent);
+List * insert_offset(int *offset, List *node, int word, int max_word);
+Tree *insert_to_tree(word_list *message, Tree *node, Tree *parent, int n_word);
 Tree *get_min_right(Tree *node);
 Tree *get_next_item(Tree *node);
+Tree *get_max_left(Tree *node);
+Tree *get_previous_item(Tree *node);
+Tree *delete_node(Tree *node);
+Tree *update_tree(Tree *node, int words);
 
 List* free_list(List *list);
 
