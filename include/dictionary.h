@@ -12,10 +12,11 @@ Dictionary *insert_word(Message *ptr, int offset, int length, Dictionary *temp, 
 int height(Dictionary *temp);
 Dictionary *right_rotate(Dictionary *temp);
 Dictionary *left_rotate(Dictionary *temp);
-void print_dictionary(Dictionary *ptr,bool reverse);
+void print_dictionary(Dictionary *ptr,bool reverse,int max_amount);
 int get_balanced(Dictionary * temp);
 int max_height(int left, int right);
 void update_height(Dictionary *temp, int level);
+void print_word_stats(Dictionary*dict);
 
 void dictionary_main(char sort);
 int relative_word_count(Dictionary *ptr);

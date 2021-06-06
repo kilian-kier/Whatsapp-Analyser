@@ -246,13 +246,13 @@ void draw_picture_buffer() {
     HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
     GetConsoleScreenBufferInfo(hStdout, &bufferInfo);
-    int r;
-    int br;
-    int g;
-    int bg;
-    int b;
-    int bb;
-    char c;
+    int r=0;
+    int br=0;
+    int g=0;
+    int bg=0;
+    int b=0;
+    int bb=0;
+    char c=0;
 
     printf("\x1b[s");
     int page = global_current_pos / y_size;
@@ -308,11 +308,12 @@ void draw_picture_buffer() {
         printf("\x1b[%dD\x1b[1B", x_size);
     }
     fflush(stdout);
-    foreground_color(global_settings.fontcolor);
+    foreground_color(global_settings.menucolor );
     printf("\x1b[2E            \x1b[12DP[%d | %d]", page + 1, global_page_count);
     printf("\x1b[u");
     setvbuf(stdout, NULL, _IONBF, 0);
     SetConsoleCursorPosition(hStdout, bufferInfo.dwCursorPosition);
+    memory_thread();
 }
 
 void clear_screen() {

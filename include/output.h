@@ -4,6 +4,7 @@
 #include "structs.h"
 #include "std_include.h"
 #include "global.h"
+#include "memory.h"
 
 #define white (Color){255,255,255}
 #define black (Color){0,0,0}
