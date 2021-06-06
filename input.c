@@ -1,7 +1,6 @@
 #include "include/input.h"
 
 char *get_string(char *string, int size, char *pointer) {
-
     int i = 0, j = 0;
     int array_size = 0;
     if (pointer != NULL) {
@@ -17,8 +16,6 @@ char *get_string(char *string, int size, char *pointer) {
     bool changed_string = true;
 
     printf("   ");
-
-
         while (global_input_buffer != 13 && global_input_buffer != '\n') {
             if (j % 66 < 33) {
                 cursor_blink(true,i);
@@ -200,7 +197,7 @@ List *get_suggestions_from_array(char **array, int size, char *search) {
         perror("malloc");
         return NULL;
     }
-
+    suggestions->next->next=NULL;
     suggestions->next->i.pointer = array[index];
 
     int temp_index = index;
