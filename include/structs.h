@@ -64,13 +64,33 @@ typedef struct Pixel {
     Color foreground;
     Color background;
 } Pixel;
+union uni {
+    int integer;
+    char character;
+    void *pointer;
+    Dictionary*dict;
+    Pixel*dot;
+};
+
+typedef struct List {
+    struct List *next;
+    union uni i;
+} List;
+
+
+typedef struct Console_buffer_node{
+    List *pixel_list;
+}Console_buffer_node;
 
 typedef struct Console_buffer {
     unsigned int n;
-    Pixel **buffer;
+    Console_buffer_node *buffer;
     struct Console_buffer *next;
     struct Console_buffer *previous;
 } Console_buffer;
+
+
+
 
 typedef struct Day_count {
     unsigned int day;
@@ -91,17 +111,9 @@ typedef struct Settings {
     int ram_delay;
 } Settings;
 
-union uni {
-    int integer;
-    char character;
-    void *pointer;
-    Dictionary*dict;
-};
 
-typedef struct List {
-    struct List *next;
-    union uni i;
-} List;
+
+
 
 typedef struct Message_list {
     word_list *message;
