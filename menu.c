@@ -68,7 +68,6 @@ void main_menu() {
 
     run_input_thread();
     do {
-
         printf("\x1b[%dB", y_pos);
         x = menu(1, temp);
         if (x == 0) {

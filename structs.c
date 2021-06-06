@@ -1,8 +1,7 @@
 #include "include/structs.h"
 
 
-Option_tree *
-create_option(wchar_t *opt, void (*function)(), Option_tree *parent, int n_child, int index, int settings) {
+Option_tree *create_option(wchar_t *opt, void (*function)(), Option_tree *parent, int n_child, int index, int settings) {
     Option_tree *temp = malloc(sizeof(Option_tree));
     temp->opt = opt;
     temp->n_childs = n_child;
@@ -124,12 +123,16 @@ Tree *insert_to_tree(word_list *message, Tree *node, Tree *parent, int n_word) {
 }
 
 Tree *get_min_right(Tree *node) {
+    if (node == NULL)
+        return NULL;
     if (node->left == NULL)
         return node;
     return get_min_right(node->left);
 }
 
 Tree *get_next_item(Tree *node) {
+    if (node == NULL)
+        return NULL;
     if (node->right != NULL) {
         return get_min_right(node->right);
     } else {
@@ -145,12 +148,16 @@ Tree *get_next_item(Tree *node) {
 }
 
 Tree *get_max_left(Tree *node) {
+    if (node == NULL)
+        return NULL;
     if (node->right == NULL)
         return node;
     return get_max_left(node->right);
 }
 
 Tree *get_previous_item(Tree *node) {
+    if (node == NULL)
+        return NULL;
     if (node->left != NULL) {
         return get_max_left(node->left);
     } else {

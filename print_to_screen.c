@@ -362,11 +362,10 @@ void print_all_messages() {
         temp = temp->next;
     }
     free(output);
-    draw_picture_buffer();
 }
 
 void print_word_message(const char *input_string) {
-    global_arrow_keys='s';
+    global_arrow_keys = 's';
     pthread_join(*(pthread_t *) global_threads[0][0], NULL);
     pthread_join(*(pthread_t *) global_threads[6][0], NULL);
     clear_screen();
@@ -398,132 +397,134 @@ void print_word_message(const char *input_string) {
         } else {
             cursor_blink(false, x);
         }
+        shift = GetAsyncKeyState(VK_SHIFT);
         if (global_send_input == true) {
-            switch (global_input_buffer) {
-                case 0:
-                    global_send_input = false;
-                    break;
-                case 9:
-                    if (m_tree->messages != NULL) {
-                        shift = GetKeyState(VK_SHIFT);
-                        if (shift == -127 || shift == -128) {
-                            if (tab != NULL)
-                                tab = get_previous_item(tab);
-                            if (tab == NULL)
-                                tab = get_max_left(m_tree->messages);
-                            global_current_pos = tab->message->number_message *
-                                                 (global_settings.empty_lines + 1);
-                        } else {
-                            if (tab != NULL)
-                                tab = get_next_item(tab);
-                            if (tab == NULL)
-                                tab = get_min_right(m_tree->messages);
-                            global_current_pos = tab->message->number_message *
-                                                 (global_settings.empty_lines + 1);
-                        }
-                        draw_picture_buffer();
-                    }
-                    global_send_input = false;
-                    break;
-                case 8:
-                    if (input != NULL) {
+            if (global_input_buffer < 256) {
+                switch (global_input_buffer) {
+                    case 0:
                         global_send_input = false;
-                        printf(" ");
-                        delete_n_char(2);
-                        input = pop(input);
-                        x--;
-                    }
-                    global_send_input = false;
-                default:
-                    if (string != NULL)
-                        printf("%s", string);
-                    else {
-                        if (global_send_input != false) {
-                            printf("%c", global_input_buffer);
-                            x++;
-                            if (global_input_buffer >= 65 && global_input_buffer <= 90)
-                                global_input_buffer += 32;
-                            input = insert(&global_input_buffer, input, 'c');
-                            foreground_color(global_settings.menu_color);
-                        }
-                        if (input == NULL) {
+                        break;
+                    case 9:
+                        if (m_tree->messages != NULL) {
+                            if (shift != 0 && shift != 1) {
+                                if (tab != NULL)
+                                    tab = get_previous_item(tab);
+                                if (tab == NULL)
+                                    tab = get_max_left(m_tree->messages);
+                            } else {
+                                if (tab != NULL)
+                                    tab = get_next_item(tab);
+                                if (tab == NULL)
+                                    tab = get_min_right(m_tree->messages);
+                            }
+                            if (tab != NULL)
+                                global_current_pos = tab->message->number_message *
+                                                     (global_settings.empty_lines + 1);
                             draw_picture_buffer();
+                        }
+                        global_send_input = false;
+                        break;
+                    case 8:
+                        if (input != NULL) {
+                            global_send_input = false;
+                            printf(" ");
+                            delete_n_char(2);
+                            input = pop(input);
+                            x--;
+                        }
+                        global_send_input = false;
+                    default:
+                        if (string != NULL)
+                            printf("%s", string);
+                        else {
+                            if (global_send_input != false) {
+                                printf("%c", global_input_buffer);
+                                x++;
+                                if (global_input_buffer >= 65 && global_input_buffer <= 90)
+                                    global_input_buffer += 32;
+                                input = insert(&global_input_buffer, input, 'c');
+                                foreground_color(global_settings.menu_color);
+                            }
+                            if (input == NULL) {
+                                draw_picture_buffer();
+                                free(string);
+                                string = NULL;
+                                continue;
+                            }
+                            string = get_string_from_list(input);
+                        }
+                        free_tree(m_tree->messages);
+                        m_tree->words = free_list(m_tree->words);
+                        m_tree->words = insert(string, m_tree->words, 'p');
+                        m_tree->messages = NULL;
+                        char *token = strtok(string, " \n\0");
+                        m_tree->messages = find_word(global_first_word, token, m_tree->messages, 0);
+                        int i = 1;
+                        while ((token = strtok(NULL, " ")) != NULL) {
+                            m_tree->messages = find_word(global_first_word, token, m_tree->messages, i);
+                            m_tree->words = insert(token, m_tree->words, 'p');
+                            i++;
+                        }
+                        m_tree->messages = update_tree(m_tree->messages, i);
+                        if (m_tree->messages == NULL) {
+                            print_all_messages();
+                            global_send_input = false;
                             free(string);
                             string = NULL;
                             continue;
                         }
-                        string = get_string_from_list(input);
-                    }
-                    free_tree(m_tree->messages);
-                    m_tree->words = free_list(m_tree->words);
-                    m_tree->words = insert(string, m_tree->words, 'p');
-                    m_tree->messages = NULL;
-                    char *token = strtok(string, " \n\0");
-                    m_tree->messages = find_word(global_first_word, token, m_tree->messages, 0);
-                    int i = 1;
-                    while ((token = strtok(NULL, " ")) != NULL) {
-                        m_tree->messages = find_word(global_first_word, token, m_tree->messages, i);
-                        m_tree->words = insert(token, m_tree->words, 'p');
-                        i++;
-                    }
-                    m_tree->messages = update_tree(m_tree->messages, i);
-                    if (m_tree->messages == NULL) {
+                        global_current_pos = 0;
                         print_all_messages();
-                        global_send_input = false;
+                        highlight_words(m_tree->messages, m_tree->words);
+                        tab = m_tree->messages;
+                        while (tab->left != NULL)
+                            tab = tab->left;
+                        draw_picture_buffer();
                         free(string);
                         string = NULL;
-                        continue;
-                    }
-                    global_current_pos = 0;
-                    print_all_messages();
-                    highlight_words(m_tree->messages, m_tree->words);
-                    tab = m_tree->messages;
-                    while (tab->left != NULL)
-                        tab = tab->left;
-                    draw_picture_buffer();
-                    free(string);
-                    string = NULL;
-                    global_send_input = false;
-                    break;
+                        global_send_input = false;
+                        break;
+                }
+            } else {
+                global_input_buffer -= 256;
+                switch (global_input_buffer) {
+                    case key_right:
+                        if (global_current_pos < global_page_count * y_size - y_size) {
+                            global_current_pos++;
+                            draw_picture_buffer();
+                        }
+                        break;
+                    case key_left:
+                        if (global_current_pos > 0) {
+                            global_current_pos--;
+                            draw_picture_buffer();
+                        }
+                        break;
+                    case key_up:
+                        if (global_current_pos - y_size > 0) {
+                            global_current_pos -= y_size;
+                            draw_picture_buffer();
+                        }
+                        break;
+                    case key_down:
+                        if (global_current_pos + y_size < global_page_count * y_size - y_size + 1) {
+                            global_current_pos += y_size;
+                            draw_picture_buffer();
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                foreground_color(global_settings.menu_color);
+                global_input_buffer = 0;
+                global_send_input = false;
             }
-            }else {
-            global_input_buffer -= 256;
-            switch (global_input_buffer) {
-                case key_right:
-                    if (global_current_pos < global_page_count * y_size - y_size) {
-                        global_current_pos++;
-                        draw_picture_buffer();
-                    }
-                    break;
-                case key_left:
-                    if (global_current_pos > 0) {
-                        global_current_pos--;
-                        draw_picture_buffer();
-                    }
-                    break;
-                case key_up:
-                    if (global_current_pos - y_size > 0) {
-                        global_current_pos -= y_size;
-                        draw_picture_buffer();
-                    }
-                    break;
-                case key_down:
-                    if (global_current_pos + y_size < global_page_count * y_size - y_size + 1) {
-                        global_current_pos += y_size;
-                        draw_picture_buffer();
-                    }
-                    break;
-            }
-            foreground_color(global_settings.menu_color);
-            global_input_buffer = 0;
-            global_send_input = false;
-        }
         } else {
             wait++;
             Sleep(sync_delay / 2);
         }
     }
-    global_arrow_keys=0;
+    global_arrow_keys = 0;
 }
 
 void highlight_words(Tree *node, List *input) {
