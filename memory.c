@@ -9,6 +9,7 @@ void free_messages(Message *ptr) {
     ptr->next = NULL;
     free(ptr);
 }
+
 void free_users(User *ptr) {
     if (ptr == NULL)
         return;
@@ -28,8 +29,8 @@ void free_memory() {
     if (global_first_message != NULL) {
         clear_screen();
         for (int i = 0; i < 7; i++) {
-            pthread_cancel(*((pthread_t *)global_threads[i][0]));
-            pthread_join(*((pthread_t *)global_threads[i][0]), NULL);
+            pthread_cancel(*((pthread_t *) global_threads[i][0]));
+            pthread_join(*((pthread_t *) global_threads[i][0]), NULL);
         }
         free_messages(global_first_message);
         free_users(global_first_user);
@@ -50,22 +51,25 @@ void free_tree(Tree *node) {
     free(node);
 }
 
-void run_memory_thread() {
-    pthread_t pth;
-    pthread_create(&pth, NULL, memory_thread, NULL);
+List *free_list(List *list) {
+    if (list == NULL)
+        return NULL;
+    list->next = free_list(list->next);
+    free(list);
+    return NULL;
 }
 
-void *memory_thread() {
-        DWORD processID = GetCurrentProcessId();
-        HANDLE hProcess;
-        PROCESS_MEMORY_COUNTERS pmc;
-        hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processID);
-        GetProcessMemoryInfo(hProcess, &pmc, sizeof(pmc));
-        HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
-        CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
-        GetConsoleScreenBufferInfo(hStdout, &bufferInfo);
-        SetConsoleCursorPosition(hStdout, (COORD){0, y_size});
-        foreground_color(global_settings.menucolor);
-        printf("RAM Nutzung:\n%.2lf MB\n", (double)pmc.WorkingSetSize / 1048576);
-        SetConsoleCursorPosition(hStdout, bufferInfo.dwCursorPosition);
+void memory_thread() {
+    DWORD processID = GetCurrentProcessId();
+    HANDLE hProcess;
+    PROCESS_MEMORY_COUNTERS pmc;
+    hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processID);
+    GetProcessMemoryInfo(hProcess, &pmc, sizeof(pmc));
+    HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
+    GetConsoleScreenBufferInfo(hStdout, &bufferInfo);
+    SetConsoleCursorPosition(hStdout, (COORD) {0, (short)y_size});
+    foreground_color(global_settings.menu_color);
+    printf("RAM Nutzung:\n%.2lf MB\n", (double) pmc.WorkingSetSize / 1048576);
+    SetConsoleCursorPosition(hStdout, bufferInfo.dwCursorPosition);
 }

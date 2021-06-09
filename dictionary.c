@@ -1,7 +1,8 @@
 #include "include/dictionary.h"
 
-
 void dictionary_main(char sort) {
+    pthread_join(*(pthread_t *) global_threads[0][0], NULL);
+    pthread_join(*(pthread_t *) global_threads[6][0], NULL);
     static bool stat_reverse = 0;
     static char sort_1 = 'A';
     char buffer[50];
@@ -26,16 +27,18 @@ void dictionary_main(char sort) {
             sprintf(buffer, "Nach Laenge Sortiert - Richtung: %s\n\n",
                     stat_reverse == 0 ? "aufsteigend" : "absteigend");
             break;
+        default:
+            break;
     }
 
-    int max_amount = floor(log10(find_most_word(0, global_first_word))) + 1;
+    int max_amount = (int)floor(log10(find_most_word(0, global_first_word))) + 1;
 
-    print_to_buffer(buffer, 0, 0, global_settings.menucolor, global_settings.background);
-    print_to_buffer("Anzahl: Wort\n", -1, -1, global_settings.menucolor, global_settings.background);
+    print_to_buffer(buffer, 0, 0, global_settings.menu_color, global_settings.background);
+    print_to_buffer("Anzahl: Wort\n", -1, -1, global_settings.menu_color, global_settings.background);
     if (sort_1 == 'a' || sort_1 == 'l') {
-        global_first_word = rearange_tree(NULL, global_first_word, sort_1);
+        global_first_word = rearrange_tree(NULL, global_first_word, sort_1);
         print_dictionary(global_first_word, stat_reverse, max_amount);
-        global_first_word = rearange_tree(NULL, global_first_word, 'A');
+        global_first_word = rearrange_tree(NULL, global_first_word, 'A');
     } else {
         print_dictionary(global_first_word, stat_reverse, max_amount);
     }
@@ -43,7 +46,7 @@ void dictionary_main(char sort) {
 
 void dictionary_select() {
     char buffer[100];
-    char input = 0;
+    char input;
     Dictionary *ret = NULL;
     do {
         clear_screen();
@@ -51,7 +54,7 @@ void dictionary_select() {
         dictionary_main(0);
         draw_picture_buffer();
         print_banner();
-        foreground_color(global_settings.menucolor);
+        foreground_color(global_settings.menu_color);
 
         ret = get_string_tree(buffer, 100, (char *) global_first_word);
         if (ret == NULL) {
@@ -64,7 +67,10 @@ void dictionary_select() {
             Sleep(sync_delay / 2);
         } while (input != '' && input != 10 && input != 13 && input != 'n');
         if (input == 'n') {
-            //deinefunktion
+            char *string = malloc((ret->length_word + 1) * sizeof(char));
+            sprintf(string, "%.*s", ret->length_word, ret->words->current_message->message+ret->words->offset);
+            string[ret->length_word] = 0;
+            print_word_message(string);
         }
     } while (true);
 }
@@ -78,13 +84,13 @@ void print_word_stats(Dictionary *dict) {
 
     sprintf(string, "Wort: %.*s\n", dict->length_word < x_size - 7 ? dict->length_word : x_size - 7,
             dict->words->current_message->message + dict->words->offset);
-    print_to_buffer(string, 0, 0, global_settings.menucolor, global_settings.background);
+    print_to_buffer(string, 0, 0, global_settings.menu_color, global_settings.background);
     sprintf(string, "Laenge: %d\n", dict->length_word);
-    print_to_buffer(string, -1, -1, global_settings.menucolor, global_settings.background);
+    print_to_buffer(string, -1, -1, global_settings.menu_color, global_settings.background);
     sprintf(string, "Anzahl der Vorkommnisse: %d\n", dict->amount);
-    print_to_buffer(string, -1, -1, global_settings.menucolor, global_settings.background);
+    print_to_buffer(string, -1, -1, global_settings.menu_color, global_settings.background);
     print_to_buffer("\nDas Wort kommt in folgenden Nachrichten vor (""n"" zeigt Nachrichten im Kontext):\n\n", -1, -1,
-                    global_settings.menucolor, global_settings.background);
+                    global_settings.menu_color, global_settings.background);
 
     word_list *words = dict->words;
     do {
@@ -133,9 +139,9 @@ int find_most_word(int most, Dictionary *ptr) {
     return most;
 }
 
-Dictionary *get_string_tree(char *string, int size, char *pointer) {
+Dictionary *get_string_tree(char *string, int size, const char *pointer) {
     global_arrow_keys = 's';
-    int max_amount = floor(log10(find_most_word(0, global_first_word))) + 1;
+    int max_amount = (int)floor(log10(find_most_word(0, global_first_word))) + 1;
     int i = 0, j = 0;
     global_input_buffer = 0;
     global_send_input = false;
@@ -196,10 +202,10 @@ Dictionary *get_string_tree(char *string, int size, char *pointer) {
                                                     temp_suggestions->i.dict->words->offset,
                                             temp_suggestions->i.dict->length_word);
                                     string[temp_suggestions->i.dict->length_word] = 0;
-                                    foreground_color(global_settings.menucolor);
+                                    foreground_color(global_settings.menu_color);
                                     printf(" ");
                                     delete_n_char(i + 1);
-                                    i = strlen(string);
+                                    i = (int)strlen(string);
                                     printf("%s", string);
                                 }
                                 global_send_input = false;
@@ -207,7 +213,7 @@ Dictionary *get_string_tree(char *string, int size, char *pointer) {
                         }
                         break;
                     default:
-                        string[i] = global_input_buffer;
+                        string[i] = (char)global_input_buffer;
                         printf("%c", string[i]);
                         global_send_input = false;
                         if (i < size) {
@@ -237,7 +243,7 @@ Dictionary *get_string_tree(char *string, int size, char *pointer) {
                                          global_settings.highlight_font, global_settings.highlight_back);
                             draw_picture_buffer();
                             last_suggestion = suggestion;
-                            foreground_color(global_settings.menucolor);
+                            foreground_color(global_settings.menu_color);
                         }
                     } else {
                         global_current_pos = 0;
@@ -246,7 +252,7 @@ Dictionary *get_string_tree(char *string, int size, char *pointer) {
                                          last_suggestion->position / (global_settings.empty_lines + 1),
                                          global_settings.fontcolor, global_settings.background);
                             draw_picture_buffer();
-                            foreground_color(global_settings.menucolor);
+                            foreground_color(global_settings.menu_color);
                             last_suggestion = NULL;
                         }
                     }
@@ -262,7 +268,7 @@ Dictionary *get_string_tree(char *string, int size, char *pointer) {
                                  temp_suggestions->i.dict->position / (global_settings.empty_lines + 1),
                                  global_settings.highlight_font, global_settings.highlight_back);
                     draw_picture_buffer();
-                    foreground_color(global_settings.menucolor);
+                    foreground_color(global_settings.menu_color);
 
                     last_suggestion = temp_suggestions->i.dict;
                     temp_suggestions = temp_suggestions->next;
@@ -270,38 +276,34 @@ Dictionary *get_string_tree(char *string, int size, char *pointer) {
             } else {
                 global_input_buffer -= 256;
                 switch (global_input_buffer) {
-                    case key_down:
+                    case key_right:
                         if (global_current_pos < global_page_count * y_size - y_size) {
                             global_current_pos++;
                             draw_picture_buffer();
                         }
                         break;
-                    case key_up:
+                    case key_left:
                         if (global_current_pos > 0) {
                             global_current_pos--;
                             draw_picture_buffer();
                         }
                         break;
-                    case key_left:
+                    case key_up:
                         if (global_current_pos - y_size > 0) {
                             global_current_pos -= y_size;
                             draw_picture_buffer();
-                        } else if (global_current_pos != 0) {
-                            global_current_pos = 0;
-                            draw_picture_buffer();
                         }
                         break;
-                    case key_right:
+                    case key_down:
                         if (global_current_pos + y_size < global_page_count * y_size - y_size + 1) {
                             global_current_pos += y_size;
                             draw_picture_buffer();
-                        } else if (global_current_pos + y_size != global_page_count * y_size - y_size) {
-                            global_current_pos = (global_page_count - 1) * y_size;
-                            draw_picture_buffer();
                         }
                         break;
+                    default:
+                        break;
                 }
-                foreground_color(global_settings.menucolor);
+                foreground_color(global_settings.menu_color);
                 global_input_buffer = 0;
                 global_send_input = false;
             }
@@ -317,15 +319,15 @@ Dictionary *get_string_tree(char *string, int size, char *pointer) {
 }
 
 
-Dictionary *rearange_tree(Dictionary *new_dict, Dictionary *dict, char type) {
+Dictionary *rearrange_tree(Dictionary *new_dict, Dictionary *dict, char type) {
     if (dict == NULL)return new_dict;
-    new_dict = rearange_tree(new_dict, dict->left, type);
-    new_dict = rearange_tree(new_dict, dict->right, type);
-    new_dict = rearange_word(new_dict, dict, type);
+    new_dict = rearrange_tree(new_dict, dict->left, type);
+    new_dict = rearrange_tree(new_dict, dict->right, type);
+    new_dict = rearrange_word(new_dict, dict, type);
     return new_dict;
 }
 
-Dictionary *rearange_word(Dictionary *new_dict, Dictionary *dict, char type) {
+Dictionary *rearrange_word(Dictionary *new_dict, Dictionary *dict, char type) {
     if (new_dict == NULL) {
         new_dict = dict;
         new_dict->left = NULL;
@@ -339,24 +341,26 @@ Dictionary *rearange_word(Dictionary *new_dict, Dictionary *dict, char type) {
                             new_dict->words->current_message->message + new_dict->words->offset,
                             (dict->length_word < new_dict->length_word) ? dict->length_word : new_dict->length_word) <
                     0) {
-                    new_dict->left = rearange_word(new_dict->left, dict, type);
+                    new_dict->left = rearrange_word(new_dict->left, dict, type);
                 } else {
-                    new_dict->right = rearange_word(new_dict->right, dict, type);
+                    new_dict->right = rearrange_word(new_dict->right, dict, type);
                 }
                 break;
             case 'l':
                 if (dict->length_word < new_dict->length_word) {
-                    new_dict->left = rearange_word(new_dict->left, dict, type);
+                    new_dict->left = rearrange_word(new_dict->left, dict, type);
                 } else {
-                    new_dict->right = rearange_word(new_dict->right, dict, type);
+                    new_dict->right = rearrange_word(new_dict->right, dict, type);
                 }
                 break;
             case 'a':
                 if (dict->amount < new_dict->amount) {
-                    new_dict->left = rearange_word(new_dict->left, dict, type);
+                    new_dict->left = rearrange_word(new_dict->left, dict, type);
                 } else {
-                    new_dict->right = rearange_word(new_dict->right, dict, type);
+                    new_dict->right = rearrange_word(new_dict->right, dict, type);
                 }
+                break;
+            default:
                 break;
         }
     }
@@ -419,6 +423,8 @@ Dictionary *rearange_word(Dictionary *new_dict, Dictionary *dict, char type) {
                 new_dict->right = right_rotate(new_dict->right);
                 return left_rotate(new_dict);
             }
+            break;
+        default:
             break;
     }
     return new_dict;
@@ -564,7 +570,7 @@ void print_dictionary(Dictionary *ptr, bool reverse, int max_amount) {
         buffer[ptr->length_word + max_amount + 2] = '\n';
     }
     itoa(ptr->amount, buffer2, 10);
-    int len = strlen(buffer2);
+    int len = (int)strlen(buffer2);
     for (int i = 0; i < max_amount; i++) {
         if (i < len) {
             buffer[i] = buffer2[i];

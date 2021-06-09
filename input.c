@@ -56,7 +56,7 @@ char *get_string(char *string, int size, char *pointer) {
                             strcpy(string, temp_suggestions->i.pointer);
                             printf(" ");
                             delete_n_char(i + 1);
-                            i = strlen(string);
+                            i = (int)strlen(string);
                             printf("%s", string);
                             temp_suggestions = temp_suggestions->next;
                         }
@@ -64,7 +64,7 @@ char *get_string(char *string, int size, char *pointer) {
                     }
                     break;
                 default:
-                    string[i] = global_input_buffer;
+                    string[i] = (char)global_input_buffer;
                     printf("%c", string[i]);
                     global_send_input = false;
                     if (i < size) {
@@ -76,7 +76,6 @@ char *get_string(char *string, int size, char *pointer) {
                     changed_string = true;
                     break;
             }
-
         }
         j++;
         Sleep(sync_delay / 2);
@@ -86,7 +85,7 @@ char *get_string(char *string, int size, char *pointer) {
     return string;
 }
 
-void *input_thread() {
+_Noreturn void *input_thread() {
     global_input_buffer = 0;
 
     int c;
@@ -155,6 +154,8 @@ void *input_thread() {
                                 global_settings.top_n += 10;
                             }
 
+                            break;
+                        default:
                             break;
                     }
                     break;
@@ -233,7 +234,8 @@ void delete_n_char(int n) {
     HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
     GetConsoleScreenBufferInfo(hStdout, &bufferInfo);
-    bufferInfo.dwCursorPosition.X -= n;
+    bufferInfo.dwCursorPosition.X -= n; // NOLINT(cppcoreguidelines-narrowing-conversions)
+
     SetConsoleCursorPosition(hStdout, bufferInfo.dwCursorPosition);
     for (int i = 0; i < n; i++) {
         printf(" ");
@@ -245,10 +247,10 @@ void cursor_blink(bool on, int offset) {
     HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
     GetConsoleScreenBufferInfo(hStdout, &bufferInfo);
-    bufferInfo.dwCursorPosition.X -= (offset + 3);
+    bufferInfo.dwCursorPosition.X -= (offset + 3); // NOLINT(cppcoreguidelines-narrowing-conversions)
     SetConsoleCursorPosition(hStdout, bufferInfo.dwCursorPosition);
     printf("-> ");
-    bufferInfo.dwCursorPosition.X += (offset + 3);
+    bufferInfo.dwCursorPosition.X += (offset + 3); // NOLINT(cppcoreguidelines-narrowing-conversions)
     SetConsoleCursorPosition(hStdout, bufferInfo.dwCursorPosition);
     if (on) {
         printf("%c", 179);

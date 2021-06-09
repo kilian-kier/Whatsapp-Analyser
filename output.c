@@ -71,8 +71,10 @@ void free_console_buffer(Console_buffer *buffer) {
         }
         if (buffer->buffer != NULL) {
             free(buffer->buffer);
+            buffer->buffer = NULL;
         }
         free(buffer);
+        buffer = NULL;
     }
 }
 
@@ -146,9 +148,9 @@ void draw_rect(int xpos, int ypos, int xsize, int ysize, bool fill, bool layer) 
         for (int x = 0; x < xsize; x++) {
             if (fill || (!x || !y || y == ysize - 1 || x == xsize - 1)) {
                 if (layer) {
-                    print_point(x + xpos, y + ypos, -37, &global_settings.barcolor, NULL);
+                    print_point(x + xpos, y + ypos, -37, &global_settings.bar_color, NULL);
                 } else {
-                    print_point(x + xpos, y + ypos, ' ', NULL, &global_settings.barcolor);
+                    print_point(x + xpos, y + ypos, ' ', NULL, &global_settings.bar_color);
                 }
             }
         }
@@ -313,7 +315,7 @@ void draw_picture_buffer() {
         printf("\x1b[%dD\x1b[1B", x_size);
     }
     fflush(stdout);
-    foreground_color(global_settings.menucolor);
+    foreground_color(global_settings.menu_color);
     printf("\x1b[2E            \x1b[12DP[%d | %d]", page + 1, global_page_count);
     printf("\x1b[u");
     setvbuf(stdout, NULL, _IONBF, 0);
@@ -398,7 +400,7 @@ void background_color(Color color) {
 
 void print_banner() {
     printf("\x1b[%dB", y_pos);
-    foreground_color(global_settings.menucolor);
+    foreground_color(global_settings.menu_color);
     printf("%s\n", "WhatsApp Analyzer\n");
     foreground_color(white);
 }

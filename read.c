@@ -1,7 +1,7 @@
 #include "include/read.h"
 
 void *read_file() {
-    char buffer[buffersize];
+    char buffer[buffer_size];
     char two_char_buffer[3];
     char *strtol_buffer;
     Message *ptr = (Message *) malloc(sizeof(Message));
@@ -35,19 +35,19 @@ void *read_file() {
     ptr->next = NULL;
     count_message();
     for (int i = 1; i < 7; i++) {
-        pthread_create((pthread_t *)global_threads[i][0], NULL, (void *)global_threads[i][1], NULL);
+        pthread_create((pthread_t *) global_threads[i][0], NULL, (void *) global_threads[i][1], NULL);
     }
 }
 
 char *get_message(char *buffer) {
     buffer[0] = 0;
     char *ret = NULL;
-    char temp[buffersize];
+    char temp[buffer_size];
     int position;
     do {
-        ret = fgets(buffer + strlen(buffer), buffersize, file);
+        ret = fgets(buffer + strlen(buffer), buffer_size, file);
         position = ftello(file);
-        fgets(temp, buffersize, file);
+        fgets(temp, buffer_size, file);
         fseeko(file, position, SEEK_SET);
     } while (ret != NULL && !check_new_string(temp));
     return ret;
@@ -65,7 +65,7 @@ bool check_new_string(const char *string) {
 
 int length(const char *buffer, char search, int start) {
     int x = 0;
-    while (x < buffersize) {
+    while (x < buffer_size) {
         if (buffer[x + start] == search) break;
         x++;
     }
@@ -77,7 +77,7 @@ char *string_convert(char *string, int offset) {
     int len = (int) strlen(string), y = 0;
     char string2[len];
     for (int i = offset; i < len; i++) {
-        if (string[i] >= 'A' && string[i] <= 'Z') string2[y] = string[i] + 32;
+        if (string[i] >= 'A' && string[i] <= 'Z') string2[y] = (char)(string[i] + 32);
         else if (string[i] == -61 && (string[i + 1] == -92 || string[i + 1] == -100)) {
             string2[y] = '\x84';
             i++;

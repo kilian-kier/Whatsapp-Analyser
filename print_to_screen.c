@@ -2,6 +2,8 @@
 
 
 void print_weekday() {
+    pthread_join(*(pthread_t *) global_threads[0][0], NULL);
+    pthread_join(*(pthread_t *) global_threads[2][0], NULL);
     init_picture_buffer();
     print_to_buffer("Montag", 0, 0, global_settings.fontcolor, global_settings.background);
     print_to_buffer("Dienstag", 0, 1, global_settings.fontcolor, global_settings.background);
@@ -34,6 +36,8 @@ void print_weekday() {
 }
 
 void print_hour() {
+    pthread_join(*(pthread_t *) global_threads[0][0], NULL);
+    pthread_join(*(pthread_t *) global_threads[3][0], NULL);
     init_picture_buffer();
     for (int i = 0; i < 24; i++) {
         char string[6];
@@ -64,6 +68,8 @@ void print_hour() {
 }
 
 void print_month() {
+    pthread_join(*(pthread_t *) global_threads[0][0], NULL);
+    pthread_join(*(pthread_t *) global_threads[4][0], NULL);
     init_picture_buffer();
     print_to_buffer("Januar", 0, 0, global_settings.fontcolor, global_settings.background);
     print_to_buffer("Februar", 0, 1, global_settings.fontcolor, global_settings.background);
@@ -101,6 +107,8 @@ void print_month() {
 }
 
 void print_day() {
+    pthread_join(*(pthread_t *) global_threads[0][0], NULL);
+    pthread_join(*(pthread_t *) global_threads[5][0], NULL);
     init_picture_buffer();
     char *buf1 = malloc(9 * sizeof(char));
     char *buf2 = malloc(((int) log10(global_day_arr[0].n) + 1) * sizeof(char));
@@ -118,6 +126,8 @@ void print_day() {
 }
 
 void print_average_words() {
+    pthread_join(*(pthread_t *) global_threads[0][0], NULL);
+    pthread_join(*(pthread_t *) global_threads[1][0], NULL);
     init_picture_buffer();
     int n = 0;
     User *temp = global_first_user;
@@ -153,6 +163,8 @@ void print_average_words() {
 }
 
 void print_message_len(unsigned short mode) {
+    pthread_join(*(pthread_t *) global_threads[0][0], NULL);
+    pthread_join(*(pthread_t *) global_threads[1][0], NULL);
     init_picture_buffer();
     int n = 0;
     User *temp = global_first_user;
@@ -211,11 +223,13 @@ void print_message_len(unsigned short mode) {
 }
 
 void print_date_message() {
+    pthread_join(*(pthread_t *) global_threads[0][0], NULL);
+    pthread_join(*(pthread_t *) global_threads[1][0], NULL);
     bool input;
     clear_screen();
     init_picture_buffer();
     print_banner();
-    foreground_color(global_settings.menucolor);
+    foreground_color(global_settings.menu_color);
 
     unsigned int day, month, year;
     do {
@@ -230,7 +244,7 @@ void print_date_message() {
         char *buffer = malloc(9 * sizeof(char));
         if (get_string(buffer, 9, NULL) == NULL)
             return;
-        if (sscanf(buffer, "%d.%d.%d", &day, &month, &year) != 3) {
+        if (sscanf(buffer, "%d.%d.%d", &day, &month, &year) != 3) { // NOLINT(cert-err34-c)
             input = false;
         }
 
@@ -275,6 +289,8 @@ void print_date_message() {
 }
 
 void print_user_message() {
+    pthread_join(*(pthread_t *) global_threads[0][0], NULL);
+    pthread_join(*(pthread_t *) global_threads[1][0], NULL);
     clear_screen();
     init_picture_buffer();
     bool input;
@@ -304,7 +320,7 @@ void print_user_message() {
     draw_picture_buffer();
 
     print_banner();
-    foreground_color(global_settings.menucolor);
+    foreground_color(global_settings.menu_color);
 
     char *buf = malloc((max_c + 1) * sizeof(char));
     do {
@@ -332,20 +348,21 @@ void print_user_message() {
 
 void print_all_messages() {
     init_picture_buffer();
-    char *output = malloc(x_size);
+    char *output = malloc(x_size * sizeof(char));
     Message *temp = global_first_message;
     int i = 0;
     while (temp->next != NULL) {
-        sprintf(output, "%02d.%02d.%02d, %02d:%02d - %s: %.*s", (int) temp->day, (int) temp->month,
-                (int) temp->year,
-                (int) temp->hour, (int) temp->minute, temp->user, x_size - 15,
-                temp->message);
-        print_to_buffer(output, 0, i, global_settings.fontcolor, global_settings.background);
-        i++;
+        if (temp->user != NULL) {
+            sprintf(output, "%02d.%02d.%02d, %02d:%02d - %s: %.*s", (int) temp->day, (int) temp->month,
+                    (int) temp->year,
+                    (int) temp->hour, (int) temp->minute, temp->user, (int) (x_size - 20 - strlen(temp->user)),
+                    temp->message);
+            print_to_buffer(output, 0, i, global_settings.fontcolor, global_settings.background);
+            i++;
+        }
         temp = temp->next;
     }
     free(output);
-    draw_picture_buffer();
 }
 
 void print_word_message(const char *input_string) {
@@ -355,7 +372,7 @@ void print_word_message(const char *input_string) {
     clear_screen();
     print_banner();
     print_all_messages();
-    foreground_color(global_settings.menucolor);
+    foreground_color(global_settings.menu_color);
     char *string = NULL;
     List *input = NULL;
     Message_tree *m_tree = malloc(sizeof(Message_tree));
@@ -381,18 +398,8 @@ void print_word_message(const char *input_string) {
         } else {
             cursor_blink(false, x);
         }
-        //global_send_input = true;
+        shift = GetAsyncKeyState(VK_SHIFT);
         if (global_send_input == true) {
-            //global_input_buffer = 'd';
-            /*if (global_input_buffer == 0)
-                global_input_buffer = 'q';
-            else
-                global_input_buffer = 9;*/
-            /*fflush(stdin);
-            do {
-                global_input_buffer = getchar();
-            } while (global_input_buffer == '\n');
-            fflush(stdin);*/
             if (global_input_buffer < 256) {
                 switch (global_input_buffer) {
                     case 0:
@@ -407,16 +414,15 @@ void print_word_message(const char *input_string) {
                                     tab = get_previous_item(tab);
                                 if (tab == NULL)
                                     tab = get_max_left(m_tree->messages);
-                                global_current_pos = tab->message->number_message *
-                                                     (global_settings.empty_lines + 1);
                             } else {
                                 if (tab != NULL)
                                     tab = get_next_item(tab);
                                 if (tab == NULL)
                                     tab = get_min_right(m_tree->messages);
+                            }
+                            if (tab != NULL)
                                 global_current_pos = tab->message->number_message *
                                                      (global_settings.empty_lines + 1);
-                            }
                             draw_picture_buffer();
                         }
                         global_send_input = false;
@@ -431,7 +437,6 @@ void print_word_message(const char *input_string) {
                         }
                         global_send_input = false;
                     default:
-                        print_all_messages();
                         if (string != NULL)
                             printf("%s", string);
                         else {
@@ -441,7 +446,7 @@ void print_word_message(const char *input_string) {
                                 if (global_input_buffer >= 65 && global_input_buffer <= 90)
                                     global_input_buffer += 32;
                                 input = insert(&global_input_buffer, input, 'c');
-                                foreground_color(global_settings.menucolor);
+                                foreground_color(global_settings.menu_color);
                             }
                             if (input == NULL) {
                                 draw_picture_buffer();
@@ -451,9 +456,8 @@ void print_word_message(const char *input_string) {
                             }
                             string = get_string_from_list(input);
                         }
-                        //string = malloc(10 * sizeof(char)); strcpy(string, "killi hexe dc");
                         free_tree(m_tree->messages);
-                        m_tree->words = NULL;
+                        m_tree->words = free_list(m_tree->words);
                         m_tree->words = insert(string, m_tree->words, 'p');
                         m_tree->messages = NULL;
                         char *token = strtok(string, " \n\0");
@@ -473,6 +477,7 @@ void print_word_message(const char *input_string) {
                             continue;
                         }
                         global_current_pos = 0;
+                        print_all_messages();
                         highlight_words(m_tree->messages, m_tree->words);
                         tab = m_tree->messages;
                         while (tab->left != NULL)
@@ -486,44 +491,40 @@ void print_word_message(const char *input_string) {
             } else {
                 global_input_buffer -= 256;
                 switch (global_input_buffer) {
-                    case key_down:
+                    case key_right:
                         if (global_current_pos < global_page_count * y_size - y_size) {
                             global_current_pos++;
                             draw_picture_buffer();
                         }
                         break;
-                    case key_up:
+                    case key_left:
                         if (global_current_pos > 0) {
                             global_current_pos--;
                             draw_picture_buffer();
                         }
                         break;
-                    case key_left:
+                    case key_up:
                         if (global_current_pos - y_size > 0) {
                             global_current_pos -= y_size;
                             draw_picture_buffer();
-                        } else if (global_current_pos != 0) {
-                            global_current_pos = 0;
-                            draw_picture_buffer();
                         }
                         break;
-                    case key_right:
+                    case key_down:
                         if (global_current_pos + y_size < global_page_count * y_size - y_size + 1) {
                             global_current_pos += y_size;
                             draw_picture_buffer();
-                        } else if (global_current_pos + y_size != global_page_count * y_size - y_size) {
-                            global_current_pos = (global_page_count - 1) * y_size;
-                            draw_picture_buffer();
                         }
                         break;
+                    default:
+                        break;
                 }
-                foreground_color(global_settings.menucolor);
+                foreground_color(global_settings.menu_color);
                 global_input_buffer = 0;
                 global_send_input = false;
             }
         } else {
             wait++;
-            Sleep(sync_delay / 4);
+            Sleep(sync_delay / 2);
         }
     }
     global_arrow_keys = 0;
