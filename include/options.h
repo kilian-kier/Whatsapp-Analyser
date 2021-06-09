@@ -20,6 +20,8 @@ void opt4();
 
 void opt1_4_1();
 
+void opt1_4_2();
+
 void opt1_4_2_1();
 
 void opt1_4_2_2();

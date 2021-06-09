@@ -69,6 +69,9 @@ void opt4() {
 void opt1_4_1() {
     dictionary_select(file);
 }
+void opt1_4_2(){
+    dictionary_main(0);
+}
 
 void opt1_4_2_1() {
     dictionary_main('A');

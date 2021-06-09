@@ -20,17 +20,17 @@ void main_menu() {
     temp = create_option(L"W\x94rterbuch", NULL, temp->parent, 0, 3, 0);
     temp = create_option(L"Zeit", NULL, temp->parent, 4, 1, 0);
 
-    temp = create_option(L"W\x94rterbuch", NULL, temp->parent, 3, 3, 0);
+    temp = create_option(L"W\x94rterbuch", &opt1_4_2, temp->parent, 2
+                         , 3, 0);
 
-    create_option(L"\x9a\x62\x65rblick", NULL, temp, 0, 0, EXECUTE_PARENT);
-    temp = create_option(L"Sortierung", NULL, temp, 4, 2, DONT_INIT_BUFFER);
+    temp = create_option(L"Sortierung", NULL, temp, 4, 1, DONT_INIT_BUFFER);
     create_option(L"Alphabet", &opt1_4_2_1, temp, 0, 0, DONT_INIT_BUFFER);
     create_option(L"L\x84nge", &opt1_4_2_2, temp, 0, 1, DONT_INIT_BUFFER);
     create_option(L"Anzahl", &opt1_4_2_3, temp, 0, 2, DONT_INIT_BUFFER);
     create_option(L"Richtung \x84ndern", &opt1_4_2_4, temp, 0, 3, DONT_INIT_BUFFER);
 
 
-    temp = create_option(L"Auswahl", &opt1_4_1, temp->parent, 1, 1, EXECUTE_PARENT);
+    temp = create_option(L"Auswahl", &opt1_4_1, temp->parent, 1, 0, EXECUTE_PARENT);
     create_option(NULL, NULL, temp, 0, 0, 0);
     temp = temp->parent;
 
