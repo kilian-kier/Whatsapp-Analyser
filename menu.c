@@ -29,6 +29,7 @@ void main_menu() {
     create_option(L"Anzahl", &opt1_4_2_3, temp, 0, 2, DONT_INIT_BUFFER);
     create_option(L"Richtung \x84ndern", &opt1_4_2_4, temp, 0, 3, DONT_INIT_BUFFER);
 
+
     temp = create_option(L"Auswahl", &opt1_4_1, temp->parent, 1, 1, EXECUTE_PARENT);
     create_option(NULL, NULL, temp, 0, 0, 0);
     temp = temp->parent;
@@ -86,7 +87,7 @@ void main_menu() {
         }
         if (temp->children[x - 1]->function != NULL) {
             temp->children[x - 1]->function();
-            if (temp->opt == NULL && file == NULL)
+            if (temp->opt == NULL && file == NULL && temp->children[x-1]->function!=print_settings_example)
                 continue;
         }
         if (temp->children[x - 1]->n_childs != 0) {
@@ -153,12 +154,18 @@ int menu(int select, Option_tree *option) {
         } while (input != 13 && input != 10);
     } else {
         do {
-            input = global_input_buffer;
-            Sleep(sync_delay / 2);
-        } while (input != 27 && input != 10);
-        global_input_buffer = 0;
-        if (input == '')
-            return 0;
+            do {
+                input = global_input_buffer;
+                Sleep(sync_delay / 2);
+            } while (input != 27 && input != 10);
+            global_input_buffer = 0;
+            switch (input) {
+                case '':
+                    return 0;
+                default:
+                    break;
+            }
+        } while (input != 13 && input != 10);
     }
     return select;
 }

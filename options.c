@@ -35,7 +35,6 @@ void opt0() {
         fclose(f);
         draw_picture("grafics\\icon.ppm", NULL, 0, 0, xsize, ysize);
     }
-
     free_memory();
 }
 

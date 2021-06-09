@@ -75,7 +75,6 @@ void *count_days() {
             year = ptr->year;
             for (int i = 0; i < global_settings.top_n; i++) {
                 if (n > global_day_arr[i].n) {
-                    // TODO: Insertion ohne an 2. Array
                     for (int j = i + 1; j < global_settings.top_n; j++) {
                         tmp[j] = global_day_arr[j - 1];
                     }

@@ -109,8 +109,8 @@ void print_word_stats(Dictionary *dict) {
 }
 
 int relative_word_count(Dictionary *ptr) {
-    int ret = 0;
     if (ptr == NULL) return 0;
+    int ret = 0;
     ret += 1;
     ret += relative_word_count(ptr->left);
     ret += relative_word_count(ptr->right);
@@ -145,7 +145,7 @@ Dictionary *get_string_tree(char *string, int size, const char *pointer) {
     int i = 0, j = 0;
     global_input_buffer = 0;
     global_send_input = false;
-    int run=true;
+    int run = true;
 
     List *suggestions = NULL;
     List *temp_suggestions = NULL;
@@ -166,7 +166,7 @@ Dictionary *get_string_tree(char *string, int size, const char *pointer) {
                 switch (global_input_buffer) {
                     case 10:
                     case 13:
-                        run=false;
+                        run = false;
                         break;
                     case 8:
                         if (i > 0) {
@@ -225,7 +225,7 @@ Dictionary *get_string_tree(char *string, int size, const char *pointer) {
                         changed_string = true;
                         break;
                 }
-                if(run==false){
+                if (run == false) {
                     break;
                 }
                 if (changed_string == true) {

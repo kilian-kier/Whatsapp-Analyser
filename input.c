@@ -12,15 +12,16 @@ char *get_string(char *string, int size, char *pointer) {
 
     List *suggestions = NULL;
     List *temp_suggestions = NULL;
+    Dictionary *last_suggestion = NULL;
     bool changed_string = true;
 
     printf("   ");
-        while (global_input_buffer != 13 && global_input_buffer != '\n') {
-            if (j % 66 < 33) {
-                cursor_blink(true,i);
-            } else {
-                cursor_blink(false,i);
-            }
+    while (global_input_buffer != 13 && global_input_buffer != '\n') {
+        if (j % 66 < 33) {
+            cursor_blink(true, i);
+        } else {
+            cursor_blink(false, i);
+        }
 
         if (global_send_input == true) {
             switch (global_input_buffer) {
@@ -101,7 +102,7 @@ _Noreturn void *input_thread() {
                         break;
                     }
                     switch (c) {
-                        case key_right:
+                        case key_down:
                             if (global_arrow_keys == 0) {
                                 if (global_current_pos < global_page_count * y_size - y_size) {
                                     global_current_pos++;
@@ -115,7 +116,7 @@ _Noreturn void *input_thread() {
                                     global_settings.top_n--;
                             }
                             break;
-                        case key_left:
+                        case key_up:
                             if (global_arrow_keys == 0) {
                                 if (global_current_pos > 0) {
                                     global_current_pos--;
@@ -126,7 +127,7 @@ _Noreturn void *input_thread() {
                             else if (global_arrow_keys == 2)
                                 global_settings.top_n++;
                             break;
-                        case key_up:
+                        case key_left:
                             if (global_arrow_keys == 0) {
                                 if (global_current_pos - y_size > 0) {
                                     global_current_pos -= y_size;
@@ -140,7 +141,7 @@ _Noreturn void *input_thread() {
                                     global_settings.top_n -= 10;
                             }
                             break;
-                        case key_down:
+                        case key_right:
                             if (global_arrow_keys == 0) {
                                 if (global_current_pos + y_size < global_page_count * y_size - y_size + 1) {
                                     global_current_pos += y_size;
@@ -197,7 +198,7 @@ List *get_suggestions_from_array(char **array, int size, char *search) {
         perror("malloc");
         return NULL;
     }
-    suggestions->next->next=NULL;
+    suggestions->next->next = NULL;
     suggestions->next->i.pointer = array[index];
 
     int temp_index = index;
@@ -234,6 +235,7 @@ void delete_n_char(int n) {
     CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
     GetConsoleScreenBufferInfo(hStdout, &bufferInfo);
     bufferInfo.dwCursorPosition.X -= n; // NOLINT(cppcoreguidelines-narrowing-conversions)
+
     SetConsoleCursorPosition(hStdout, bufferInfo.dwCursorPosition);
     for (int i = 0; i < n; i++) {
         printf(" ");

@@ -1,5 +1,6 @@
 #include "include/print_to_screen.h"
 
+
 void print_weekday() {
     pthread_join(*(pthread_t *) global_threads[0][0], NULL);
     pthread_join(*(pthread_t *) global_threads[2][0], NULL);
@@ -403,10 +404,12 @@ void print_word_message(const char *input_string) {
                 switch (global_input_buffer) {
                     case 0:
                         global_send_input = false;
-                        break;
+                        global_arrow_keys = 0;
+                        return;
                     case 9:
                         if (m_tree->messages != NULL) {
-                            if (shift != 0 && shift != 1) {
+                            shift = GetKeyState(VK_SHIFT);
+                            if (shift == -127 || shift == -128) {
                                 if (tab != NULL)
                                     tab = get_previous_item(tab);
                                 if (tab == NULL)
